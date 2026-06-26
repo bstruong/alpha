@@ -1,0 +1,6 @@
+results/
+bench_*.txt
+*.log
+__pycache__/
+.aider*.history*
+aider-test/
