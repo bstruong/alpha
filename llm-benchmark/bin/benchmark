@@ -5,7 +5,7 @@
 # a comparison table. Requires Ollama running locally with the models pulled.
 #
 #   bin/benchmark --models qwen3:14b
-#   bin/benchmark --models qwen3:14b,gemma4:12b,phi4:14b --runs 3
+#   bin/benchmark --models qwen3:14b,phi4:14b --runs 3
 #   bin/benchmark --models qwen3:14b --host http://localhost:11434
 
 require "optparse"
@@ -28,7 +28,7 @@ OptionParser.new do |parser|
 end.parse!
 
 if options[:models].empty?
-  abort "error: --models is required (e.g. --models qwen3:14b,gemma4:12b)"
+  abort "error: --models is required (e.g. --models qwen3:14b,phi4:14b)"
 end
 
 runner = BenchmarkRunner.new(

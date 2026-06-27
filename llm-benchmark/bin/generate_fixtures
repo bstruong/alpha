@@ -53,4 +53,4 @@ end
 
 puts "\nGenerated #{PLAN.size} fixtures in #{options[:root]}"
 puts "Review a few source.txt / expected.json pairs to confirm realism,"
-puts "then run: bin/benchmark --models qwen3:14b,gemma4:12b,phi4:14b"
+puts "then run: bin/benchmark --models qwen3:14b,phi4:14b"

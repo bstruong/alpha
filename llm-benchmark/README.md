@@ -29,11 +29,10 @@ cat fixtures/chase_bank_2024_01_clean/expected.json
 
 # 3. Pull the candidate models (check registry for newer point-releases first)
 ollama pull qwen3:14b
-ollama pull gemma4:12b
 ollama pull phi4:14b
 
 # 4. Run the benchmark
-bin/benchmark --models qwen3:14b,gemma4:12b,phi4:14b --runs 3
+bin/benchmark --models qwen3:14b,phi4:14b --runs 3
 ```
 
 ## What "ground truth" means here

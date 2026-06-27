@@ -78,9 +78,10 @@ class Scorer
     correct.to_f / wanted.size
   end
 
-  # A transaction matches if date, amount, and kind all match. Description
-  # is fuzzy (normalized) and is NOT part of the match key — vendors phrase
-  # descriptions inconsistently, so it would punish correct extractions.
+  # A transaction matches on date + signed amount only. BOTH description and
+  # kind hint are excluded from the match key: they are free-text fields that
+  # models phrase inconsistently (e.g. "debit"/"credit" vs the fixtures'
+  # "withdrawal"/"deposit"), so including them would punish correct extractions.
   def matched_count(expected, actual)
     remaining = actual_transactions(actual).map { |t| match_key(t) }
 
@@ -93,7 +94,7 @@ class Scorer
   end
 
   def match_key(txn)
-    [txn["posted_at"].to_s, txn["amount_cents"], txn["transaction_kind_hint"].to_s]
+    [txn["posted_at"].to_s, txn["amount_cents"]]
   end
 
   def expected_transactions(expected)
