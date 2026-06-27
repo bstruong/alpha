@@ -4,3 +4,7 @@ bench_*.txt
 __pycache__/
 .aider*.history*
 aider-test/
+
+# llm-benchmark generated fixtures (keep the dir, ignore contents)
+llm-benchmark/fixtures/*
+!llm-benchmark/fixtures/.gitkeep

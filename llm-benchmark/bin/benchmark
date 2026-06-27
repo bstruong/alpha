@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Runs the extraction benchmark across one or more Ollama models and prints
+# a comparison table. Requires Ollama running locally with the models pulled.
+#
+#   bin/benchmark --models qwen3:14b
+#   bin/benchmark --models qwen3:14b,gemma4:12b,phi4:14b --runs 3
+#   bin/benchmark --models qwen3:14b --host http://localhost:11434
+
+require "optparse"
+require_relative "../lib/benchmark_runner"
+
+options = {
+  root: File.expand_path("../fixtures", __dir__),
+  runs: 3,
+  host: "http://localhost:11434",
+  models: []
+}
+
+OptionParser.new do |parser|
+  parser.on("--models LIST", "Comma-separated Ollama model tags") do |v|
+    options[:models] = v.split(",").map(&:strip)
+  end
+  parser.on("--runs N", Integer, "Runs per fixture (default 3)") { |v| options[:runs] = v }
+  parser.on("--root DIR", "Fixture directory") { |v| options[:root] = v }
+  parser.on("--host URL", "Ollama host") { |v| options[:host] = v }
+end.parse!
+
+if options[:models].empty?
+  abort "error: --models is required (e.g. --models qwen3:14b,gemma4:12b)"
+end
+
+runner = BenchmarkRunner.new(
+  fixtures_root: options[:root],
+  runs: options[:runs],
+  client: OllamaClient.new(host: options[:host])
+)
+
+runner.run(models: options[:models])

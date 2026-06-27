@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Generates the synthetic ground-truth fixture set: source.txt + expected.json
+# pairs across bank, brokerage, and a messy layout. Deterministic via --seed,
+# so the set is reproducible.
+#
+#   bin/generate_fixtures              # default set, random seed
+#   bin/generate_fixtures --seed 42    # reproducible set
+#   bin/generate_fixtures --root ./fixtures --seed 42
+
+require "optparse"
+require_relative "../lib/statement_generator"
+require_relative "../lib/text_renderer"
+require_relative "../lib/fixture_writer"
+
+options = { root: File.expand_path("../fixtures", __dir__), seed: nil }
+OptionParser.new do |parser|
+  parser.on("--root DIR", "Fixture output directory") { |v| options[:root] = v }
+  parser.on("--seed N", Integer, "Random seed for reproducibility") { |v| options[:seed] = v }
+end.parse!
+
+generator = StatementGenerator.new(seed: options[:seed])
+writer = FixtureWriter.new(root: options[:root])
+
+# The fixture plan: vendor, kind, period, layout style. Spans easy → hard.
+PLAN = [
+  { slug: "chase",  kind: :bank,      year: 2024, month: 1, style: :clean },
+  { slug: "chase",  kind: :bank,      year: 2024, month: 3, style: :clean },
+  { slug: "bofa",   kind: :bank,      year: 2024, month: 2, style: :compact },
+  { slug: "bofa",   kind: :bank,      year: 2023, month: 12, style: :compact },
+  { slug: "schwab", kind: :brokerage, year: 2024, month: 1, style: :compact },
+  { slug: "schwab", kind: :brokerage, year: 2024, month: 4, style: :clean },
+  { slug: "chase",  kind: :bank,      year: 2024, month: 5, style: :messy },
+  { slug: "bofa",   kind: :bank,      year: 2024, month: 6, style: :messy },
+  { slug: "schwab", kind: :brokerage, year: 2024, month: 7, style: :messy }
+].freeze
+
+PLAN.each do |spec|
+  statement = generator.generate(
+    institution_slug: spec[:slug], kind: spec[:kind],
+    year: spec[:year], month: spec[:month]
+  )
+  source = TextRenderer.new(style: spec[:style]).render(statement)
+  name = format(
+    "%<slug>s_%<kind>s_%<year>d_%<month>02d_%<style>s",
+    slug: spec[:slug], kind: spec[:kind], year: spec[:year],
+    month: spec[:month], style: spec[:style]
+  )
+  dir = writer.write(name: name, source_text: source, statement: statement)
+  puts "wrote #{dir}"
+end
+
+puts "\nGenerated #{PLAN.size} fixtures in #{options[:root]}"
+puts "Review a few source.txt / expected.json pairs to confirm realism,"
+puts "then run: bin/benchmark --models qwen3:14b,gemma4:12b,phi4:14b"
