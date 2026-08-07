@@ -1,0 +1,6 @@
+label=A model=mistral-nemo:12b task=tA run_rc=124 secs=300s pre_rc=0 post_rc=0 post=[2 passed ] edited=[] difflines=0
+label=A model=mistral-nemo:12b task=tB run_rc=0 secs=11s pre_rc=1 post_rc=1 post=[1 failed 1 passed ] edited=[src/markitdown_runtime.py,] difflines=13
+label=A model=mistral-nemo:12b task=tC run_rc=0 secs=8s pre_rc=1 post_rc=1 post=[2 failed 8 passed ] edited=[src/url_safety.py,] difflines=24
+label=B model=qwen3:8b task=tA run_rc=0 secs=46s pre_rc=0 post_rc=0 post=[2 passed ] edited=[] difflines=0
+label=B model=qwen3:8b task=tB run_rc=0 secs=74s pre_rc=1 post_rc=2 post=[1 error 1 error ] edited=[src/markitdown_runtime.py,] difflines=18
+label=B model=qwen3:8b task=tC run_rc=0 secs=99s pre_rc=1 post_rc=2 post=[1 error 1 error ] edited=[src/url_safety.py,] difflines=40

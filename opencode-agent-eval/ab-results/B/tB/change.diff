@@ -1,0 +1,18 @@
+diff --git a/src/markitdown_runtime.py b/src/markitdown_runtime.py
+index b6fc961..21edeb1 100644
+--- a/src/markitdown_runtime.py
++++ b/src/markitdown_runtime.py
+@@ -24,11 +24,8 @@ MARKITDOWN_MISSING = (
+ MARKITDOWN_EXTS = frozenset({".docx", ".pptx", ".xlsx", ".xls", ".epub"})
+ 
+ 
+-def is_markitdown_format(path: str) -> bool:
+-    """True if the file extension is one we route through markitdown."""
+-    if not isinstance(path, str):
+-        return False
+-    return os.path.splitext(path)[1].lower() in MARKITDOWN_EXTS
++if not isinstance(path, str):
++    return False
+ 
+ 
+ def load_markitdown():
