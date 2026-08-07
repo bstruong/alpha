@@ -1,0 +1,120 @@
+........FF                                                               [100%]
+=================================== FAILURES ===================================
+_______________ test_resolver_values_must_include_a_parseable_ip _______________
+
+    def test_resolver_values_must_include_a_parseable_ip():
+>       ok, reason = check_outbound_url(
+            "https://example.test",
+            resolver=lambda _host: [None, 123, "not-an-ip"],
+        )
+
+tests/test_url_safety.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+url = 'https://example.test', block_private = False
+resolver = <function test_resolver_values_must_include_a_parseable_ip.<locals>.<lambda> at 0x7f6842424b80>
+
+    def check_outbound_url(
+        url: str,
+        *,
+        block_private: bool = False,
+        resolver: Optional[Callable[[str], List[str]]] = None,
+    ) -> Tuple[bool, str]:
+        """Validate a user-supplied outbound URL.
+    
+        Returns ``(ok, reason)``. ``ok`` is True only when the URL is safe to fetch.
+        ``resolver`` is injectable so callers/tests can avoid real DNS.
+        """
+        if not isinstance(url, str):
+            return False, "URL must be a string"
+        if not url or not url.strip():
+            return False, "URL is required"
+        try:
+            parsed = urlparse(url.strip())
+        except Exception as e:  # pragma: no cover - urlparse is very tolerant
+            return False, f"unparseable URL: {e}"
+    
+        if parsed.scheme.lower() not in ALLOWED_SCHEMES:
+            return False, f"scheme must be http or https, got '{parsed.scheme or '(none)'}'"
+        host = parsed.hostname
+        if not host:
+            return False, "URL has no host"
+    
+        resolve = resolver or _default_resolver
+        try:
+            raw_ips = resolve(host)
+        except Exception as e:
+            return False, f"host does not resolve: {e}"
+        if not raw_ips:
+            return False, "host does not resolve"
+    
+        for raw in raw_ips:
+>           ip = ipaddress.ip_address(raw.split("%")[0])  # strip IPv6 zone id
+                                      ^^^^^^^^^
+E           AttributeError: 'NoneType' object has no attribute 'split'
+
+src/url_safety.py:83: AttributeError
+___________ test_resolver_skips_invalid_values_but_accepts_public_ip ___________
+
+    def test_resolver_skips_invalid_values_but_accepts_public_ip():
+>       ok, reason = check_outbound_url(
+            "https://example.test",
+            resolver=lambda _host: [None, "not-an-ip", "93.184.216.34"],
+        )
+
+tests/test_url_safety.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+url = 'https://example.test', block_private = False
+resolver = <function test_resolver_skips_invalid_values_but_accepts_public_ip.<locals>.<lambda> at 0x7f68425bfe20>
+
+    def check_outbound_url(
+        url: str,
+        *,
+        block_private: bool = False,
+        resolver: Optional[Callable[[str], List[str]]] = None,
+    ) -> Tuple[bool, str]:
+        """Validate a user-supplied outbound URL.
+    
+        Returns ``(ok, reason)``. ``ok`` is True only when the URL is safe to fetch.
+        ``resolver`` is injectable so callers/tests can avoid real DNS.
+        """
+        if not isinstance(url, str):
+            return False, "URL must be a string"
+        if not url or not url.strip():
+            return False, "URL is required"
+        try:
+            parsed = urlparse(url.strip())
+        except Exception as e:  # pragma: no cover - urlparse is very tolerant
+            return False, f"unparseable URL: {e}"
+    
+        if parsed.scheme.lower() not in ALLOWED_SCHEMES:
+            return False, f"scheme must be http or https, got '{parsed.scheme or '(none)'}'"
+        host = parsed.hostname
+        if not host:
+            return False, "URL has no host"
+    
+        resolve = resolver or _default_resolver
+        try:
+            raw_ips = resolve(host)
+        except Exception as e:
+            return False, f"host does not resolve: {e}"
+        if not raw_ips:
+            return False, "host does not resolve"
+    
+        for raw in raw_ips:
+>           ip = ipaddress.ip_address(raw.split("%")[0])  # strip IPv6 zone id
+                                      ^^^^^^^^^
+E           AttributeError: 'NoneType' object has no attribute 'split'
+
+src/url_safety.py:83: AttributeError
+=============================== warnings summary ===============================
+core/database.py:17
+  /home/brian/odysseus/core/database.py:17: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_url_safety.py::test_resolver_values_must_include_a_parseable_ip
+FAILED tests/test_url_safety.py::test_resolver_skips_invalid_values_but_accepts_public_ip
+2 failed, 8 passed, 1 warning in 0.05s

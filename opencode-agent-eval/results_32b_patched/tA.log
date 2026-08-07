@@ -1,0 +1,7 @@
+[0m
+> build · qwen2.5-coder-tools:32b
+[0m
+[0m→ [0mRead services/youtube/youtube_handler.py
+}
+{"name": "edit", "arguments": {"filePath": "/home/brian/odysseus/services/youtube/youtube_handler.py", "oldString": "def is_youtube_url(url):", "newString": 'def is_youtube_url(url):\n    """Returns True for youtube.com or youtu.be URLs and False for anything else including non-strings."""', "replaceAll": false}}
+{"name": "edit", "arguments": {"filePath": "/home/brian/odysseus/services/youtube/youtube_handler.py", "oldString": "def is_youtube_url(url):", "newString": 'def is_youtube_url(url):\n    """Returns True for youtube.com or youtu.be URLs and False for anything else including non-strings."""', "replaceAll": false}}
