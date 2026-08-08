@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:15:52.445672106Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/models/concerns/archivable.rb\nmodule Archivable\n  extend ActiveSupport::Concern\n\n  included do\n    # Add the archived column to the model's table\n    add_column :archived, :boolean, default: false\n\n    # Define a scope for active records (not archived)\n    scope :active, -> { where(archived: false) }\n  end\n\n  # Instance method to archive an instance\n  def archive!\n    update!(archived: true)\n  end\nend\n\n# app/models/article.rb\nclass Article < ApplicationRecord\n  include Archivable\nend\n\n# app/models/order.rb\nclass Order < ApplicationRecord\n  include Archivable\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 9669533615,
+  "load_duration": 83564014,
+  "prompt_eval_count": 105,
+  "prompt_eval_duration": 69373000,
+  "eval_count": 147,
+  "eval_duration": 9511534000
+}

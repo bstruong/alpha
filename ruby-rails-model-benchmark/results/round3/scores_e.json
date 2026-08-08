@@ -1,0 +1,128 @@
+[
+  {
+    "prompt": "E1",
+    "model": "qwen3:8b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 53506\n\n# Running:\n\nRESULT: PASS\n.\n\nFinished in 0.084481s, 11.8370 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 0 errors, 0 skips\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E1",
+    "model": "qwen3:8b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 38542\n\n# Running:\n\nRESULT: PASS\n.\n\nFinished in 0.089751s, 11.1420 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 0 errors, 0 skips\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E1",
+    "model": "qwen3:8b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 39265\n\n# Running:\n\nRESULT: PASS\n.\n\nFinished in 0.076576s, 13.0590 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 0 errors, 0 skips\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E2",
+    "model": "qwen3:8b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E2",
+    "model": "qwen3:8b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E2",
+    "model": "qwen3:8b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E3",
+    "model": "qwen3:8b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception TypeError: wrong argument type Class (expected Module)",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception TypeError: wrong argument type Class (expected Module)\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E3",
+    "model": "qwen3:8b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception TypeError: wrong argument type Class (expected Module)",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception TypeError: wrong argument type Class (expected Module)\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  },
+  {
+    "prompt": "E3",
+    "model": "qwen3:8b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NameError: uninitialized constant Ransack::Scoping",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NameError: uninitialized constant Ransack::Scoping\n",
+      "err": ""
+    },
+    "hallucinated_api": null
+  }
+]

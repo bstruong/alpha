@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T16:48:35.363718072Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\n# config/application.rb\nmodule YourApp\n  class Application < Rails::Application\n    # Other configurations...\n\n    # Add additional assets to the asset pipeline\n    config.assets.precompile += %w( your_stylesheet.css )\n\n    # Configure where precompiled assets are stored\n    config.assets.prefix = '/your-assets'\n  end\nend\n```\n\n# Create a new stylesheet file in app/assets/stylesheets/your_stylesheet.css.scss\n/* Add your styles here */\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 2638304230,
+  "load_duration": 57523393,
+  "prompt_eval_count": 53,
+  "prompt_eval_duration": 20761000,
+  "eval_count": 120,
+  "eval_duration": 2554190000
+}

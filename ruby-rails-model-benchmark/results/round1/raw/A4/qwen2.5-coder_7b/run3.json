@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T16:39:11.026353457Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\ndef extract_emails(text)\n  # Define a regex pattern for matching emails\n  email_pattern = /\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b/\n  \n  # Use the g flag to get all matches as an array\n  found_emails = text.scan(email_pattern)\n  \n  # Flatten in case there are nested arrays and remove duplicates using uniq\n  unique_emails = found_emails.flatten.uniq\n  \n  # Sort emails alphabetically\n  sorted_emails = unique_emails.sort\n  \n  sorted_emails\nend\n\n# Example usage:\ntext = \"Please contact us at support@example.com or sales@example.co.uk. Thank you!\"\nputs extract_emails(text).inspect\n```\n\nThis method uses a regular expression to find all substrings that match the pattern of a valid email address. It then flattens any nested arrays, removes duplicates using `uniq`, and sorts the emails alphabetically before returning them as an array."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 3269288561,
+  "load_duration": 82393983,
+  "prompt_eval_count": 75,
+  "prompt_eval_duration": 15263000,
+  "eval_count": 207,
+  "eval_duration": 3169052000
+}

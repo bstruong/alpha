@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:09:34.207838562Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add pagination to the `ArticlesController#index` action using the Kaminari gem, you first need to ensure that the gem is included in your `Gemfile` and then run `bundle install`.\n\nHere's how you can modify the `ArticlesController`:\n\n```ruby\n# Gemfile\ngem 'kaminari'\n\n# app/controllers/articles_controller.rb\nclass ArticlesController < ApplicationController\n  def index\n    @articles = Article.order(created_at: :desc).page(params[:page]).per(10)\n  end\nend\n```\n\nIn the view file (e.g., `app/views/articles/index.html.erb`), you'll need to include the pagination links:\n\n```erb\n<% @articles.each do |article| %>\n  <p><%= article.title %></p>\n<% end %>\n\n<%= paginate @articles %>\n```\n\nThis code sets up pagination for the articles, displaying 10 articles per page. The `page(params[:page])` method fetches the current page of records based on the `:page` parameter passed through the URL. The `per(10)` method specifies that each page should contain 10 records."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 3810563575,
+  "load_duration": 82212950,
+  "prompt_eval_count": 64,
+  "prompt_eval_duration": 15298000,
+  "eval_count": 243,
+  "eval_duration": 3710836000
+}

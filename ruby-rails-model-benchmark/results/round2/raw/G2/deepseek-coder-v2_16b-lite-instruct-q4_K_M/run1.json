@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T17:21:17.541068213Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\nrequire 'test_helper'\n\nclass UserTest < ActiveSupport::TestCase\n  test \"should validate presence of email\" do\n    user = User.new(email: nil)\n    assert_not user.valid?\n    assert user.errors[:email].any?\n  end\n\n  test \"should validate uniqueness of email (case-insensitive)\" do\n    user1 = User.create!(email: 'test@example.com', username: 'user1', age: 25)\n    user2 = User.new(email: 'TEST@EXAMPLE.COM')\n    assert_not user2.valid?\n    assert user2.errors[:email].any?\n  end\n\n  test \"should validate presence of username\" do\n    user = User.new(username: nil)\n    assert_not user.valid?\n    assert user.errors[:username].any?\n  end\n\n  test \"should validate length of username between 3 and 20\" do\n    user = User.new(username: 'ab')\n    assert_not user.valid?\n    assert user.errors[:username].any?\n\n    user = User.new(username: 'a' * 21)\n    assert_not user.valid?\n    assert user.errors[:username].any?\n  end\n\n  test \"should validate age is numeric or nil\" do\n    user = User.new(age: 'invalid')\n    assert_not user.valid?\n    assert user.errors[:age].any?\n\n    user = User.new(age: nil)\n    assert user.valid?\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 8850657615,
+  "load_duration": 58159131,
+  "prompt_eval_count": 96,
+  "prompt_eval_duration": 285816000,
+  "eval_count": 371,
+  "eval_duration": 8498539000
+}

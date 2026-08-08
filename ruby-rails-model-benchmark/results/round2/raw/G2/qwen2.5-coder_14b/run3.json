@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:18:07.247929499Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nrequire 'test_helper'\n\nclass UserTest < ActiveSupport::TestCase\n  test \"should not save without an email\" do\n    user = User.new(email: \"\", username: \"username\", age: 30)\n    assert_not user.save, \"Saved the user without an email\"\n  end\n\n  test \"email must be unique (case-insensitive)\" do\n    existing_user = users(:one)\n    user_with_same_email = User.new(email: existing_user.email.downcase, username: \"username\", age: 30)\n    assert_not user_with_same_email.save, \"Saved the user with a duplicate email\"\n  end\n\n  test \"should not save without a username\" do\n    user = User.new(email: \"user@example.com\", username: \"\", age: 30)\n    assert_not user.save, \"Saved the user without a username\"\n  end\n\n  test \"username must have length between 3 and 20\" do\n    short_username_user = User.new(email: \"user@example.com\", username: \"us\", age: 30)\n    long_username_user = User.new(email: \"user@example.com\", username: \"a\"*21, age: 30)\n\n    assert_not short_username_user.save, \"Saved the user with a too-short username\"\n    assert_not long_username_user.save, \"Saved the user with a too-long username\"\n  end\n\n  test \"age must be numeric but may be nil\" do\n    valid_user = User.new(email: \"user@example.com\", username: \"username\", age: 30)\n    invalid_age_user = User.new(email: \"user@example.com\", username: \"username\", age: \"thirty\")\n\n    assert valid_user.save, \"Did not save the user with a valid numeric age\"\n    assert_not invalid_age_user.save, \"Saved the user with an invalid age\"\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 26154451578,
+  "load_duration": 82459655,
+  "prompt_eval_count": 98,
+  "prompt_eval_duration": 65794000,
+  "eval_count": 397,
+  "eval_duration": 25999796000
+}

@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:15:58.929678904Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nclass ArticlesController < ApplicationController\n  def create\n    @article = Article.new(article_params)\n\n    if @article.save\n      redirect_to @article, notice: 'Article was successfully created.'\n    else\n      render :new\n    end\n  end\n\n  private\n\n  def article_params\n    params.require(:article).permit(:title, :content, comments_attributes: [:id, :content, :_destroy])\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 6483258484,
+  "load_duration": 83344285,
+  "prompt_eval_count": 83,
+  "prompt_eval_duration": 181548000,
+  "eval_count": 97,
+  "eval_duration": 6211972000
+}

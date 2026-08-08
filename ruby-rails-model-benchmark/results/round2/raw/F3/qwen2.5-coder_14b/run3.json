@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:15:13.951687514Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nclass Order < ApplicationRecord\n  after_save :set_shipped_at, if: -> { status_changed_to_shipped? }\n\n  private\n\n  def set_shipped_at\n    update_column(:shipped_at, Time.current) if shipped?\n  end\n\n  def status_changed_to_shipped?\n    saved_change_to_attribute?(:status) && status == 'shipped'\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5602691436,
+  "load_duration": 80841002,
+  "prompt_eval_count": 87,
+  "prompt_eval_duration": 64557000,
+  "eval_count": 85,
+  "eval_duration": 5455873000
+}

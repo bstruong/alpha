@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T17:20:21.48538611Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\n# In your Article model (app/models/article.rb)\nclass Article < ApplicationRecord\n  include PgSearch::Model\n\n  pg_search_scope :search_by_content, against: [:title, :body], using: {\n    tsearch: { prefix: true } # Enable full-text search with prefix enabled\n  }\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 2019346011,
+  "load_duration": 58324801,
+  "prompt_eval_count": 70,
+  "prompt_eval_duration": 238340000,
+  "eval_count": 84,
+  "eval_duration": 1707704000
+}

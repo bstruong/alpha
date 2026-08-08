@@ -1,0 +1,137 @@
+[
+  {
+    "prompt": "R1",
+    "model": "qwen3:8b",
+    "run": 1,
+    "code_extracted": true,
+    "idiom": "pre-3.1-explicit",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "RESULT: FAIL: could not call method either style: ArgumentError: wrong number of arguments (given 3, expected 0)",
+    "stdout": "RESULT: FAIL: could not call method either style: ArgumentError: wrong number of arguments (given 3, expected 0)"
+  },
+  {
+    "prompt": "R1",
+    "model": "qwen3:8b",
+    "run": 2,
+    "code_extracted": true,
+    "idiom": "pre-3.1-explicit",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "RESULT: FAIL: could not call method either style: ArgumentError: wrong number of arguments (given 3, expected 0)",
+    "stdout": "RESULT: FAIL: could not call method either style: ArgumentError: wrong number of arguments (given 3, expected 0)"
+  },
+  {
+    "prompt": "R1",
+    "model": "qwen3:8b",
+    "run": 3,
+    "code_extracted": true,
+    "idiom": "pre-3.1-explicit",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "RESULT: FAIL: could not call method either style: ArgumentError: wrong number of arguments (given 3, expected 0)",
+    "stdout": "RESULT: FAIL: could not call method either style: ArgumentError: wrong number of arguments (given 3, expected 0)"
+  },
+  {
+    "prompt": "R2",
+    "model": "qwen3:8b",
+    "run": 1,
+    "code_extracted": true,
+    "idiom": "pre-3.2-hand-rolled-class",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "PASS",
+    "stdout": "RESULT: PASS"
+  },
+  {
+    "prompt": "R2",
+    "model": "qwen3:8b",
+    "run": 2,
+    "code_extracted": true,
+    "idiom": "pre-3.2-hand-rolled-class",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "PASS",
+    "stdout": "RESULT: PASS"
+  },
+  {
+    "prompt": "R2",
+    "model": "qwen3:8b",
+    "run": 3,
+    "code_extracted": true,
+    "idiom": "pre-3.2-hand-rolled-class",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "PASS",
+    "stdout": "RESULT: PASS"
+  },
+  {
+    "prompt": "R3",
+    "model": "qwen3:8b",
+    "run": 1,
+    "code_extracted": true,
+    "idiom": "pre-3.2-explicit-splat-args-only",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "RESULT: FAIL: got args=[1, 2, {:foo=>\"bar\"}] kwargs={} block=\"blockval\"",
+    "stdout": "RESULT: FAIL: got args=[1, 2, {:foo=>\"bar\"}] kwargs={} block=\"blockval\""
+  },
+  {
+    "prompt": "R3",
+    "model": "qwen3:8b",
+    "run": 2,
+    "code_extracted": true,
+    "idiom": "pre-3.2-explicit-splat-args-only",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "RESULT: FAIL: got args=[1, 2, {:foo=>\"bar\"}] kwargs={} block=nil",
+    "stdout": "RESULT: FAIL: got args=[1, 2, {:foo=>\"bar\"}] kwargs={} block=nil"
+  },
+  {
+    "prompt": "R3",
+    "model": "qwen3:8b",
+    "run": 3,
+    "code_extracted": true,
+    "idiom": "pre-3.2-explicit-splat",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "PASS",
+    "stdout": "RESULT: PASS"
+  },
+  {
+    "prompt": "R4",
+    "model": "qwen3:8b",
+    "run": 1,
+    "code_extracted": true,
+    "idiom": "explicit-named-param",
+    "block_body": "|n| n * 2",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "PASS",
+    "stdout": "RESULT: PASS"
+  },
+  {
+    "prompt": "R4",
+    "model": "qwen3:8b",
+    "run": 2,
+    "code_extracted": true,
+    "idiom": "explicit-named-param",
+    "block_body": "|n| n * 2",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "PASS",
+    "stdout": "RESULT: PASS"
+  },
+  {
+    "prompt": "R4",
+    "model": "qwen3:8b",
+    "run": 3,
+    "code_extracted": true,
+    "idiom": "explicit-named-param",
+    "block_body": "|n| n * 2",
+    "it_trap": false,
+    "executes": true,
+    "behavior": "PASS",
+    "stdout": "RESULT: PASS"
+  }
+]

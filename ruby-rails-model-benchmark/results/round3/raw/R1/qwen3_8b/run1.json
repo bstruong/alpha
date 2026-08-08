@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-08-08T17:48:50.369137518Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\ndef build_user_hash\n  {\n    name: name,\n    age: age,\n    email: email\n  }\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 648929289,
+  "load_duration": 81907585,
+  "prompt_eval_count": 68,
+  "prompt_eval_duration": 33554000,
+  "eval_count": 31,
+  "eval_duration": 525350000
+}

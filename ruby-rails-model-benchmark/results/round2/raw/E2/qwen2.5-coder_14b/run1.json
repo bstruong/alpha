@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:13:07.346649396Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  has_one_attached :cover_image\n\n  # Validation for image type and size (optional)\n  validates_content_type_of :cover_image, allow: ['image/jpeg', 'image/png']\n  validates_size_of :cover_image, less_than_or_equal_to: 5.megabytes\nend\n```\n\n```ruby\n# app/controllers/articles_controller.rb\nclass ArticlesController < ApplicationController\n  def new\n    @article = Article.new\n  end\n\n  def create\n    @article = Article.new(article_params)\n    if @article.save\n      redirect_to @article, notice: 'Article was successfully created.'\n    else\n      render :new\n    end\n  end\n\n  private\n\n  def article_params\n    params.require(:article).permit(:title, :content, :cover_image)\n  end\nend\n```\n\n```erb\n<!-- app/views/articles/_form.html.erb -->\n<%= form_with(model: article) do |f| %>\n  <%= f.label :title %>\n  <%= f.text_field :title %>\n\n  <%= f.label :content %>\n  <%= f.text_area :content %>\n\n  <%= f.label :cover_image %>\n  <%= f.file_field :cover_image %>\n\n  <%= f.submit %>\n<% end %>\n```\n\n```ruby\n# config/routes.rb\nRails.application.routes.draw do\n  resources :articles\nend\n```\n\nEnsure you have run `rails active_storage:install` and `rails db:migrate` to set up ActiveStorage."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 21705760256,
+  "load_duration": 83789583,
+  "prompt_eval_count": 64,
+  "prompt_eval_duration": 366959000,
+  "eval_count": 325,
+  "eval_duration": 21251518000
+}

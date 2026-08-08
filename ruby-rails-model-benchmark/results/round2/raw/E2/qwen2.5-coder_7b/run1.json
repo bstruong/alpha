@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:09:41.654342437Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add file upload support for an `Article` model using Rails' ActiveStorage and allow a single attached image called `cover_image`, you need to perform a few steps.\n\nFirst, ensure that your database migration is set up correctly. Run the following command to generate a migration that adds an attachment column to your `articles` table:\n\n```bash\nrails generate migration AddCoverImageToArticles cover_image:attachment\n```\n\nThen, apply the migration by running:\n\n```bash\nrails db:migrate\n```\n\nNext, update your `Article` model to include the ActiveStorage functionality for attachments. Modify the `app/models/article.rb` file as follows:\n\n```ruby\nclass Article < ApplicationRecord\n  has_one_attached :cover_image\nend\n```\n\nWith these changes in place, you can now attach a single image to an instance of the `Article` model using ActiveStorage. Here's how you might update an existing article or create a new one with a cover image:\n\n```ruby\n# Create a new article with a cover image\narticle = Article.new(title: \"My First Article\")\nfile_path = Rails.root.join('public', 'images', 'my_image.jpg')\narticle.cover_image.attach(io: File.open(file_path), filename: 'my_image.jpg')\narticle.save!\n\n# Update an existing article with a new cover image\nexisting_article = Article.find(1)\nnew_file_path = Rails.root.join('public', 'images', 'new_image.jpg')\nexisting_article.cover_image.attach(io: File.open(new_file_path), filename: 'new_image.jpg')\nexisting_article.save!\n```\n\nIn the views, you can display the attached image using helpers provided by ActiveStorage. For example, in a form to update an article:\n\n```erb\n<%= form_with model: @article do |form| %>\n  <%= form.file_field :cover_image %>\n  <%= form.submit \"Save\" %>\n<% end %>\n\n<!-- Displaying the cover image -->\n<% if @article.cover_image.attached? %>\n  <%= image_tag @article.cover_image, alt: @article.title %>\n<% else %>\n  <p>No cover image available</p>\n<% end %>\n```\n\nThese steps will add file upload support to your `Article` model using Rails' ActiveStorage, allowing a single attached image called `cover_image`."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 7445590305,
+  "load_duration": 81739877,
+  "prompt_eval_count": 64,
+  "prompt_eval_duration": 27470000,
+  "eval_count": 478,
+  "eval_duration": 7333314000
+}
