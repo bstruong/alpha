@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:15:42.775472674Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/models/concerns/archivable.rb\nmodule Archivable\n  extend ActiveSupport::Concern\n\n  included do\n    # Add an archived boolean column if not already present\n    after_initialize :set_default_archived_status, if: :new_record?\n\n    def set_default_archived_status\n      self.archived ||= false\n    end\n  end\n\n  class_methods do\n    # Scope to get only non-archived records\n    scope :active, -> { where(archived: false) }\n  end\n\n  # Instance method to archive a record\n  def archive!\n    update!(archived: true)\n  end\nend\n\n# app/models/article.rb\nclass Article < ApplicationRecord\n  include Archivable\nend\n\n# app/models/order.rb\nclass Order < ApplicationRecord\n  include Archivable\nend\n```\n\nThis code defines an `Archivable` concern with the specified behavior. It includes methods and scopes that can be reused across multiple models like `Article` and `Order`."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 13829037647,
+  "load_duration": 81876347,
+  "prompt_eval_count": 105,
+  "prompt_eval_duration": 65787000,
+  "eval_count": 210,
+  "eval_duration": 13675545000
+}

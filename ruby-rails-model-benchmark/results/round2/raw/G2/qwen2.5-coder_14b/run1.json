@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:17:21.488579337Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nrequire 'test_helper'\n\nclass UserTest < ActiveSupport::TestCase\n  # Test email presence\n  test \"email should be present\" do\n    user = User.new(username: \"john_doe\", age: 30)\n    assert_not user.valid?\n    assert_includes user.errors[:email], \"can't be blank\"\n  end\n\n  # Test email uniqueness (case-insensitive)\n  test \"email should be unique (case-insensitive)\" do\n    User.create(email: \"jane@example.com\", username: \"jane_doe\", age: 25)\n    user = User.new(email: \"JANE@EXAMPLE.COM\", username: \"another_user\", age: 30)\n    assert_not user.valid?\n    assert_includes user.errors[:email], \"has already been taken\"\n  end\n\n  # Test username presence and length\n  test \"username should be present with length between 3 and 20\" do\n    user = User.new(email: \"john@example.com\", age: 30)\n    assert_not user.valid?\n    assert_includes user.errors[:username], \"is too short\"\n\n    user.username = \"j\"\n    assert_not user.valid?\n    assert_includes user.errors[:username], \"is too short\"\n\n    user.username = \"a\" * 21\n    assert_not user.valid?\n    assert_includes user.errors[:username], \"is too long\"\n\n    user.username = \"valid_user\"\n    assert user.valid?\n  end\n\n  # Test age numeric and nil allowed\n  test \"age should be numeric and nil allowed\" do\n    user = User.new(email: \"john@example.com\", username: \"john_doe\")\n    assert user.valid?\n\n    user.age = -1\n    assert_not user.valid?\n    assert_includes user.errors[:age], \"must be a number\"\n\n    user.age = 1234567890\n    assert_not user.valid?\n    assert_includes user.errors[:age], \"must be a number\"\n\n    user.age = 30\n    assert user.valid?\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 29391184946,
+  "load_duration": 84963770,
+  "prompt_eval_count": 98,
+  "prompt_eval_duration": 214194000,
+  "eval_count": 444,
+  "eval_duration": 29086385000
+}

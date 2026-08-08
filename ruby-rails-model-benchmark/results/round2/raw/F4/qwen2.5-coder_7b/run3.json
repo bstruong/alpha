@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:10:22.640958585Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/concerns/archivable.rb\nmodule Archivable\n  extend ActiveSupport::Concern\n\n  included do\n    scope :active, -> { where(archived: false) }\n    store_accessors :settings, :archived\n  end\n\n  def archive!\n    self.archived = true\n    save!\n  end\nend\n```\n\n```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  include Archivable\nend\n```\n\n```ruby\n# app/models/order.rb\nclass Order < ApplicationRecord\n  include Archivable\nend\n```\n\nThis setup allows both `Article` and `Order` models to have an `archived?` boolean flag, an `archive!` method that marks the record as archived and saves it, and a class method `active` to retrieve only non-archived records."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 2814442337,
+  "load_duration": 82212885,
+  "prompt_eval_count": 105,
+  "prompt_eval_duration": 16107000,
+  "eval_count": 178,
+  "eval_duration": 2713280000
+}

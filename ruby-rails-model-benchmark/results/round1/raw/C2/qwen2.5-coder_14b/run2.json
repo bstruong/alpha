@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T16:44:56.852597096Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add user authentication to your Rails application, you can use the popular `devise` gem. Here's how to integrate it:\n\n1. Add the `devise` gem to your Gemfile:\n\n```ruby\ngem 'devise'\n```\n\n2. Run `bundle install` to install the gem.\n\n3. Set up Devise by running:\n\n```bash\nrails generate devise:install\n```\n\n4. Configure action mailer default URL options in `config/environments/development.rb` if you're setting up email functionality for confirmations, etc.:\n\n```ruby\nconfig.action_mailer.default_url_options = { host: 'localhost', port: 3000 }\n```\n\n5. Generate a User model with Devise:\n\n```bash\nrails generate devise User\n```\n\n6. Run the migrations:\n\n```bash\nrails db:migrate\n```\n\n7. You can now use Devise's authentication helpers in your controllers and views. For example, to restrict access to certain actions, you can use:\n\n```ruby\nclass PostsController < ApplicationController\n  before_action :authenticate_user!, only: [:new, :create]\nend\n```\n\n8. To display links for login/logout/etc., you can add the following to your views (e.g., in `app/views/layouts/application.html.erb`):\n\n```erb\n<% if user_signed_in? %>\n  <%= current_user.email %> |\n  <%= link_to 'Edit profile', edit_user_registration_path %> |\n  <%= link_to 'Logout', destroy_user_session_path, method: :delete %>\n<% else %>\n  <%= link_to 'Sign up', new_user_registration_path %> |\n  <%= link_to 'Login', new_user_session_path %>\n<% end %>\n```\n\nThis setup provides a basic user authentication system using Devise. You can customize it further according to your application's needs."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 25294932664,
+  "load_duration": 81350466,
+  "prompt_eval_count": 47,
+  "prompt_eval_duration": 66272000,
+  "eval_count": 384,
+  "eval_duration": 25141478000
+}

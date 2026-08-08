@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T17:20:41.185401073Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\nclass Order < ApplicationRecord\n  after_update :set_shipped_at, if: -> { status_changed? && status == 'shipped' }\n\n  private\n\n  def set_shipped_at\n    self.shipped_at = Time.current\n    save\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1603452353,
+  "load_duration": 58681657,
+  "prompt_eval_count": 85,
+  "prompt_eval_duration": 20679000,
+  "eval_count": 74,
+  "eval_duration": 1522451000
+}

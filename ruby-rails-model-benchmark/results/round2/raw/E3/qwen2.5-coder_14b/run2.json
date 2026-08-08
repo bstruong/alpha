@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:14:02.755139836Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# Add this to your Article model\n\nclass Article < ApplicationRecord\n  # Include RansackableAttributes if you're using ransack v3+\n  include Ransack::Searchable\n\n  # Define a custom search method for fuzzy/partial-match search\n  def self.search(query)\n    ransack(title_or_body_cont: query).result(distinct: true)\n  end\nend\n```\n\nThis code snippet adds a `search` class method to the `Article` model that uses Ransack's flexible querying capabilities to perform a partial match search across both the `title` and `body` fields of articles. The `cont` predicate is used for case-insensitive contains searches, and `distinct: true` ensures that duplicate records are not returned."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 10559422435,
+  "load_duration": 80334471,
+  "prompt_eval_count": 72,
+  "prompt_eval_duration": 65529000,
+  "eval_count": 161,
+  "eval_duration": 10408901000
+}

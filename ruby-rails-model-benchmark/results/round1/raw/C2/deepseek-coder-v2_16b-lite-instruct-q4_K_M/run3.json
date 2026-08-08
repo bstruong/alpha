@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T16:48:19.405650776Z",
+  "message": {
+    "role": "assistant",
+    "content": " To add user authentication to your Rails app, you can use the `devise` gem, which provides a full-featured authentication solution for Rails applications. Here's how to install and configure it:\n\n1. Add the `devise` gem to your Gemfile and run `bundle install`:\n    ```ruby\n    gem 'devise'\n    ```\n\n2. Generate Devise files with the following command:\n    ```sh\n    rails generate devise:install\n    ```\n\n3. Create a new user model (if it doesn't already exist):\n    ```sh\n    rails generate devise User\n    ```\n\n4. Run migrations to create necessary tables in your database:\n    ```sh\n    rake db:migrate\n    ```\n\n5. Include Devise routes in `config/routes.rb`:\n    ```ruby\n    Rails.application.routes.draw do\n      # other routes\n      devise_for :users\n    end\n    ```\n\n6. Generate a new controller for registrations, if needed:\n    ```sh\n    rails generate devise:controllers users\n    ```\n\n7. Configure Devise in `config/environments/development.rb` (optional):\n    ```ruby\n    config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }\n    ```\n\n8. Run the server and test authentication routes:\n    ```sh\n    rails s\n    ```\n\nNow, you have a basic user authentication system using Devise in your Rails app."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 7633871726,
+  "load_duration": 57870996,
+  "prompt_eval_count": 44,
+  "prompt_eval_duration": 22057000,
+  "eval_count": 337,
+  "eval_duration": 7547267000
+}

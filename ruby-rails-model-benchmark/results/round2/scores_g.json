@@ -1,0 +1,512 @@
+[
+  {
+    "prompt": "G1",
+    "model": "qwen2.5-coder:7b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 1, 'assertions': 0, 'failures': 0, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 63732\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'unpublished' found for fixture set 'posts'\n    test/integration/bench_g1_generated_test.rb:5:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:4\n\n\n\nFinished in 0.039881s, 25.0749 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 51041\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'unpublished' found for fixture set 'posts'\n    test/integration/bench_g1_generated_test.rb:5:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:4\n\n\n\nFinished in 0.030086s, 33.2384 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "qwen2.5-coder:7b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 1, 'assertions': 0, 'failures': 0, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 39510\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nNoMethodError: undefined method `create' for an instance of PostsControllerTest\n    test/integration/bench_g1_generated_test.rb:5:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:4\n\n\n\nFinished in 0.033160s, 30.1565 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 60803\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nNoMethodError: undefined method `create' for an instance of PostsControllerTest\n    test/integration/bench_g1_generated_test.rb:5:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:4\n\n\n\nFinished in 0.030728s, 32.5431 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "qwen2.5-coder:7b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 1, 'assertions': 0, 'failures': 0, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 59342\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'admin' found for fixture set 'users'\n    test/integration/bench_g1_generated_test.rb:6:in `setup'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:9\n\n\n\nFinished in 0.034725s, 28.7979 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 48552\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'admin' found for fixture set 'users'\n    test/integration/bench_g1_generated_test.rb:6:in `setup'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:9\n\n\n\nFinished in 0.034305s, 29.1504 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "qwen2.5-coder:7b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 5, 'assertions': 7, 'failures': 1, 'errors': 0, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 5,
+        "assertions": 7,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 5,
+        "assertions": 7,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 53312\n\n# Running:\n\n..F\n\nFailure:\nUserTest#test_age_must_be_numeric_but_may_be_nil [test/models/bench_g2_generated_test.rb:38]:\nExpected false to be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:33\n\n..\n\nFinished in 0.029715s, 168.2652 runs/s, 235.5713 assertions/s.\n5 runs, 7 assertions, 1 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 56901\n\n# Running:\n\n.F\n\nFailure:\nUserTest#test_age_must_be_numeric_but_may_be_nil [test/models/bench_g2_generated_test.rb:38]:\nExpected false to be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:33\n\n.F\n\nFailure:\nUserTest#test_email_must_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:17]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:13\n\n.\n\nFinished in 0.030743s, 162.6388 runs/s, 227.6943 assertions/s.\n5 runs, 7 assertions, 2 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "qwen2.5-coder:7b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 6, 'assertions': 8, 'failures': 0, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 6,
+        "assertions": 8,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 6,
+        "assertions": 8,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 6 tests in a single process (parallelization threshold is 50)\nRun options: --seed 35114\n\n# Running:\n\n.....E\n\nError:\nUserTest#test_email_must_be_unique_(case-insensitive):\nNoMethodError: undefined method `create' for an instance of UserTest\n    test/models/bench_g2_generated_test.rb:15:in `block in <class:UserTest>'\n\nbin/rails test test/models/bench_g2_generated_test.rb:14\n\n\n\nFinished in 0.034267s, 175.0962 runs/s, 233.4615 assertions/s.\n6 runs, 8 assertions, 0 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 6 tests in a single process (parallelization threshold is 50)\nRun options: --seed 35918\n\n# Running:\n\n.....E\n\nError:\nUserTest#test_email_must_be_unique_(case-insensitive):\nNoMethodError: undefined method `create' for an instance of UserTest\n    test/models/bench_g2_generated_test.rb:15:in `block in <class:UserTest>'\n\nbin/rails test test/models/bench_g2_generated_test.rb:14\n\n\n\nFinished in 0.024012s, 249.8731 runs/s, 333.1641 assertions/s.\n6 runs, 8 assertions, 0 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "qwen2.5-coder:7b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 7, 'assertions': 12, 'failures': 5, 'errors': 0, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 7,
+        "assertions": 12,
+        "failures": 5,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 7,
+        "assertions": 11,
+        "failures": 5,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "ation threshold is 50)\nRun options: --seed 15706\n\n# Running:\n\nF\n\nFailure:\nUserTest#test_email_must_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:23]:\n--- expected\n+++ actual\n@@ -1 +1 @@\n-[\"has already been taken\"]\n+[\"Email has already been taken\"]\n\n\nbin/rails test test/models/bench_g2_generated_test.rb:19\n\nF\n\nFailure:\nUserTest#test_age_must_be_numeric_if_present [test/models/bench_g2_generated_test.rb:50]:\nExpected: [\"is not a number\"]\n  Actual: [\"Age is not a number\"]\n\nbin/rails test test/models/bench_g2_generated_test.rb:47\n\nF\n\nFailure:\nUserTest#test_username_must_be_present [test/models/bench_g2_generated_test.rb:29]:\n--- expected\n+++ actual\n@@ -1 +1 @@\n-[\"can't be blank\"]\n+[\"Username can't be blank\", \"Username is too short (minimum is 3 characters)\"]\n\n\nbin/rails test test/models/bench_g2_generated_test.rb:26\n\n.F\n\nFailure:\nUserTest#test_email_must_be_present [test/models/bench_g2_generated_test.rb:16]:\nExpected: [\"can't be blank\"]\n  Actual: [\"Email can't be blank\"]\n\nbin/rails test test/models/bench_g2_generated_test.rb:13\n\nF\n\nFailure:\nUserTest#test_username_length_must_be_between_3_and_20_characters [test/models/bench_g2_generated_test.rb:35]:\n--- expected\n+++ actual\n@@ -1 +1 @@\n-[\"is too short (minimum is 3 characters)\"]\n+[\"Username is too short (minimum is 3 characters)\"]\n\n\nbin/rails test test/models/bench_g2_generated_test.rb:32\n\n.\n\nFinished in 0.034406s, 203.4528 runs/s, 348.7762 assertions/s.\n7 runs, 12 assertions, 5 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 7 tests in a single process (parallelization threshold is 50)\nRun options: --seed 54470\n\n# Running:\n\nF\n\nFailure:\nUserTest#test_email_must_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:22]:\nExpected true to not be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:19\n\nF\n\nFailure:\nUserTest#test_email_must_be_present [test/models/bench_g2_generated_test.rb:16]:\nExpected: [\"can't be blank\"]\n  Actual: [\"Email can't be blank\"]\n\nbin/rails test test/models/bench_g2_generated_test.rb:13\n\nF\n\nFailure:\nUserTest#test_username_must_be_present [test/models/bench_g2_generated_test.rb:29]:\n--- expected\n+++ actual\n@@ -1 +1 @@\n-[\"can't be blank\"]\n+[\"Username can't be blank\", \"Username is too short (minimum is 3 characters)\"]\n\n\nbin/rails test test/models/bench_g2_generated_test.rb:26\n\n.F\n\nFailure:\nUserTest#test_username_length_must_be_between_3_and_20_characters [test/models/bench_g2_generated_test.rb:35]:\n--- expected\n+++ actual\n@@ -1 +1 @@\n-[\"is too short (minimum is 3 characters)\"]\n+[\"Username is too short (minimum is 3 characters)\"]\n\n\nbin/rails test test/models/bench_g2_generated_test.rb:32\n\n.F\n\nFailure:\nUserTest#test_age_must_be_numeric_if_present [test/models/bench_g2_generated_test.rb:50]:\nExpected: [\"is not a number\"]\n  Actual: [\"Age is not a number\"]\n\nbin/rails test test/models/bench_g2_generated_test.rb:47\n\n\n\nFinished in 0.035647s, 196.3680 runs/s, 308.5782 assertions/s.\n7 runs, 11 assertions, 5 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "qwen2.5-coder:14b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 2, 'assertions': 0, 'failures': 0, 'errors': 2, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 2,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 2,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 2,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 2,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 2 tests in a single process (parallelization threshold is 50)\nRun options: --seed 55096\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_not_publish_a_post_if_user_is_not_admin:\nStandardError: No fixture named 'admin' found for fixture set 'users'\n    test/integration/bench_g1_generated_test.rb:6:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:19\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'admin' found for fixture set 'users'\n    test/integration/bench_g1_generated_test.rb:6:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:9\n\n\n\nFinished in 0.037990s, 52.6456 runs/s, 0.0000 assertions/s.\n2 runs, 0 assertions, 0 failures, 2 errors, 0 skips\n",
+      "out_vs_broken": "Running 2 tests in a single process (parallelization threshold is 50)\nRun options: --seed 54793\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'admin' found for fixture set 'users'\n    test/integration/bench_g1_generated_test.rb:6:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:9\n\nE\n\nError:\nPostsControllerTest#test_should_not_publish_a_post_if_user_is_not_admin:\nStandardError: No fixture named 'admin' found for fixture set 'users'\n    test/integration/bench_g1_generated_test.rb:6:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:19\n\n\n\nFinished in 0.040017s, 49.9789 runs/s, 0.0000 assertions/s.\n2 runs, 0 assertions, 0 failures, 2 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "qwen2.5-coder:14b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": false,
+    "behavior": "FAIL: test malformed / did not run (rc=1): e/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'",
+    "detail": {
+      "summary_vs_correct": null,
+      "summary_vs_broken": null,
+      "out_vs_correct": "",
+      "out_vs_broken": ""
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "qwen2.5-coder:14b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 1, 'assertions': 0, 'failures': 0, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 2376\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'draft' found for fixture set 'posts'\n    test/integration/bench_g1_generated_test.rb:6:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:10\n\n\n\nFinished in 0.033542s, 29.8136 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 14778\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_a_post:\nStandardError: No fixture named 'draft' found for fixture set 'posts'\n    test/integration/bench_g1_generated_test.rb:6:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:10\n\n\n\nFinished in 0.033300s, 30.0300 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "qwen2.5-coder:14b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 4, 'assertions': 11, 'failures': 2, 'errors': 0, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 4,
+        "assertions": 11,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 4,
+        "assertions": 9,
+        "failures": 3,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 4 tests in a single process (parallelization threshold is 50)\nRun options: --seed 51400\n\n# Running:\n\n.F\n\nFailure:\nUserTest#test_age_should_be_numeric_and_nil_allowed [test/models/bench_g2_generated_test.rb:43]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:38\n\n.F\n\nFailure:\nUserTest#test_username_should_be_present_with_length_between_3_and_20 [test/models/bench_g2_generated_test.rb:23]:\nExpected [\"can't be blank\", \"is too short (minimum is 3 characters)\"] to include \"is too short\".\n\nbin/rails test test/models/bench_g2_generated_test.rb:20\n\n\n\nFinished in 0.031038s, 128.8750 runs/s, 354.4062 assertions/s.\n4 runs, 11 assertions, 2 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 4 tests in a single process (parallelization threshold is 50)\nRun options: --seed 51659\n\n# Running:\n\nF\n\nFailure:\nUserTest#test_username_should_be_present_with_length_between_3_and_20 [test/models/bench_g2_generated_test.rb:23]:\nExpected [\"can't be blank\", \"is too short (minimum is 3 characters)\"] to include \"is too short\".\n\nbin/rails test test/models/bench_g2_generated_test.rb:20\n\nF\n\nFailure:\nUserTest#test_age_should_be_numeric_and_nil_allowed [test/models/bench_g2_generated_test.rb:43]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:38\n\nF\n\nFailure:\nUserTest#test_email_should_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:15]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:12\n\n.\n\nFinished in 0.031952s, 125.1880 runs/s, 281.6729 assertions/s.\n4 runs, 9 assertions, 3 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "qwen2.5-coder:14b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 7, 'assertions': 9, 'failures': 1, 'errors': 0, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 7,
+        "assertions": 9,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 7,
+        "assertions": 9,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 7 tests in a single process (parallelization threshold is 50)\nRun options: --seed 64899\n\n# Running:\n\n...F\n\nFailure:\nUserTest#test_email_should_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:20]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:17\n\n...\n\nFinished in 0.034567s, 202.5039 runs/s, 260.3621 assertions/s.\n7 runs, 9 assertions, 1 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 7 tests in a single process (parallelization threshold is 50)\nRun options: --seed 34395\n\n# Running:\n\nF\n\nFailure:\nUserTest#test_email_should_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:20]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:17\n\n......\n\nFinished in 0.030264s, 231.2989 runs/s, 297.3843 assertions/s.\n7 runs, 9 assertions, 1 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "qwen2.5-coder:14b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS: correctly passes against correct implementation and fails against broken implementation",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 5,
+        "assertions": 7,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 5,
+        "assertions": 7,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 45353\n\n# Running:\n\n.....\n\nFinished in 0.030636s, 163.2066 runs/s, 228.4892 assertions/s.\n5 runs, 7 assertions, 0 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 29991\n\n# Running:\n\n.F\n\nFailure:\nUserTest#test_email_must_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:12]:\nSaved the user with a duplicate email\n\nbin/rails test test/models/bench_g2_generated_test.rb:9\n\n...\n\nFinished in 0.028194s, 177.3444 runs/s, 248.2821 assertions/s.\n5 runs, 7 assertions, 1 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": true,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 1, 'assertions': 4, 'failures': 1, 'errors': 0, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 4,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 4,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 56294\n\n# Running:\n\nF\n\nFailure:\nPostsControllerTest#test_should_publish_post [test/integration/bench_g1_generated_test.rb:14]:\n--- expected\n+++ actual\n@@ -1 +1 @@\n-\"Post was successfully published.\"\n+\"Post has been published\"\n\n\nbin/rails test test/integration/bench_g1_generated_test.rb:8\n\n\n\nFinished in 0.061401s, 16.2864 runs/s, 65.1455 assertions/s.\n1 runs, 4 assertions, 1 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 4147\n\n# Running:\n\nF\n\nFailure:\nPostsControllerTest#test_should_publish_post [test/integration/bench_g1_generated_test.rb:14]:\n--- expected\n+++ actual\n@@ -1 +1 @@\n-\"Post was successfully published.\"\n+\"Post has been published\"\n\n\nbin/rails test test/integration/bench_g1_generated_test.rb:8\n\n\n\nFinished in 0.048696s, 20.5355 runs/s, 82.1422 assertions/s.\n1 runs, 4 assertions, 1 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: FALSE POSITIVE \u2014 test passes against BOTH correct and deliberately-broken implementations (does not actually test the behavior)",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 2,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 2,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 41617\n\n# Running:\n\n.\n\nFinished in 0.055884s, 17.8942 runs/s, 35.7884 assertions/s.\n1 runs, 2 assertions, 0 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 18304\n\n# Running:\n\n.\n\nFinished in 0.060963s, 16.4033 runs/s, 32.8067 assertions/s.\n1 runs, 2 assertions, 0 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": true,
+    "passes_broken_impl": true,
+    "false_positive": true
+  },
+  {
+    "prompt": "G1",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: FALSE POSITIVE \u2014 test passes against BOTH correct and deliberately-broken implementations (does not actually test the behavior)",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 4,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 4,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 4242\n\n# Running:\n\n.\n\nFinished in 0.056897s, 17.5757 runs/s, 70.3029 assertions/s.\n1 runs, 4 assertions, 0 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 62258\n\n# Running:\n\n.\n\nFinished in 0.056347s, 17.7471 runs/s, 70.9883 assertions/s.\n1 runs, 4 assertions, 0 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": true,
+    "passes_broken_impl": true,
+    "false_positive": true
+  },
+  {
+    "prompt": "G2",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 5, 'assertions': 13, 'failures': 1, 'errors': 0, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 5,
+        "assertions": 13,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 5,
+        "assertions": 13,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 31951\n\n# Running:\n\n....F\n\nFailure:\nUserTest#test_should_validate_age_is_numeric_or_nil [test/models/bench_g2_generated_test.rb:39]:\nExpected false to be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:33\n\n\n\nFinished in 0.034082s, 146.7065 runs/s, 381.4370 assertions/s.\n5 runs, 13 assertions, 1 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 65515\n\n# Running:\n\n...F\n\nFailure:\nUserTest#test_should_validate_age_is_numeric_or_nil [test/models/bench_g2_generated_test.rb:39]:\nExpected false to be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:33\n\nF\n\nFailure:\nUserTest#test_should_validate_uniqueness_of_email_(case-insensitive) [test/models/bench_g2_generated_test.rb:14]:\nExpected false to be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:10\n\n\n\nFinished in 0.033118s, 150.9745 runs/s, 392.5338 assertions/s.\n5 runs, 13 assertions, 2 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 5, 'assertions': 16, 'failures': 1, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 5,
+        "assertions": 16,
+        "failures": 1,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 5,
+        "assertions": 16,
+        "failures": 1,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 50633\n\n# Running:\n\n...E\n\nError:\nUserTest#test_should_validate_uniqueness_of_email_case-insensitively:\nActiveRecord::RecordInvalid: Validation failed: Username can't be blank, Username is too short (minimum is 3 characters)\n    test/models/bench_g2_generated_test.rb:11:in `block in <class:UserTest>'\n\nbin/rails test test/models/bench_g2_generated_test.rb:10\n\nF\n\nFailure:\nUserTest#test_should_validate_numericality_of_age_allowing_nil [test/models/bench_g2_generated_test.rb:39]:\nExpected false to be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:33\n\n\n\nFinished in 0.036694s, 136.2607 runs/s, 436.0342 assertions/s.\n5 runs, 16 assertions, 1 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 28281\n\n# Running:\n\nE\n\nError:\nUserTest#test_should_validate_uniqueness_of_email_case-insensitively:\nActiveRecord::RecordInvalid: Validation failed: Username can't be blank, Username is too short (minimum is 3 characters)\n    test/models/bench_g2_generated_test.rb:11:in `block in <class:UserTest>'\n\nbin/rails test test/models/bench_g2_generated_test.rb:10\n\n...F\n\nFailure:\nUserTest#test_should_validate_numericality_of_age_allowing_nil [test/models/bench_g2_generated_test.rb:39]:\nExpected false to be truthy.\n\nbin/rails test test/models/bench_g2_generated_test.rb:33\n\n\n\nFinished in 0.034986s, 142.9151 runs/s, 457.3282 assertions/s.\n5 runs, 16 assertions, 1 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS: correctly passes against correct implementation and fails against broken implementation",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 5,
+        "assertions": 19,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 5,
+        "assertions": 17,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 23185\n\n# Running:\n\n.....\n\nFinished in 0.035273s, 141.7497 runs/s, 538.6488 assertions/s.\n5 runs, 19 assertions, 0 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 5 tests in a single process (parallelization threshold is 50)\nRun options: --seed 2696\n\n# Running:\n\n....F\n\nFailure:\nUserTest#test_should_validate_uniqueness_of_email_(case-insensitive) [test/models/bench_g2_generated_test.rb:13]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:10\n\n\n\nFinished in 0.037696s, 132.6414 runs/s, 450.9808 assertions/s.\n5 runs, 17 assertions, 1 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": true,
+    "passes_broken_impl": false,
+    "false_positive": false
+  }
+]

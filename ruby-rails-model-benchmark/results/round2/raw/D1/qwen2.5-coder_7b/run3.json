@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:09:00.558853761Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nclass Order < ApplicationRecord\n  after_commit :enqueue_order_processor_job, on: [:create]\n\n  private\n\n  def enqueue_order_processor_job\n    OrderProcessorJob.perform_later(self)\n  end\nend\n\nclass OrderProcessorJob < ApplicationJob\n  queue_as :default\n\n  def perform(order)\n    # Process the order logic here\n    puts \"Processing order #{order.id}\"\n  end\nend\n```\n\nIn this solution, `after_commit` ensures that `enqueue_order_processor_job` is called only after a new `Order` has been successfully saved to the database. The `perform_later` method of `ApplicationJob` queues an instance of `OrderProcessorJob`, passing the current `Order` as an argument. This guarantees that the order processing job does not run until the order is committed, thus ensuring data consistency and integrity."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 2793937953,
+  "load_duration": 82087671,
+  "prompt_eval_count": 91,
+  "prompt_eval_duration": 15178000,
+  "eval_count": 177,
+  "eval_duration": 2695249000
+}

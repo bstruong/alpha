@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-08-08T17:48:19.937803807Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\ndef article_params\n  params.require(:article).permit(\n    :title, :content, :published,\n    comments_attributes: [:id, :content, :_destroy]\n  )\nend\n```\n\nThis method permits the necessary fields for an `Article` and its associated `Comments`, ensuring that only the permitted attributes are allowed, and preventing over-permission. The `:_destroy` key is used to support deletion of associated comments via nested attributes."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1708202664,
+  "load_duration": 83411562,
+  "prompt_eval_count": 91,
+  "prompt_eval_duration": 16885000,
+  "eval_count": 96,
+  "eval_duration": 1606525000
+}

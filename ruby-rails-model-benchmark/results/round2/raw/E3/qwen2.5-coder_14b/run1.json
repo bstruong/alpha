@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:13:52.194761972Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# Add this to your Article model (app/models/article.rb)\nclass Article < ApplicationRecord\n  include Ransack::Adapters::ActiveRecord::Base\n\n  # Define a ransacker for fuzzy search\n  ransacker :fuzzy_search, type: :string do |parent|\n    Arel.sql(\"to_tsvector('english', title || ' ' || body) @@ plainto_tsquery(:q)\")\n  end\nend\n```\n\nTo use this scope, you can now perform a search like so:\n\n```ruby\n# In your controller or wherever appropriate\n@articles = Article.ransack(fuzzy_search_cont: params[:search_query]).result(distinct: true)\n```\n\nThis setup uses PostgreSQL's full-text search capabilities to provide a fuzzy/partial-match search across the `title` and `body` fields of the `Article` model. Make sure your database is using PostgreSQL for this to work."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 12714597781,
+  "load_duration": 81928599,
+  "prompt_eval_count": 72,
+  "prompt_eval_duration": 178623000,
+  "eval_count": 193,
+  "eval_duration": 12448473000
+}

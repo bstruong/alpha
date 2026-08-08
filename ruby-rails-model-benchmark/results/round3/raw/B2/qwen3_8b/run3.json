@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-08-08T17:46:06.95467618Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nclass User < ApplicationRecord\n  validates :email, presence: true, uniqueness: { case_insensitive: true }\n  validates :username, presence: true, length: { in: 3..20 }\n  validates :age, numericality: true, allow_nil: true\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1177376015,
+  "load_duration": 80788334,
+  "prompt_eval_count": 103,
+  "prompt_eval_duration": 16843000,
+  "eval_count": 65,
+  "eval_duration": 1078283000
+}

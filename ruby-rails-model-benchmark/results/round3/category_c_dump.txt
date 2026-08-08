@@ -1,0 +1,425 @@
+===== C1 | run1 =====
+```ruby
+# config/schedule.rb
+every '0 5 * * *' do
+  runner "User.send_welcome_emails"
+end
+```
+
+```ruby
+# app/jobs/user_job.rb
+class UserJob < ApplicationJob
+  queue_as :default
+
+  def perform(user_id)
+    user = User.find(user_id)
+    UserMailer.welcome_email(user).deliver_later
+  end
+end
+```
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  after_create :enqueue_welcome_job
+
+  private
+
+  def enqueue_welcome_job
+    UserJob.perform_later(self.id)
+  end
+end
+```
+
+```ruby
+# app/mailers/user_mailer.rb
+class UserMailer < ApplicationMailer
+  def welcome_email(user)
+    @user = user
+    mail to: @user.email, subject: 'Welcome to Our App!'
+  end
+end
+```
+
+```ruby
+# config/application.rb
+module YourApp
+  class Application < Rails::Application
+    config.active_job.queue_adapter = :sidekiq
+  end
+end
+```
+
+Make sure to install and configure Sidekiq for background job processing.
+
+===== C1 | run2 =====
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  root "users#new"
+  post "/signup", to: "users#create"
+end
+
+# app/controllers/users_controller.rb
+class UsersController < ApplicationController
+  def new
+    @user = User.new
+  end
+
+  def create
+    @user = User.new(user_params)
+    if @user.save
+      AsyncMailer.welcome_email(@user).deliver_later
+      redirect_to root_path, notice: "Welcome!"
+    else
+      render :new
+    end
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:email, :password)
+  end
+end
+
+# app/jobs/async_mailer_job.rb
+class AsyncMailerJob < ApplicationJob
+  queue_as :default
+
+  def perform(user)
+    UserMailer.welcome_email(user).deliver_now
+  end
+end
+
+# app/mailers/user_mailer.rb
+class UserMailer < ApplicationMailer
+  default from: "no-reply@example.com"
+
+  def welcome_email(user)
+    @user = user
+    mail to: @user.email, subject: "Welcome to Our App!"
+  end
+end
+
+# app/views/user_mailer/welcome_email.html.erb
+<h1>Welcome, <%= @user.email %>!</h1>
+<p>Thank you for signing up. We're excited to have you on board!</p>
+```
+
+Make sure to run `rails generate mailer UserMailer` if you haven't already.
+
+===== C1 | run3 =====
+```ruby
+# app/jobs/welcome_email_job.rb
+class WelcomeEmailJob < ApplicationJob
+  queue_as :default
+
+  def perform(user_id)
+    user = User.find(user_id)
+    UserMailer.welcome_email(user).deliver_now
+  end
+end
+```
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  after_create :enqueue_welcome_email
+
+  private
+
+  def enqueue_welcome_email
+    WelcomeEmailJob.perform_later(self.id)
+  end
+end
+```
+
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  resources :users, only: [:create]
+end
+```
+
+```ruby
+# config/sidekiq.yml
+:concurrency: 5
+:queues:
+  - default
+```
+
+```bash
+# Install Sidekiq and Redis
+gem 'sidekiq'
+gem 'redis'
+
+# Then run:
+bundle install
+rails g sidekiq:worker
+rails db:migrate
+```
+
+```bash
+# Start Sidekiq
+sidekiq
+```
+
+===== C2 | run1 =====
+To add user authentication to your Rails app, you can use the `devise` gem. Here's how to do it step-by-step:
+
+1. **Add Devise to Gemfile:**
+
+```ruby
+# Gemfile
+gem 'devise'
+```
+
+2. **Install the Gem:**
+
+```bash
+bundle install
+```
+
+3. **Generate Devise Models:**
+
+```bash
+rails generate devise:install
+rails generate devise User
+rails db:migrate
+```
+
+4. **Update `config/routes.rb`:**
+
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  devise_for :users
+  # Your other routes go here
+end
+```
+
+5. **Update `app/models/user.rb`:**
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable
+end
+```
+
+6. **Add Authentication to Your Controllers (e.g., `app/controllers/application_controller.rb`):**
+
+```ruby
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  before_action :authenticate_user!
+end
+```
+
+7. **Add Sign-In/Out Links to Your Layout (e.g., `app/views/layouts/application.html.erb`):**
+
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MyApp</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
+  <%= javascript_pack_tag 'application', 'data-turbo-track': 'reload' %>
+</head>
+
+<body>
+  <nav>
+    <%= link_to 'Sign In', new_user_session_path if !current_user %>
+    <%= link_to 'Sign Out', destroy_user_session_path if current_user %>
+  </nav>
+
+  <%= yield %>
+</body>
+</html>
+```
+
+Now your app has user authentication using Devise.
+
+===== C2 | run2 =====
+To add user authentication to your Rails app, you can use the `devise` gem. Here's how to do it step-by-step:
+
+1. Add `devise` to your Gemfile and run `bundle install`.
+2. Generate the Devise model.
+3. Run the migration.
+4. Set up routes.
+5. Set up the views.
+
+Here's the complete code:
+
+```ruby
+# Gemfile
+gem 'devise'
+```
+
+```bash
+bundle install
+rails generate devise:install
+rails generate devise User
+rails db:migrate
+```
+
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  devise_for :users
+  # Your other routes here
+end
+```
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable
+end
+```
+
+```erb
+<!-- app/views/devise/registrations/edit.html.erb -->
+<%= form_for(resource, as: resource, url: registration_path(resource_name), method: :put) do |f| %>
+  <%= f.label :email %>
+  <%= f.email_field :email, autofocus: true %>
+
+  <%= f.label :password %>
+  <%= f.password_field :password, autocomplete: "new-password" %>
+
+  <%= f.label :password_confirmation %>
+  <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+
+  <%= f.submit "Update" %>
+<% end %>
+```
+
+That's a basic setup. Customize views and add user roles as needed.
+
+===== C2 | run3 =====
+To add user authentication to your Rails app, we'll use **Devise**, a popular authentication solution. Below is the complete setup:
+
+```ruby
+# Gemfile
+gem 'devise'
+```
+
+```bash
+# Run bundle install and generate Devise models
+bundle install
+rails generate devise:install
+rails generate devise User
+rails db:migrate
+```
+
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  devise_for :users
+  root to: "home#index"
+end
+```
+
+```ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable
+end
+```
+
+```erb
+<!-- app/views/home/index.html.erb -->
+<% if user_signed_in? %>
+  <p>Hello, <%= current_user.email %>!</p>
+  <%= link_to 'Sign Out', destroy_user_session_path, method: :delete %>
+<% else %>
+  <%= link_to 'Sign In', new_user_session_path %>
+  <%= link_to 'Sign Up', new_user_registration_path %>
+<% end %>
+```
+
+This sets up user authentication with sign-in, sign-up, password recovery, and session management.
+
+===== C3 | run1 =====
+To configure the asset pipeline in a Rails app to compile and serve a new stylesheet, follow these steps:
+
+1. **Create the stylesheet file** in `app/assets/stylesheets/` (e.g., `custom.css.scss`).
+
+2. **Add the stylesheet to the asset pipeline** by editing `app/assets/config/manifest.js`:
+
+```js
+// app/assets/config/manifest.js
+//= link custom.css
+```
+
+3. **Ensure the stylesheet is included in the layout** by editing `app/views/layouts/application.html.erb`:
+
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<%= stylesheet_link_tag "application", media: "all" %>
+```
+
+4. **Restart the Rails server** if it's running, to ensure changes take effect.
+
+5. **Precompile assets** for production (optional, if needed):
+
+```bash
+rails assets:precompile
+```
+
+This will make the stylesheet available in development and production environments.
+
+===== C3 | run2 =====
+```ruby
+# config/application.rb
+module YourApp
+  class Application < Rails::Application
+    # Add new stylesheet to asset pipeline
+    config.assets.paths << Rails.root.join('app', 'assets', 'stylesheets', 'custom')
+  end
+end
+```
+
+```erb
+<!-- app/assets/stylesheets/application.css -->
+/*
+ *= require custom/custom_stylesheet
+ */
+```
+
+```scss
+/* app/assets/stylesheets/custom/custom_stylesheet.scss */
+body {
+  background-color: lightblue;
+}
+```
+
+===== C3 | run3 =====
+To configure the asset pipeline in a Rails app to compile and serve a new stylesheet, follow these steps:
+
+1. Place your stylesheet in the `app/assets/stylesheets` directory (e.g., `app/assets/stylesheets/custom.css.scss`).
+2. Ensure the file is named with the `.css.scss` or `.css.erb` extension for SCSS or ERB support.
+3. Add the stylesheet to the asset pipeline configuration.
+
+```ruby
+# config/application.rb
+module YourApp
+  class Application < Rails::Application
+    # Precompile additional assets (application.js, application.css, and all non-JS/CSS files in app/assets/assets)
+    config.assets.precompile += %w( custom.css.scss )
+  end
+end
+```
+
+4. Restart the Rails server if it's running, or use `rails assets:precompile` to precompile assets.
+
+Now your new stylesheet will be compiled and served by the asset pipeline.
+

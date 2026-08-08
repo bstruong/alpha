@@ -1,0 +1,24 @@
+{
+  "D1": {"category":"D","text":"Write a Rails model method `process_order` on an `Order` model that saves the order within a database transaction and enqueues an `OrderProcessorJob` to run afterward, ensuring the job cannot start running before the order is actually committed to the database."},
+  "D2": {"category":"D","text":"Write a Rails config snippet or initializer you would add to a Rails app to enable YJIT for better performance in production."},
+  "D3": {"category":"D","text":"Write a Rails initializer that checks the running Ruby version at application boot and raises a clear error if it is below the minimum Ruby version required by this Rails app."},
+  "D4": {"category":"D","text":"Write ActiveRecord model callbacks on an `Order` model: one that logs a message immediately after a database transaction successfully commits, and a separate one that logs a message when a transaction rolls back."},
+
+  "E1": {"category":"E","text":"Add pagination to the `ArticlesController#index` action using the Kaminari gem, showing 10 articles per page."},
+  "E2": {"category":"E","text":"Add file upload support to the `Article` model using Rails ActiveStorage, allowing a single attached image called `cover_image`."},
+  "E3": {"category":"E","text":"Add a fuzzy/partial-match search scope to the `Article` model using the ransack gem, searching across the `title` and `body` fields."},
+
+  "F1": {"category":"F","text":"Add a has_many :through association: a `Doctor` has_many :patients, through: :appointments, and an `Appointment` belongs_to both a `Doctor` and a `Patient`. Write the three model class bodies."},
+  "F2": {"category":"F","text":"Add a polymorphic `Comment` model (with a `body` text field) that can belong to either an `Article` or a `Post`, using Rails' polymorphic association pattern. Write the `Comment` model and the association lines needed on `Article` and `Post`."},
+  "F3": {"category":"F","text":"Add a callback to the `Order` model that sets `shipped_at` to the current time, but only when the `status` is changed to \"shipped\", and only after the record has actually been saved to the database."},
+  "F4": {"category":"F","text":"Extract shared 'archivable' behavior into a reusable Rails Concern: an `archived` boolean flag, an `archive!` method that sets it true and saves, and a `scope :active` that excludes archived records. Show the Concern module and how to include it in the `Article` and `Order` models."},
+  "F5": {"category":"F","text":"Write the strong parameters method in `ArticlesController` for a form that creates an `Article` and its associated `Comments` in one submission using nested attributes, permitting only the appropriate fields and not over-permitting."},
+
+  "G1": {"category":"G","text":"Write a Minitest integration or controller test for a Rails `PostsController#publish` action. The action transitions a post's status to \"published\", sets `published_at` to the current time, and redirects back to the post with a flash notice on success."},
+  "G2": {"category":"G","text":"Write a Minitest model test for a Rails `User` model with these validations: `email` must be present and unique (case-insensitive), `username` must be present with length between 3 and 20, and `age` must be numeric but may be nil."},
+
+  "R1": {"category":"H","text":"Write a Ruby method that builds a hash from local variables `name`, `age`, and `email`."},
+  "R2": {"category":"H","text":"Define an immutable Point value object with `x` and `y` attributes in Ruby."},
+  "R3": {"category":"H","text":"Write a Ruby method `wrapper` that accepts any arguments and forwards all of them, unnamed, to another method called `target`."},
+  "R4": {"category":"H","text":"Write a Ruby block that doubles each number in an array using the implicit block parameter shorthand, without naming the parameter explicitly."}
+}

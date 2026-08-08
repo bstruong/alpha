@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T17:21:51.702131711Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\nnumbers = [1, 2, 3, 4, 5]\ndoubled_numbers = numbers.map { |number| number * 2 }\nputs doubled_numbers\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1001451610,
+  "load_duration": 56507704,
+  "prompt_eval_count": 60,
+  "prompt_eval_duration": 20355000,
+  "eval_count": 46,
+  "eval_duration": 923033000
+}

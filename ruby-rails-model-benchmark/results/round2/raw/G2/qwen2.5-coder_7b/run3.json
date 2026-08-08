@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:10:53.160516526Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nrequire 'test_helper'\n\nclass UserTest < ActiveSupport::TestCase\n  test \"user is valid with all required attributes\" do\n    user = User.new(\n      email: \"test@example.com\",\n      username: \"tester123\",\n      age: 25\n    )\n    assert user.valid?\n  end\n\n  test \"email must be present\" do\n    user = User.new(username: \" tester123\", age: 25)\n    refute user.valid?\n    assert_equal [\"can't be blank\"], user.errors.full_messages_for(:email)\n  end\n\n  test \"email must be unique (case-insensitive)\" do\n    first_user = User.create(email: \"test@example.com\", username: \"tester123\", age: 25)\n    second_user = User.new(email: \"TEST@EXAMPLE.COM\", username: \"anotheruser\", age: 30)\n    refute second_user.valid?\n    assert_equal [\"has already been taken\"], second_user.errors.full_messages_for(:email)\n  end\n\n  test \"username must be present\" do\n    user = User.new(email: \"test@example.com\", age: 25)\n    refute user.valid?\n    assert_equal [\"can't be blank\"], user.errors.full_messages_for(:username)\n  end\n\n  test \"username length must be between 3 and 20 characters\" do\n    too_short_user = User.new(email: \"test@example.com\", username: \"hi\", age: 25)\n    refute too_short_user.valid?\n    assert_equal [\"is too short (minimum is 3 characters)\"], too_short_user.errors.full_messages_for(:username)\n\n    too_long_user = User.new(email: \"test@example.com\", username: \"a\" * 21, age: 25)\n    refute too_long_user.valid?\n    assert_equal [\"is too long (maximum is 20 characters)\"], too_long_user.errors.full_messages_for(:username)\n  end\n\n  test \"age can be nil\" do\n    user = User.new(email: \"test@example.com\", username: \"tester123\")\n    assert user.valid?\n  end\n\n  test \"age must be numeric if present\" do\n    non_numeric_age_user = User.new(email: \"test@example.com\", username: \"tester123\", age: \"twenty-five\")\n    refute non_numeric_age_user.valid?\n    assert_equal [\"is not a number\"], non_numeric_age_user.errors.full_messages_for(:age)\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 8178037920,
+  "load_duration": 81093659,
+  "prompt_eval_count": 98,
+  "prompt_eval_duration": 16131000,
+  "eval_count": 525,
+  "eval_duration": 8077489000
+}

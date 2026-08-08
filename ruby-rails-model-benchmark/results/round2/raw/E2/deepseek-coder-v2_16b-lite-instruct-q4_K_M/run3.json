@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T17:20:19.465349345Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  has_one_attached :cover_image\nend\n\n# config/storage.yml\ntest:\n  service: Disk\n  root: <%= Rails.root.join(\"tmp/storage\") %>\n\ndevelopment:\n  service: Disk\n  root: <%= Rails.root.join(\"storage\") %>\n\nproduction:\n  service: AWS\n  access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>\n  secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>\n  region: <%= ENV['AWS_REGION'] %>\n  bucket: <%= ENV['AWS_BUCKET'] %>\n\n# app/controllers/articles_controller.rb\nclass ArticlesController < ApplicationController\n  def new\n    @article = Article.new\n  end\n\n  def create\n    @article = Article.new(article_params)\n    if @article.save\n      redirect_to @article, notice: 'Article created successfully.'\n    else\n      render :new\n    end\n  end\n\n  private\n\n  def article_params\n    params.require(:article).permit(:title, :content, :cover_image)\n  end\nend\n\n# app/views/articles/_form.html.erb\n<%= form_with model: @article do |form| %>\n  <div>\n    <%= form.label :title %>\n    <%= form.text_field :title %>\n  </div>\n  <div>\n    <%= form.label :content %>\n    <%= form.text_area :content %>\n  </div>\n  <div>\n    <%= form.label :cover_image %>\n    <%= form.file_field :cover_image %>\n  </div>\n  <div>\n    <%= form.submit %>\n  </div>\n<% end %>\n\n# app/views/articles/new.html.erb\n<h1>New Article</h1>\n<%= render 'form' %>\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 11014797390,
+  "load_duration": 58221223,
+  "prompt_eval_count": 62,
+  "prompt_eval_duration": 22076000,
+  "eval_count": 477,
+  "eval_duration": 10915056000
+}

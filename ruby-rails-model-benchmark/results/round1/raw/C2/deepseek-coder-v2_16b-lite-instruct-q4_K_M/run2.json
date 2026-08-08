@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T16:48:11.771133616Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\n# Gemfile\ngem 'devise'\n\n# Run the following command to install Devise\nrails generate devise:install\nrails generate devise User\nrails db:migrate\n```\n\nIn `config/routes.rb`:\n```ruby\nRails.application.routes.draw do\n  devise_for :users\n  # Other routes...\nend\n```\n\nGenerate a migration for adding additional fields if needed:\n```bash\nrails generate migration AddFieldsToUsers name:string avatar:string\nrails db:migrate\n```\n\nIn `app/models/user.rb`, add any necessary attributes:\n```ruby\nclass User < ApplicationRecord\n  # Include default devise modules. Others available are:\n  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable\n  devise :database_authenticatable, :registerable,\n         :recoverable, :rememberable, :validatable\nend\n```\n\nIn `app/controllers/application_controller.rb`, ensure the user is signed in by default:\n```ruby\nclass ApplicationController < ActionController::Base\n  before_action :authenticate_user!\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5726000584,
+  "load_duration": 57672914,
+  "prompt_eval_count": 44,
+  "prompt_eval_duration": 21824000,
+  "eval_count": 259,
+  "eval_duration": 5633933000
+}

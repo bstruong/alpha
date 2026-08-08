@@ -1,0 +1,623 @@
+[
+  {
+    "prompt": "F1",
+    "model": "qwen2.5-coder:7b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "qwen2.5-coder:7b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "qwen2.5-coder:7b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "qwen2.5-coder:7b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "qwen2.5-coder:7b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "qwen2.5-coder:7b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "qwen2.5-coder:7b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "qwen2.5-coder:7b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "qwen2.5-coder:7b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "qwen2.5-coder:7b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "qwen2.5-coder:7b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `store_accessors' for class Article",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `store_accessors' for class Article\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "qwen2.5-coder:7b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `store_accessors' for class Article",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `store_accessors' for class Article\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "qwen2.5-coder:7b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :content,\n                                   comments_attributes: [:id, :content, :_destroy])",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "qwen2.5-coder:7b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :content,\n                                    comments_attributes: [:id, :body, :_destroy])",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "qwen2.5-coder:7b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(\n      :title,\n      :content,\n      comments_attributes: [:id, :content, :_destroy]\n    )",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "qwen2.5-coder:14b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "qwen2.5-coder:14b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "qwen2.5-coder:14b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "qwen2.5-coder:14b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "qwen2.5-coder:14b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "qwen2.5-coder:14b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "qwen2.5-coder:14b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "qwen2.5-coder:14b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "qwen2.5-coder:14b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `shipped?' for an instance of Order",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `shipped?' for an instance of Order\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "qwen2.5-coder:14b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NameError: undefined local variable or method `boolean' for main",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NameError: undefined local variable or method `boolean' for main\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "qwen2.5-coder:14b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `scope' for module Archivable::ClassMethods",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `scope' for module Archivable::ClassMethods\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "qwen2.5-coder:14b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `add_column' for class Article",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `add_column' for class Article\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "qwen2.5-coder:14b",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :content, comments_attributes: [:id, :content, :_destroy])",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "qwen2.5-coder:14b",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :content, comments_attributes: [:id, :body, :_destroy])",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "qwen2.5-coder:14b",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :content, comments_attributes: [:id, :content, :_destroy])",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :body, comments_attributes: [:id, :commenter, :body, :_destroy])",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :content, comments_attributes: [:id, :commenter, :body])",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(:title, :content, comments_attributes: [:id, :commenter, :body])",
+      "used_permit_bang": false
+    }
+  }
+]

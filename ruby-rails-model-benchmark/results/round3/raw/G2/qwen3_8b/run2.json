@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-08-08T17:48:43.49976293Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# test/models/user_test.rb\nrequire 'test_helper'\n\nclass UserTest < Minitest::Test\n  def setup\n    @user = User.new\n  end\n\n  def test_email_required\n    assert @user.invalid?\n    assert_match /email can't be blank/, @user.errors.full_messages\n  end\n\n  def test_email_unique_case_insensitive\n    user1 = User.create!(email: 'test@example.com')\n    user2 = User.new(email: 'TEST@EXAMPLE.COM')\n    assert user2.invalid?\n    assert_match /email has already been taken/, user2.errors.full_messages\n  end\n\n  def test_email_format\n    @user.email = 'invalid-email'\n    assert @user.invalid?\n    assert_match /email is invalid/, @user.errors.full_messages\n  end\n\n  def test_username_required\n    @user.username = ''\n    assert @user.invalid?\n    assert_match /username can't be blank/, @user.errors.full_messages\n  end\n\n  def test_username_length\n    @user.username = 'a' * 21\n    assert @user.invalid?\n    assert_match /username is too long/, @user.errors.full_messages\n\n    @user.username = 'a' * 2\n    assert @user.invalid?\n    assert_match /username is too short/, @user.errors.full_messages\n  end\n\n  def test_age_numeric\n    @user.age = 'thirty'\n    assert @user.invalid?\n    assert_match /age is not a number/, @user.errors.full_messages\n  end\n\n  def test_age_can_be_nil\n    @user.age = nil\n    assert @user.valid?\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 6202590034,
+  "load_duration": 82896444,
+  "prompt_eval_count": 106,
+  "prompt_eval_duration": 18870000,
+  "eval_count": 351,
+  "eval_duration": 6092040000
+}

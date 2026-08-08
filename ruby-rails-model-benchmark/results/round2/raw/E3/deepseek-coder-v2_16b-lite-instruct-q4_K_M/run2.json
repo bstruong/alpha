@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T17:20:23.488662772Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\n# In your Article model (app/models/article.rb)\nscope :search_by_title_or_body, ->(query) {\n  where(\"title LIKE ? OR body LIKE ?\", \"%#{query}%\", \"%#{query}%\")\n}\n\n# Usage example in a controller or console:\n# Article.search_by_title_or_body('partial match').to_a\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 2002561812,
+  "load_duration": 58287911,
+  "prompt_eval_count": 70,
+  "prompt_eval_duration": 20393000,
+  "eval_count": 93,
+  "eval_duration": 1917384000
+}

@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T16:48:30.293858778Z",
+  "message": {
+    "role": "assistant",
+    "content": " To configure the asset pipeline for your Rails app to compile and serve a new stylesheet, follow these steps:\n\n1. Create a new stylesheet file in `app/assets/stylesheets`. For example, create a file named `custom.scss` or `custom.css.scss`.\n2. Add any necessary CSS or SCSS code to this file.\n3. In your main application layout (e.g., `application.html.erb`), include the new stylesheet using the asset pipeline helper:\n\n```ruby\n# app/assets/stylesheets/custom.css.scss\n/* Custom styles */\nbody {\n  background-color: lightblue;\n}\n\n// app/views/layouts/application.html.erb\n<!DOCTYPE html>\n<html>\n<head>\n  <title>YourApp</title>\n  <%= csrf_meta_tags %>\n  <%= csp_meta_tag %>\n\n  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>\n  <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>\n</head>\n\n<body>\n  <%= yield %>\n</body>\n</html>\n```\n\n4. If you want to include this stylesheet only on certain pages, use conditional includes in the view files where needed:\n\n```ruby\n# app/views/some_view.html.erb\n<%= stylesheet_link_tag 'custom' %>\n<!-- Your content -->\n```\n\n5. Ensure that the asset pipeline is enabled by adding the following line to your `config/application.rb`:\n\n```ruby\nmodule YourApp\n  class Application < Rails::Application\n    # Other configurations...\n    config.assets.enabled = true\n  end\nend\n```\n\n6. Precompile the new stylesheet if needed:\n\n```bash\nrails assets:precompile\n```\n\nThis will compile your `custom.css.scss` file into a CSS file and serve it via the asset pipeline."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 10887149565,
+  "load_duration": 60446702,
+  "prompt_eval_count": 53,
+  "prompt_eval_duration": 104890000,
+  "eval_count": 462,
+  "eval_duration": 10712161000
+}

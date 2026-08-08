@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T16:47:57.070012809Z",
+  "message": {
+    "role": "assistant",
+    "content": " To set up a background job in your Rails app to send a welcome email asynchronously when a user signs up, you can use ActiveJob along with a mailer and a queueing system like Sidekiq or ActiveJob's built-in support for queues. Below is an example using ActiveJob and ActionMailer with Sidekiq as the adapter:\n\n1. **Install Sidekiq**: Add it to your Gemfile and run `bundle install`.\n   ```ruby\n   gem 'sidekiq'\n   ```\n\n2. **Set up ActiveJob configuration in `config/application.rb`**:\n   ```ruby\n   module YourApp\n     class Application < Rails::Application\n       config.active_job.queue_adapter = :sidekiq\n     end\n   end\n   ```\n\n3. **Create the mailer**: Generate a Mailer with `rails generate mailer UserMailer`.\n\n4. **Define the welcome email job in `app/jobs/user_mailer_job.rb`**:\n   ```ruby\n   class UserMailerJob < ApplicationJob\n     queue_as :default\n\n     def perform(user)\n       UserMailer.welcome_email(user).deliver_now\n     end\n   end\n   ```\n\n5. **Create the mailer view template in `app/views/user_mailer/welcome_email.html.erb`**:\n   ```erb\n   <!DOCTYPE html>\n   <html>\n   <head>\n     <title>Welcome to Our App</title>\n   </head>\n   <body>\n     <h1>Welcome, <%= @user.name %>!</h1>\n     <p>Thank you for signing up.</p>\n   </body>\n   </html>\n   ```\n\n6. **Define the mailer in `app/mailers/user_mailer.rb`**:\n   ```ruby\n   class UserMailer < ApplicationMailer\n     default from: 'notifications@example.com'\n\n     def welcome_email(user)\n       @user = user\n       mail(to: @user.email, subject: 'Welcome to Our App')\n     end\n   end\n   ```\n\n7. **Trigger the job when a user signs up**: In your `app/controllers/users_controller.rb`, for example:\n   ```ruby\n   class UsersController < ApplicationController\n     def create\n       @user = User.new(user_params)\n       if @user.save\n         UserMailerJob.perform_later(@user)\n         redirect_to root_path, notice: 'User created successfully.'\n       else\n         render :new\n       end\n     end\n\n     private\n\n     def user_params\n       params.require(:user).permit(:name, :email)\n     end\n   end\n   ```\n\nThis setup ensures that the welcome email is sent asynchronously when a user signs up, using Sidekiq for background processing and ActiveJob for handling the job queueing."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 15925671221,
+  "load_duration": 59193638,
+  "prompt_eval_count": 57,
+  "prompt_eval_duration": 22100000,
+  "eval_count": 656,
+  "eval_duration": 15833585000
+}

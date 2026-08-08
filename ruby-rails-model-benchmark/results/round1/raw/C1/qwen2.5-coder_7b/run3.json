@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T16:39:51.53349068Z",
+  "message": {
+    "role": "assistant",
+    "content": "First, add the `sidekiq` gem to your Gemfile:\n\n```ruby\ngem 'sidekiq'\n```\n\nThen run `bundle install`. Next, create a Sidekiq worker for sending emails:\n\n```bash\nrails generate sidekiq:worker UserMailerWorker\n```\n\nNow update your `UserMailerWorker`:\n\n```ruby\nclass UserMailerWorker\n  include Sidekiq::Worker\n\n  def perform(user_id)\n    user = User.find(user_id)\n    UserMailer.welcome_email(user).deliver_later\n  end\nend\n```\n\nNext, create a method in your `UserMailer` to send the welcome email:\n\n```ruby\nclass UserMailer < ApplicationMailer\n  default from: 'notifications@example.com'\n\n  def welcome_email(user)\n    @user = user\n    @url = 'http://example.com/login'\n    mail(to: @user.email, subject: 'Welcome to Our Site')\n  end\nend\n```\n\nFinally, in your `User` model or controller after creating a new user, call the worker:\n\n```ruby\nclass UsersController < ApplicationController\n  def create\n    @user = User.new(user_params)\n    if @user.save\n      UserMailerWorker.perform_async(@user.id) # Pass user ID to worker\n      redirect_to root_path, notice: 'User created and welcome email sent!'\n    else\n      render :new\n    end\n  end\n\n  private\n\n  def user_params\n    params.require(:user).permit(:email, :password)\n  end\nend\n```\n\nThis setup will send the welcome email asynchronously when a new user signs up."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5405855550,
+  "load_duration": 83642986,
+  "prompt_eval_count": 60,
+  "prompt_eval_duration": 16108000,
+  "eval_count": 338,
+  "eval_duration": 5302876000
+}

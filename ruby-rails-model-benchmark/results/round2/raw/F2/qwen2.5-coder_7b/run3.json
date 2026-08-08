@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:10:10.901076614Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/models/comment.rb\nclass Comment < ApplicationRecord\n  belongs_to :commentable, polymorphic: true\nend\n\n# app/models/article.rb\nclass Article < ApplicationRecord\n  has_many :comments, as: :commentable\nend\n\n# app/models/post.rb\nclass Post < ApplicationRecord\n  has_many :comments, as: :commentable\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1307573737,
+  "load_duration": 81701826,
+  "prompt_eval_count": 97,
+  "prompt_eval_duration": 15297000,
+  "eval_count": 80,
+  "eval_duration": 1207901000
+}

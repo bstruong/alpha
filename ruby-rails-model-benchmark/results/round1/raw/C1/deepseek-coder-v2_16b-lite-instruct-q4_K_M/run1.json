@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T16:47:33.409666523Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\n# In config/application.rb, add ActiveJob integration for ActionMailer\nmodule YourApp\n  class Application < Rails::Application\n    # Other configurations...\n\n    config.active_job.queue_adapter = :sidekiq\n  end\nend\n\n# Generate a job to send the welcome email\nrails generate job SendWelcomeEmail\n\n# In app/jobs/send_welcome_email_job.rb\nclass SendWelcomeEmailJob < ApplicationJob\n  queue_as :default\n\n  def perform(user_id)\n    user = User.find(user_id)\n    UserMailer.welcome(user).deliver_later\n  end\nend\n\n# In app/mailers/user_mailer.rb\nclass UserMailer < ApplicationMailer\n  default from: 'notifications@example.com'\n\n  def welcome(user)\n    @user = user\n    mail(to: @user.email, subject: 'Welcome to Our App!')\n  end\nend\n\n# In app/controllers/users_controller.rb\nclass UsersController < ApplicationController\n  def create\n    @user = User.new(user_params)\n    if @user.save\n      SendWelcomeEmailJob.perform_later(@user.id) # Enqueue the job asynchronously\n      redirect_to root_path, notice: 'User created successfully!'\n    else\n      render :new\n    end\n  end\n\n  private\n\n  def user_params\n    params.require(:user).permit(:email, :name)\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 8038980550,
+  "load_duration": 57665265,
+  "prompt_eval_count": 57,
+  "prompt_eval_duration": 116823000,
+  "eval_count": 349,
+  "eval_duration": 7860241000
+}

@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  doctor: one
+  patient: one
+  scheduled_at: 2026-08-08 10:07:50
+
+two:
+  doctor: two
+  patient: two
+  scheduled_at: 2026-08-08 10:07:50

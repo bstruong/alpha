@@ -1,0 +1,16 @@
+{
+  "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+  "created_at": "2026-08-08T16:47:24.12948182Z",
+  "message": {
+    "role": "assistant",
+    "content": " ```ruby\nRails.application.routes.draw do\n  namespace :admin do\n    resources :articles do\n      collection do\n        get 'archived'\n      end\n      member do\n        post 'publish'\n      end\n    end\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1362654589,
+  "load_duration": 59801321,
+  "prompt_eval_count": 84,
+  "prompt_eval_duration": 20782000,
+  "eval_count": 62,
+  "eval_duration": 1280385000
+}

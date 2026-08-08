@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:16:52.096726169Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nrequire 'test_helper'\n\nclass PostsControllerTest < ActionDispatch::IntegrationTest\n  setup do\n    @user = users(:one)\n    @post = posts(:draft)\n    sign_in @user\n  end\n\n  test \"should publish a post\" do\n    assert_difference('Post.where(status: \"published\").count') do\n      patch publish_post_path(@post), xhr: true\n    end\n\n    @post.reload\n    assert_equal \"published\", @post.status\n    assert_not_nil @post.published_at\n\n    assert_response :success\n    assert_includes response.body, I18n.t('posts.publish.success')\n  end\nend\n```\n\nNote: This test assumes you have a `users` fixture with at least one user (`users(:one)`) and a `posts` fixture with a draft post (`posts(:draft)`). The `sign_in` method is used to simulate a user being logged in, which might be handled by a gem like Devise. Adjust the test according to your authentication setup."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 14358473051,
+  "load_duration": 81761530,
+  "prompt_eval_count": 93,
+  "prompt_eval_duration": 65677000,
+  "eval_count": 218,
+  "eval_duration": 14205233000
+}

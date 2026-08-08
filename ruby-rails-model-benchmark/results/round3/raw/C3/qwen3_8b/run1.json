@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-08-08T17:46:54.231706247Z",
+  "message": {
+    "role": "assistant",
+    "content": "To configure the asset pipeline in a Rails app to compile and serve a new stylesheet, follow these steps:\n\n1. **Create the stylesheet file** in `app/assets/stylesheets/` (e.g., `custom.css.scss`).\n\n2. **Add the stylesheet to the asset pipeline** by editing `app/assets/config/manifest.js`:\n\n```js\n// app/assets/config/manifest.js\n//= link custom.css\n```\n\n3. **Ensure the stylesheet is included in the layout** by editing `app/views/layouts/application.html.erb`:\n\n```erb\n<!-- app/views/layouts/application.html.erb -->\n<%= stylesheet_link_tag \"application\", media: \"all\" %>\n```\n\n4. **Restart the Rails server** if it's running, to ensure changes take effect.\n\n5. **Precompile assets** for production (optional, if needed):\n\n```bash\nrails assets:precompile\n```\n\nThis will make the stylesheet available in development and production environments."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 3493243346,
+  "load_duration": 83618761,
+  "prompt_eval_count": 63,
+  "prompt_eval_duration": 32067000,
+  "eval_count": 196,
+  "eval_duration": 3372067000
+}
