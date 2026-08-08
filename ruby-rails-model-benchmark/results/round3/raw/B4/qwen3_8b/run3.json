@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-08-08T17:46:16.157957158Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/models/order.rb\nclass Order < ApplicationRecord\n  enum status: { pending: 0, paid: 1, shipped: 2, cancelled: 3 }, validate: true\n\n  scope :recent, -> { where(created_at: 7.days.ago..Time.current).order(created_at: :desc) }\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1352485429,
+  "load_duration": 83169975,
+  "prompt_eval_count": 115,
+  "prompt_eval_duration": 16832000,
+  "eval_count": 75,
+  "eval_duration": 1251024000
+}

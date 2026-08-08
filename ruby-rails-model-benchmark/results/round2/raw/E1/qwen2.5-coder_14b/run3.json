@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:12:45.640014756Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/controllers/articles_controller.rb\n\nclass ArticlesController < ApplicationController\n  def index\n    @articles = Article.page(params[:page]).per(10)\n  end\nend\n```\n\nEnsure you have Kaminari installed in your Gemfile:\n\n```ruby\ngem 'kaminari'\n```\n\nRun `bundle install` to install the gem."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5026062164,
+  "load_duration": 81718983,
+  "prompt_eval_count": 64,
+  "prompt_eval_duration": 64864000,
+  "eval_count": 76,
+  "eval_duration": 4875972000
+}

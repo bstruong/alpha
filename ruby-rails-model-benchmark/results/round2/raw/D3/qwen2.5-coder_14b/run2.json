@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:12:05.55247259Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# config/initializers/ruby_version_check.rb\n\nMINIMUM_RUBY_VERSION = '2.7.0'\n\nunless RUBY_VERSION >= MINIMUM_RUBY_VERSION\n  raise \"Ruby version #{RUBY_VERSION} is not supported. Please use Ruby #{MINIMUM_RUBY_VERSION} or higher.\"\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 4555649881,
+  "load_duration": 83130835,
+  "prompt_eval_count": 71,
+  "prompt_eval_duration": 65337000,
+  "eval_count": 69,
+  "eval_duration": 4403338000
+}

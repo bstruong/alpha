@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:10:57.102377966Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\ndef build_user_info(name, age, email)\n  { name: name, age: age, email: email }\nend\n\n# Usage:\nuser_info = build_user_info('John Doe', 30, 'john@example.com')\nputs user_info\n# Output: {:name=>\"John Doe\", :age=>30, :email=>\"john@example.com\"}\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1295452723,
+  "load_duration": 83421268,
+  "prompt_eval_count": 60,
+  "prompt_eval_duration": 15245000,
+  "eval_count": 79,
+  "eval_duration": 1194401000
+}

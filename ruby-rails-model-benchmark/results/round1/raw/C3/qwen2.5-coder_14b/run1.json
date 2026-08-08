@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T16:45:56.656871613Z",
+  "message": {
+    "role": "assistant",
+    "content": "To configure the asset pipeline in a Rails application to compile and serve a new stylesheet, follow these steps:\n\n1. **Create the Stylesheet:**\n\n   First, create your new stylesheet file inside `app/assets/stylesheets`. For example, let's call it `custom.css`.\n\n   ```ruby\n   # app/assets/stylesheets/custom.css\n\n   body {\n     background-color: lightblue;\n     font-family: Arial, sans-serif;\n   }\n   ```\n\n2. **Require the Stylesheet:**\n\n   Ensure that your new stylesheet is required in your application stylesheet. By default, Rails requires all stylesheets in `app/assets/stylesheets` in the `application.css` manifest file.\n\n   ```css\n   /*\n    * This is a manifest file that'll be compiled into application.css, which will include all the files\n    * listed below.\n    *\n    *= require_tree .\n    *= require_self\n    */\n\n   /* Place your custom CSS here */\n   ```\n\n3. **Precompile Assets (for production):**\n\n   If you are in a production environment or want to precompile assets locally, add your new stylesheet to the list of precompiled assets in `config/initializers/assets.rb`.\n\n   ```ruby\n   # config/initializers/assets.rb\n\n   Rails.application.config.assets.precompile += %w( custom.css )\n   ```\n\n4. **Restart Your Server:**\n\n   If you are using a development server, restart it to ensure that the new styles are loaded.\n\n5. **Use the Stylesheet in Views:**\n\n   You can now use your new stylesheet in any view by referencing the `application.css` file, which includes all assets in the pipeline.\n\n   ```erb\n   <!-- app/views/layouts/application.html.erb -->\n\n   <!DOCTYPE html>\n   <html>\n   <head>\n     <title>MyApp</title>\n     <%= csrf_meta_tags %>\n     <%= csp_meta_tag %>\n\n     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>\n     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>\n   </head>\n   <body>\n     <%= yield %>\n   </body>\n   </html>\n   ```\n\nWith these steps, your new stylesheet should be compiled and served by the asset pipeline in your Rails application."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 32369544012,
+  "load_duration": 83094425,
+  "prompt_eval_count": 55,
+  "prompt_eval_duration": 285017000,
+  "eval_count": 484,
+  "eval_duration": 31993421000
+}

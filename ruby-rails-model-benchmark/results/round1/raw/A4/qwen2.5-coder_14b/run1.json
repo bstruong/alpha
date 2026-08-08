@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T16:41:19.827351016Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\ndef extract_emails(text)\n  # Regular expression for matching email addresses\n  email_pattern = /\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b/\n  \n  # Scan the text for matches and return a sorted array of unique emails\n  text.scan(email_pattern).uniq.sort\nend\n\n# Example usage:\ntext = \"Contact us at info@example.com or support@sample.org. Visit our website.\"\nputs extract_emails(text)\n```\n\nThis method uses a regular expression to identify email addresses in the input text, extracts them, removes duplicates by converting the result to a set (`uniq`), and finally sorts them alphabetically before returning."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 10191395555,
+  "load_duration": 81647365,
+  "prompt_eval_count": 75,
+  "prompt_eval_duration": 178518000,
+  "eval_count": 153,
+  "eval_duration": 9927682000
+}

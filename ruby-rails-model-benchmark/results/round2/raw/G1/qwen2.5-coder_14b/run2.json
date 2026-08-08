@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:14b",
+  "created_at": "2026-08-08T17:16:37.737353456Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nrequire 'rails_helper'\n\nRSpec.describe PostsController, type: :controller do\n  let(:user) { create(:user) }\n  let(:post) { create(:post, user: user, status: \"draft\") }\n\n  before do\n    sign_in user\n  end\n\n  describe \"POST #publish\" do\n    it \"transitions the post's status to 'published' and sets published_at\" do\n      expect {\n        post :publish, params: { id: post.id }\n      }.to change { post.reload.status }.from(\"draft\").to(\"published\")\n        .and change { post.reload.published_at }.to(be_within(1.second).of(Time.current))\n\n      assert_redirected_to post_path(post)\n      assert_equal \"Post was successfully published.\", flash[:notice]\n    end\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 11506585466,
+  "load_duration": 83628997,
+  "prompt_eval_count": 93,
+  "prompt_eval_duration": 65912000,
+  "eval_count": 176,
+  "eval_duration": 11351727000
+}

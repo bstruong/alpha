@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T17:09:27.985986645Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# Gemfile\ngem 'kaminari'\n\n# bundle install\n\nclass ArticlesController < ApplicationController\n  def index\n    @articles = Article.page(params[:page]).per(10)\n  end\nend\n```\n\nIn your `index.html.erb`:\n\n```erb\n<%= paginate @articles %>\n```\n\nThis code sets up pagination for the articles in the `ArticlesController`. The `page` method provided by Kaminari is used to fetch only the current page of results, and `per(10)` limits each page to 10 articles. The `paginate` helper renders the necessary links for navigating between pages."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 2167590796,
+  "load_duration": 81845492,
+  "prompt_eval_count": 64,
+  "prompt_eval_duration": 27536000,
+  "eval_count": 135,
+  "eval_duration": 2055306000
+}

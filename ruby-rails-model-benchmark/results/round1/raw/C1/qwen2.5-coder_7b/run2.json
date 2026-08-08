@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T16:39:46.12681766Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# config/environments/development.rb and production.rb\nconfig.active_job.queue_adapter = :sidekiq\n\n# app/jobs/send_welcome_email_job.rb\nclass SendWelcomeEmailJob < ApplicationJob\n  queue_as :default\n\n  def perform(user)\n    UserMailer.welcome_email(user).deliver_later\n  end\nend\n\n# app/controllers/users_controller.rb\nclass UsersController < ApplicationController\n  def create\n    @user = User.new(user_params)\n    if @user.save\n      SendWelcomeEmailJob.perform_async(@user)\n      redirect_to login_path, notice: 'User created successfully and welcome email sent.'\n    else\n      render :new\n    end\n  end\n\n  private\n\n  def user_params\n    params.require(:user).permit(:email, :password)\n  end\nend\n\n# app/mailers/user_mailer.rb\nclass UserMailer < ApplicationMailer\n  default from: 'notifications@example.com'\n\n  def welcome_email(user)\n    @user = user\n    @url  = 'http://example.com/login'\n    mail(to: @user.email, subject: 'Welcome to My Awesome Site')\n  end\nend\n\n# config/routes.rb\nRails.application.routes.draw do\n  resources :users, only: [:create]\n  get '/login', to: 'sessions#new'\n  post '/login', to: 'sessions#create'\nend\n```\n\nThis solution sets up a `SendWelcomeEmailJob` that uses Sidekiq as the background job queue. When a user signs up via the `UsersController`, the `create` action saves the user and schedules the `SendWelcomeEmailJob` to run asynchronously using `perform_async`. The `UserMailer.welcome_email` method constructs and sends an email welcoming the new user."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5748036943,
+  "load_duration": 80474339,
+  "prompt_eval_count": 60,
+  "prompt_eval_duration": 16033000,
+  "eval_count": 368,
+  "eval_duration": 5647635000
+}

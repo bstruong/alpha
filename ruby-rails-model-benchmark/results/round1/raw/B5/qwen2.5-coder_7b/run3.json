@@ -1,0 +1,16 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "created_at": "2026-08-08T16:39:33.541482433Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nRails.application.routes.draw do\n  namespace :admin do\n    resources :articles do\n      member { post 'publish' }\n    end\n    get 'articles/archived'\n  end\nend\n```\n\nThis snippet defines routes for an `articles` resource nested within the `admin` namespace. It includes a custom member route `publish` to handle POST requests and a custom collection route `archived` to handle GET requests."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 1494180514,
+  "load_duration": 83122265,
+  "prompt_eval_count": 85,
+  "prompt_eval_duration": 15245000,
+  "eval_count": 92,
+  "eval_duration": 1393170000
+}

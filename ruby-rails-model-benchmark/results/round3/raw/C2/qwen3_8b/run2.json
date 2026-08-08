@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-08-08T17:46:46.093829362Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add user authentication to your Rails app, you can use the `devise` gem. Here's how to do it step-by-step:\n\n1. Add `devise` to your Gemfile and run `bundle install`.\n2. Generate the Devise model.\n3. Run the migration.\n4. Set up routes.\n5. Set up the views.\n\nHere's the complete code:\n\n```ruby\n# Gemfile\ngem 'devise'\n```\n\n```bash\nbundle install\nrails generate devise:install\nrails generate devise User\nrails db:migrate\n```\n\n```ruby\n# config/routes.rb\nRails.application.routes.draw do\n  devise_for :users\n  # Your other routes here\nend\n```\n\n```ruby\n# app/models/user.rb\nclass User < ApplicationRecord\n  devise :database_authenticatable, :registerable,\n         :recoverable, :rememberable, :validatable\nend\n```\n\n```erb\n<!-- app/views/devise/registrations/edit.html.erb -->\n<%= form_for(resource, as: resource, url: registration_path(resource_name), method: :put) do |f| %>\n  <%= f.label :email %>\n  <%= f.email_field :email, autofocus: true %>\n\n  <%= f.label :password %>\n  <%= f.password_field :password, autocomplete: \"new-password\" %>\n\n  <%= f.label :password_confirmation %>\n  <%= f.password_field :password_confirmation, autocomplete: \"new-password\" %>\n\n  <%= f.submit \"Update\" %>\n<% end %>\n```\n\nThat's a basic setup. Customize views and add user roles as needed."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5879105863,
+  "load_duration": 82395941,
+  "prompt_eval_count": 55,
+  "prompt_eval_duration": 17979000,
+  "eval_count": 337,
+  "eval_duration": 5772478000
+}
