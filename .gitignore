@@ -8,3 +8,9 @@ aider-test/
 # llm-benchmark generated fixtures (keep the dir, ignore contents)
 llm-benchmark/fixtures/*
 !llm-benchmark/fixtures/.gitkeep
+
+# Convention: disposable/regenerable working output lives in results/ (or a
+# similarly-named per-project dir, e.g. ab-results/) and stays ignored above.
+# Permanent deliverables -- final reports, appendices, anything meant to be
+# read later rather than regenerated -- live in each project's reports/
+# folder instead, which no rule here ever covers. See CONVENTIONS.md.
