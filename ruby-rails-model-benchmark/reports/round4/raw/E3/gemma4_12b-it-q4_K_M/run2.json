@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:05:07.331743003Z",
+  "message": {
+    "role": "assistant",
+    "content": "To implement this using **Ransack**, you don't actually need to define a custom scope in the model for basic fuzzy matching. Ransack automatically handles partial matches (SQL `LIKE %query%`) for standard fields.\n\nHowever, if you want a specific search predicate that combines multiple fields into one search box (e.g., searching both title and body simultaneously), follow this pattern:\n\n```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  # Ransack automatically maps 'title' and 'body' to partial matches \n  # by default, but we can define a custom predicate if we want a \n  # specific combined \"content\" search logic.\n  \n  # If you want to allow searching across multiple fields via one parameter:\n  def self.ransackable_attributes(model)\n    [\"title\", \"body\"]\n  end\n\n  # Optional: If you want a custom predicate for something like \n  # `params[:q]` (searching title OR body)\n  ransackable__scopes_for :content_search\nend\n```\n\n### The Implementation\nIf your goal is to have one search field that looks at both columns, it's more idiomatic in Rails/Ransack to use a simple scoped query or a specific Ransack predicate. \n\nTo strictly follow the requirement of \"searching across title and body\" via Ransack:\n\n```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  # This allows Ransack to find attributes for searching\n  def self.ransackable_attributes(model)\n    [\"title\", \"body\"]\n  end\n\n  # If you want a specific custom predicate (e.g., ?search_term=...)\n  # that checks both fields simultaneously:\n  ransackable_scopes :fuzzy_search\n\n  scope :fuzzy_search, ->(query) {\n    where(\"title ILIKE :q OR body ILIKE :q\", q: \"%#{query}%\")\n  }\nend\n```\n\n### Controller Usage (Example)\nIn your controller, you would then call it like this:\n\n```ruby\n# app/controllers/articles_controller.rb\ndef index\n  # To search title and body via the standard Ransack params\n  @q = Article.ransack(params[:q])\n  @articles = @q.result\n  \n  # OR if using the custom scope defined above:\n  # @articles = Article.ransack(params[:q]).result\nend\n```\n\n### Note on Database Choice\n*   **PostgreSQL:** The code above uses `ILIKE` for case-insensitive matching.\n*   **MySQL/SQLite:** Use `LIKE` instead of `ILIKE`."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 19900431100,
+  "load_duration": 217987677,
+  "prompt_eval_count": 77,
+  "prompt_eval_duration": 86780000,
+  "eval_count": 598,
+  "eval_duration": 19566768000
+}

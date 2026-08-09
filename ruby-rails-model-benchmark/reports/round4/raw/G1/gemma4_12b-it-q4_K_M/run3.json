@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:08:05.495839777Z",
+  "message": {
+    "role": "assistant",
+    "content": "To write an idiomatic integration test in modern Rails (using Minitest), it is best practice to use `ActionDispatch::IntegrationTest`. This tests the full request/response cycle.\n\n```ruby\nrequire \"test_helper\"\n\nclass PostsControllerTest < ActionDispatch::IntegrationTest\n  setup do\n    @post = posts(:one) # Assumes a fixture named :one exists\n  end\n\n  test \"should publish post and redirect with success message\" do\n    assert_difference(\"Post.where(status: 'published').count\", +1) do\n      patch publish_post_path(@post), params: { id: @post.id }\n    end\n\n    # Check redirection to the specific resource path\n    assert_redirects_to post_path(@post)\n    \n    # Verify attributes were updated correctly\n    @post.reload\n    assert_equal \"published\", @post.status\n    assert_not_nil @post.published_at\n  end\n\n  test \"should show flash notice on successful publish\" do\n    patch publish_post_path(@post), params: { id: @post.id }\n    \n    # Check for the specific flash message in the response body\n    assert_response :redirect\n    assert_select \"div.alert\", text: \"Post was successfully published\"\n  end\nend\n```\n\n### Implementation Reference\nFor the test above to pass, your controller action should look like this:\n\n```ruby\n# app/controllers/posts_controller.rb\ndef publish\n  @post = Post.find(params[:id])\n  if @post.update(status: \"published\", published_at: Time.current)\n    flash[:notice] = \"Post was successfully published\"\n    redirect_to post_path(@post)\n  else\n    redirect_to edit_post_path(@post), alert: \"Failed to publish.\"\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 13965901730,
+  "load_duration": 213388745,
+  "prompt_eval_count": 100,
+  "prompt_eval_duration": 87783000,
+  "eval_count": 418,
+  "eval_duration": 13633597000
+}

@@ -1,0 +1,209 @@
+[
+  {
+    "prompt": "F1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "has_comments_line_found": true
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: set_on_transition=false stable_on_noop=true ts1=nil ts2=nil\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `saved_change?' for an instance of Order",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `saved_change?' for an instance of Order\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F3",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `saved_change?' for an instance of Order",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `saved_change?' for an instance of Order\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: exception NoMethodError: undefined method `aware_of_archived?' for class Article",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: FAIL: exception NoMethodError: undefined method `aware_of_archived?' for class Article\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F4",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": false,
+    "behavior": "FAIL: runner errored: ise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'",
+    "detail": {
+      "rc": 1,
+      "out": "",
+      "err": "e/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/command.rb:149:in `with_argv'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/command.rb:69:in `invoke'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/commands.rb:18:in `<main>'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'\n",
+      "module_name": "Archivable"
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(\n      :title, \n      :body, \n      :author_name,\n      comments_attributes: [:id, :body, :author_name]\n    )",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(\n      :title, \n      :body, \n      :author_name,\n      comments_attributes: [:id, :content, :commenter_name]\n    )",
+      "used_permit_bang": false
+    }
+  },
+  {
+    "prompt": "F5",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": "",
+      "extracted_expr": "params.require(:article).permit(\n      :title, \n      :body, \n      :content,\n      comments_attributes: [:id, :body, :author_name]\n    )",
+      "used_permit_bang": false
+    }
+  }
+]

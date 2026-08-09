@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T14:56:16.215067613Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\ndef extract_emails(text)\n  # A standard regex for identifying common email patterns\n  email_regex = /\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b/i\n\n  # Scan finds all matches, uniq removes duplicates, and sort orders them alphabetically\n  text.scan(email_regex).map(&:downcase).uniq.sort\nend\n\n# Example usage:\n# text = \"Contact us at support@example.com or sales@company.org. Also info@example.com.\"\n# extract_emails(text) \n# => [\"info@example.com\", \"sales@company.org\", \"support@example.com\"]\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5663458505,
+  "load_duration": 213217182,
+  "prompt_eval_count": 83,
+  "prompt_eval_duration": 151120000,
+  "eval_count": 164,
+  "eval_duration": 5285835000
+}
