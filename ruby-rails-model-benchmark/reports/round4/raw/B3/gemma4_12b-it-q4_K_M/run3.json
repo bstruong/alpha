@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T14:57:24.365502004Z",
+  "message": {
+    "role": "assistant",
+    "content": "To implement this in a clean, idiomatic Rails way, you should use an `update` call that handles both the attribute changes and the timestamp simultaneously.\n\n```ruby\n# app/controllers/posts_controller.rb\nclass PostsController < ApplicationController\n  before_action :set_post, only: [:publish]\n\n  def publish\n    # We update attributes in a single call to ensure atomicity \n    # of the status change and the timestamp.\n    if @post.update(status: \"published\", published_at: Time.current)\n      redirect_to post_path(@post), notice: \"Post was successfully published.\"\n    else\n      flash.now[:alert] = \"Failed to publish post: #{@post.errors.full_messages.to_sentence}\"\n      render :edit # Or show, depending on your flow\n    end\n  end\n\n  private\n\n  def set_post\n    @post = Post.find(params[:id])\n  end\nend\n```\n\n### Implementation Notes:\n1.  **Atomic Update**: Passing `status` and `published_at` inside one `update` call is the standard Rails way to handle multiple related attributes.\n2.  **Flash Handling**: Used `flash.now[:alert]` for the failure case because `render` does not perform a redirect; if you use a standard `flash`, it will persist into the next request (the page you're currently on).\n3.  **Error Feedback**: `.full_messages.to_sentence` provides a human-readable string of all validation errors for the flash alert.\n4.  **Routes**: This assumes a member route like `patch :publish` in your `routes.rb`."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 12410529121,
+  "load_duration": 215737587,
+  "prompt_eval_count": 109,
+  "prompt_eval_duration": 87341000,
+  "eval_count": 368,
+  "eval_duration": 12084288000
+}

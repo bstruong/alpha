@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:03:45.278964767Z",
+  "message": {
+    "role": "assistant",
+    "content": "To implement this, follow these steps:\n\n### 1. Generate the migration and attach the file\nRun the following command in your terminal:\n```bash\nbin/rails active_storage:install\nbin/rails generate migration AddCoverImage_to_Articles cover_image:active_storage\nbundle exec rails db:migrate\n```\n\n### 2. Update the Model logic\nWhile ActiveStorage doesn't require a specific setup in the model to work, it is idiomatic to define a helper or validation if you want to ensure the image exists.\n\n```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  # This allows an article to have many attachments (standard ActiveStorage)\n  has_one_attached_record :cover_image\n\n  # Optional: Add validations for the attachment\n  validates :cover_image, presence: true, unless: :draft? # Example conditional logic\n  \n  def cover_image_url\n    if cover_image.attached? && cover_image.attached_record.persisted?\n      full_clip = ActiveStorage::LocationFixture.new # Or just use helper in view\n      cover_image.url\n    end\n  end\nend\n```\n\n### 3. Update the Controller (Permit Params)\nEnsure your controller allows the `cover_image` parameter.\n\n```ruby\n# app/controllers/articles_controller.rb\nclass ArticlesController < ApplicationController\n  def article_params\n    params.require(:article).permit(:title, :body, :cover_image)\n  end\nend\n```\n\n### 4. Example View (ERB)\nWhen rendering the image in your view:\n\n```erb\n<%# app/views/articles/_article.html.erb %>\n<h1><%= @article.title %></h1>\n\n<% if @article.cover_image.attached? %>\n  <%= image_tag @article.cover_image, expires_in: 30.days, class: \"cover-img\" %>\n<% end %>\n```\n\n### 5. Form Helper (using standard Rails forms)\nEnsure your form handles the file input correctly.\n\n```erb\n<%# app/views/articles/_form.html.erb %>\n<%= form_with model: @article do |form| %>\n  <div>\n    <%= form.label :cover_image %>\n    <%= form.file_field :cover_image %>\n  </div>\n  \n  <%= form.submit \"Save Article\" %>\n<% end %>\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 18144124871,
+  "load_duration": 217737860,
+  "prompt_eval_count": 70,
+  "prompt_eval_duration": 147914000,
+  "eval_count": 544,
+  "eval_duration": 17760196000
+}

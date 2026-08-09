@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:06:51.908657927Z",
+  "message": {
+    "role": "assistant",
+    "content": "To handle nested attributes correctly, the keys must be nested within the hash in the permitted parameters.\n\n```ruby\nclass ArticlesController < ApplicationController\n  def create\n    # The params structure will automatically map to \n    # Article.accepts_nested_attributes_from :comments\n    @article = Article.new(article_params)\n    if @article.save\n      redirect_to @article, notice: 'Article and comments created.'\n    else\n      render :new\n    end\n  end\n\n  private\n\n  def article_params\n    # Permit the base attributes plus the nested hash for comments\n    params.require(:article).permit(\n      :title, \n      :body, \n      :author_name,\n      comments_attributes: [:id, :body, :author_name]\n    )\n  end\nend\n```\n\n### Key Implementation Details:\n1.  **`comments_attributes`**: This specific key naming is required by Rails when using `accepts_nested_attributes_from`.\n2.  **The `:id` field**: Including the ID in the nested attributes allows Rails to update existing comments if you were using a multi-edit form, while still allowing for new records during creation.\n3.  **Scope**: Only fields explicitly listed in the array are permitted; all others (like `user_id` or internal flags) will be ignored by the modeler."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 10283281007,
+  "load_duration": 216908289,
+  "prompt_eval_count": 88,
+  "prompt_eval_duration": 157364000,
+  "eval_count": 306,
+  "eval_duration": 9886645000
+}

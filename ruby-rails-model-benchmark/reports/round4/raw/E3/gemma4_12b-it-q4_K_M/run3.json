@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:05:26.474568497Z",
+  "message": {
+    "role": "assistant",
+    "content": "To implement this using **Ransack**, you need to define a custom scope or use the built-in multi-field capability. Since Ransack's default behavior is an exact match for most fields unless specified, defining a specific search predicate or utilizing `title_or_body` logic is common.\n\nHowever, the idiomatic way in modern Ransack to handle \"OR\" conditions across multiple fields with fuzzy matching (ILIKE) is to define a custom scope or use the `.search` logic provided by the gem's default behavior on text fields.\n\nHere is the implementation:\n\n```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  # Ransack automatically handles \"title\" and \"body\" as ILIKE (fuzzy) \n  # in PostgreSQL or LIKE in MySQL if you search against them directly.\n  # To search across both fields simultaneously using one input, we define a scope:\n  \n  scope :search_content, ->(query) {\n    where(\"title ILIKE :q OR body ILIKE :q\", q: \"%#{query}%\") if query.present?\n  }\nend\n\n# To make Ransack recognize this custom scope as a searchable field \n# in the UI/Controller (e.g., ?q=search_term)\n```\n\n### Usage in Controller\nTo use the standard Ransack functionality where you can query `title` or `body` individually or together via params:\n\n```ruby\n# app/controllers/articles_controller.rb\ndef index\n  @q = Article.ransack(params[:q])\n  @articles = @q.results\nend\n```\n\n### Implementation Note\nIf you want a single search box to query both fields (e.g., `?query=keyword`), the most idiomatic way without extra gems is to define a custom scope and map it in your view:\n\n```ruby\n# app/models/article.rb\nclass Article < ApplicationRecord\n  # This allows Ransack to find matches in either column \n  # when the parameter 'q' is passed.\n  scope :content_search, ->(query) {\n    where(\"title ILIKE :query OR body ILIKE :query\", query: \"%#{query}%\")\n  }\nend\n```\n\nIf you strictly want to use Ransack's built-in multi-field logic (e.g., `?title_or_body=keyword`):\n\n```ruby\n# No extra code needed in model; Ransack handles this automatically \n# if you use the syntax title_or_body in your search form.\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 19142140783,
+  "load_duration": 212639958,
+  "prompt_eval_count": 77,
+  "prompt_eval_duration": 85559000,
+  "eval_count": 571,
+  "eval_duration": 18814476000
+}

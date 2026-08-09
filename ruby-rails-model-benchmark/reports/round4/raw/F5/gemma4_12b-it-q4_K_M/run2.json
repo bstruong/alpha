@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:07:02.158472272Z",
+  "message": {
+    "role": "assistant",
+    "content": "To handle nested attributes in Rails, you must permit the nested model's keys as an array of symbols within the parent's parameters hash.\n\n```ruby\nclass ArticlesController < ApplicationController\n  def create\n    @article = Article.new(article_params)\n    if @article.save\n      # redirect_to @article\n    else\n      # render :new\n    end\n  end\n\n  private\n\n  def article_params\n    # Permit only specific fields for the Article and its associated Comments\n    params.require(:article).permit(\n      :title, \n      :body, \n      :author_name,\n      comments_attributes: [:id, :content, :commenter_name]\n    )\n  end\nend\n```\n\n### Key Implementation Details:\n1.  **`require(:article)`**: Ensures the root key exists in the params hash.\n2.  **`comments_attributes`**: This must match the name defined in your model's `accepts_nested_attributes_from :comments`.\n3.  **Nested Array**: By passing an array of symbols to `comments_attributes`, you allow multiple comment objects to be processed in a single request.\n4.  **ID Inclusion**: Including `:id` inside the nested attributes is necessary if you intend to update existing comments or if your logic relies on unique identifiers during the creation transaction."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 10249086405,
+  "load_duration": 216119373,
+  "prompt_eval_count": 88,
+  "prompt_eval_duration": 86752000,
+  "eval_count": 299,
+  "eval_duration": 9929979000
+}

@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:03:27.133910991Z",
+  "message": {
+    "role": "assistant",
+    "content": "To implement pagination with Kaminari, ensure the gem is installed and then update your controller and view as follows.\n\n### 1. Implementation\n\n```ruby\n# app/controllers/articles_controller.rb\nclass ArticlesController < ApplicationController\n  def index\n    # Use .page() and .per(10) provided by Kaminari\n    @articles = Article.page(params[:page]).per(10)\n  end\nend\n```\n\n### 2. View Helper (Optional but recommended)\nTo display the \"Next\" and \"Previous\" links in your view:\n\n```erb\n<%# app/views/articles/index.html.erb %>\n<h1>Articles</h1>\n\n<table>\n  <% @articles.each do |article| %>\n    <tr>\n      <td><%= article.title %></td>\n    </tr>\n  <% end %>\n</table>\n\n<div class=\"pagination\">\n  <%= paginate_arrows @articles %>\n</div>\n```\n\n### Prerequisites\nEnsure your `Gemfile` includes the gem and you have run `bundle install`:\n\n```ruby\n# Gemfile\ngem 'kaminari'\n```\n\n**Note:** If you are using a custom scope or join, ensure you call `.page` on the ActiveRecord Relation object (e.g., `@articles = Article.published.page(params[:page]).per(10)`)."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 9756703701,
+  "load_duration": 214385470,
+  "prompt_eval_count": 70,
+  "prompt_eval_duration": 85340000,
+  "eval_count": 291,
+  "eval_duration": 9435218000
+}

@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:04:03.299987864Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add a single image attachment to an `Article` model, follow these steps:\n\n1.  **Generate the migration** (ActiveStorage handles the metadata table automatically).\n2.  **Configure the model** with a validation.\n3.  **Add the helper** in your view.\n\n```ruby\n# 1. Run this command in your terminal to set up ActiveStorage:\n# rails active_storage:install\n# rails db:migrate\n\n# app/models/article.rb\nclass Article < ApplicationRecord\n  # Attachs the file via ActiveStorage\n  has_one_attached_scanner :cover_image\n\n  # Optional: Add validations to ensure an image is present and is a valid type\n  validates :cover_image, presence: true\n  \n  # If using validations for content type or size, \n  # it is recommended to use a gem like 'active_storage_validations'\nend\n\n# app/controllers/articles_controller.rb\ndef update\n  @article = Article.find(params[:id])\n  # The params key will be cover_image: [\"_key\"=>\"cover_image\", \"type\"=>\"file\", \"value\"=>...]\n  if @article.update(article_params)\n    redirect_to @article, notice: 'Article updated.'\n  else\n    render :edit\n  end\nend\n\nprivate\n\ndef article_params\n  # Permit the cover_image key for ActiveStorage\n  params.require(:article).permit(:title, :content, :cover_image)\nend\n\n# app/views/articles/_form.html.rb (Example snippet)\n# Use the file_field helper to render the input\n<%= form.file_field :cover_image %>\n```\n\n### Key Implementation Details:\n*   **`has_one_attached_scanner`**: Since you specified a *single* image, `has_one_attached_file` (or simply `has_one_attached_file` for standard naming) is used. If you wanted multiple images, you would use `has_many`.\n*   **ActiveStorage Configuration**: Ensure your `config/storage.yml` is set up (default is `local`).\n*   **View Helper**: To display the image in your views:\n    ```ruby\n    <%= image_tag @article.cover_image.variant(resize_to_limit: [800, 800]) if @article.cover_image.attached? %>\n    ```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 18020059576,
+  "load_duration": 214816350,
+  "prompt_eval_count": 70,
+  "prompt_eval_duration": 85856000,
+  "eval_count": 542,
+  "eval_duration": 17697206000
+}

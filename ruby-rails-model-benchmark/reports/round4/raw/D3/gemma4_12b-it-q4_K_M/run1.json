@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:02:09.282449842Z",
+  "message": {
+    "role": "assistant",
+    "content": "To implement this, create a new initializer file (e.g., `config/initializers/ruby_version_check.rb`).\n\n```ruby\n# config/initializers/ruby_version_check.rb\n\n# Define the minimum required version as a constant or environment variable\nMINIMUM_RUBY_VERSION = \"3.2.0\"\n\ncurrent_version = RUBY_VERSION\n\nif Gem::Version.new(current_version) < Gem::Version.new(MINIMUM_RUBY_VERSION)\n  raise \"Unsupported Ruby version! This application requires at least #{MINIMUM_RUBY_VERSION}, but you are running #{current_version}.\"\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 5110663042,
+  "load_duration": 212903229,
+  "prompt_eval_count": 76,
+  "prompt_eval_duration": 150990000,
+  "eval_count": 147,
+  "eval_duration": 4723077000
+}

@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:06:41.624544451Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/models/concerns/archivable.rb\nmodule Archivable\n  extend ActiveSupport::Concern\n\n  included do\n    # Adds a boolean column to the table (via migration) \n    # and defines a scope for non-archived records.\n    scope :active, -> { where(archived: false) }\n   years/months/days logic is not needed here, just the core functionality.\n  end\n\n  def archive!\n    update(archived: true)\n  end\n\n  # Optional: convenience method to unarchive\n  def restore!\n    update(archived: false)\n  end\nend\n\n# app/models/article.rb\nclass Article < ApplicationRecord\n  include Archivable\nend\n\n# app/models/order.rb\nclass Order < ApplicationRecord\n  include Archivable\nend\n```\n\n### Migration Note\nTo make this work, you must ensure the underlying tables have the column:\n\n```ruby\nclass AddArchivedToArticlesAndOrders < ActiveRecord::Migration[7.0]\n  def change\n    add_column :articles, :archived, :boolean, default: false, null: false\n    add_column :orders, :archived, :boolean, default: false, null: false\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 9554357047,
+  "load_duration": 211608662,
+  "prompt_eval_count": 109,
+  "prompt_eval_duration": 86877000,
+  "eval_count": 285,
+  "eval_duration": 9235755000
+}

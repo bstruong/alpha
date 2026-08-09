@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T14:59:43.296911334Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add authentication to a Rails app efficiently and following industry standards, the most common approach is using the **Devise** gem.\n\n### 1. Add the Gem\nAdd `devise` to your `Gemfile`:\n\n```ruby\ngem 'devine', '~> 4.9'\n```\n\nRun the installation command:\n```bash\nbundle install\n```\n\n### 2. Install Devise\nRun the generator to create the initial configuration files:\n\n```bash\nrails generate devise:install\n```\n\n*Follow the instructions in the terminal (e.g., setting up default URL options and flash messages).*\n\n### 3. Create the User Model\nGenerate the `User` model with common fields (email, password):\n\n```bash\nrails generate devise:model User\n# If you need additional fields like \"first_name\", add them in the migration file before running:\n# rails db:migrate\n```\n\nRun the migration:\n```bash\nrails db:migrate\n```\n\n### 4. Configure Routes & Helpers\nDevise handles routes automatically, but ensure your `config/routes.rb` looks like this for a basic setup:\n\n```ruby\nRails._load_config!\nRails.application.routes.draw do\n  devise_every :sessions do\n    # Example of a protected resource\n    resources :posts, except: [:index]\n  end\n\n  root to: \"home#index\"\nend\n```\n\n### 5. Implement Helper Methods & Helpers (Example)\nTo protect your controllers, add `before_action :authenticate_user!`. Here is how you would structure a standard controller and view helper logic:\n\n```ruby\n# app/controllers/application_controller.rb\nclass ApplicationController < ActionController::Base\n  before_action :authenticate_user!\n  # Use this for actions where anyone can enter, but logged-in users see extra options\n  # before_action :authenticate_user!, unless: :user_signed_in?\nend\n\n# app/controllers/posts_controller.rb\nclass PostsController < ApplicationController\n  before_action :authenticate_user! # Ensures user is logged in to view/create posts\n\n  def index\n    @posts = Post.all\n  end\n\n  def show\n    @post = Post.find(params[:id])\n  end\nend\n```\n\n### 6. Update Views (Helper Example)\nUse the helper methods provided by Devise to show \"Login\" vs \"Logout\" buttons:\n\n```erb\n<%# app/views/layouts/application.html.erb %>\n<nav>\n  <% if user_signed_in? %>\n    <span>Welcome, <%= current_user.email %></span>\n    <%= link_to \"Logout\", destroy_user_session_path, method: :delete %>\n  <% else %>\n    <%= link_to \"Login\", new_user_session_path %>\n    <%= link_to \"Sign Up\", new_user_registration_path %>\n  <% end %>\n</nav>\n```\n\n### Summary of Key Devise Helpers:\n- `user_signed_in?`: Returns true if the user is logged in.\n- `current_user`: Returns the model instance of the logged-in user.\n- `authenticate_user!`: A filter that redirects the user to the login page if they are not authenticated."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 24210981679,
+  "load_duration": 211845021,
+  "prompt_eval_count": 52,
+  "prompt_eval_duration": 87490000,
+  "eval_count": 726,
+  "eval_duration": 23878532000
+}

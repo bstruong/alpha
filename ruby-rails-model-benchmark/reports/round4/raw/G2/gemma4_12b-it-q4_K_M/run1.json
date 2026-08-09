@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:08:22.247712434Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# app/models/user.rb\nclass User < ApplicationRecord\n  validates :email, presence: true, uniqueness: { case_sensitive: false }\n  validates :username, presence: true, length: { min: 3, max: 20 }\n  validates :age, numericality: { only: :integer, allow_nil: true }\nend\n\n# test/models/user_test.rb\nrequire \"test_helper\"\n\nclass UserTest < ActiveSupport::TestCase\n  def setup\n    @user = User.new(email: \"test@example.com\", username: \"tester\", age: 25)\n  end\n\n  test \"valid user is valid\" do\n    assert @user.valid?\n  end\n\n  test \"invalid email (missing) is invalid\" do\n    @user.email = nil\n    assert_not @user.valid?\n    assert_includes @user.errors[:email], \"can't be blank\"\n  end\n\n  test \"non-unique email is invalid\" do\n    User.create!(email: \"duplicate@example.com\", username: \"original\", age: 30)\n    @user.email = \"DUPLICATE@example.com\"\n    assert_not @user.valid?\n    assert_includes @user.errors[:email], \"has already been taken\"\n  end\n\n  test \"username length constraints are enforced\" do\n    # Too short\n    @user.username = \"ab\"\n    assert_not @user.valid?\n    \n    # Too long\n    @user.username = \"a_very_long_username_that_exceeds_twenty\"\n    assert_not @user.valid?\n\n    # Correct length\n    @user.username = \"valid_name\"\n    assert @user.valid?\n  end\n\n  test \"age can be nil\" do\n    @user.age = nil\n    assert @user.valid?\n  end\n\n  test \"age must be numeric\" do\n    @user.age = \"twenty\"\n    assert_not @user.valid?\n    assert_includes @user.errors[:age], \"is not a number\"\n  end\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 16751099912,
+  "load_duration": 209998589,
+  "prompt_eval_count": 103,
+  "prompt_eval_duration": 170415000,
+  "eval_count": 498,
+  "eval_duration": 16344430000
+}
