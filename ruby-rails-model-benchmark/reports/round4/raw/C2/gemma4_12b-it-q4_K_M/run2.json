@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T14:59:19.085203054Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add authentication to a Rails app efficiently, the industry standard is the **Devise** gem.\n\n### 1. Add the Gem\nAdd Devise to your `Gemfile`:\n```ruby\ngem 'devise'\n```\nRun the installation command:\n```bash\nbundle install\nbundle exec rails generate devise:install\n```\n\n### 2. Configure Devise\nEdit `config/initializers/devise.rb` (optional settings) and define your default environment in `config/environments/development.rb`:\n```ruby\n# config/environments/development.rb\nconfig.rails.default_url_options = \"http://localhost:3000\"\n```\n\n### 3. Create the User Model\nRun the generator to create the migration and model:\n```bash\nrails generate devise User\nrails db:migrate\n```\n\n### 4. Update the Controller (Optional)\nIf you need to customize authentication logic or permitted parameters, update the `ApplicationController`:\n```ruby\n# app/controllers/application_controller.rb\nclass ApplicationController < ActionController::Base\n  before_action :authenticate_user! # Optional: forces login for all actions in app\nend\n```\n\n### 5. Example Usage in Controllers\nProtect specific actions or resources with the `authenticate_user!` helper:\n```ruby\n# app/controllers/pages_controller.rb\nclass PagesController < ApplicationController\n  before_action :authenticate_user!, only: [:dashboard]\n\n  def dashboard\n    # Only logged-in users can see this\n  end\nend\n```\n\n### 6. Example View Helper\nAccess the current user in your views or helpers:\n```erb\n<% if user_signed_in? %>\n  <p>Welcome, <%= current_user.email %></p>\n  <%= link_to \"Log out\", destroy_user_session_path, data: { turbo: true } %>\n<% else %>\n  <%= link_to \"Sign up\", new_user_registration_path %>\n  <%= link_to \"Login\", new_user_session_path %>\n<% end %>\n```\n\n### Summary of files modified/created:\n1. **`Gemfile`**: Added `devise`.\n2. **`config/initializers/devise.rb`**: Configuration file.\n3. **`app/models/user.rb`**: Devise model for authentication logic.\n4. **`db/migrate/..._devise_create_users.rb`**: Database schema for user credentials.\n5. **`config/routes.rb`**: Automatically updated by `devise:install`."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 19049173276,
+  "load_duration": 214673232,
+  "prompt_eval_count": 52,
+  "prompt_eval_duration": 84985000,
+  "eval_count": 570,
+  "eval_duration": 18718875000
+}

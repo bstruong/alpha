@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:01:12.181808792Z",
+  "message": {
+    "role": "assistant",
+    "content": "To ensure a background job only runs after the database transaction is successfully committed, use the `after_commit` hook or the `after_commit` callback provided by ActiveJob's transactional integration.\n\nUsing `after_commit` inside the model method ensures that even if the logic involves multiple internal steps (like creating line items), the job is only enqueued once the transaction is finalized.\n\n```ruby\nclass Order < ApplicationRecord\n  has_many :line_items\n\n  # If you use a service object or a method to handle complex logic, \n  # wrap it in a transaction and call this method.\n  def process_order\n    transaction do\n      # Perform internal logic (e.g., updating statuses, creating items)\n      update!(status: :processing)\n      \n      # Use after_commit logic or standard behavior\n      # If using ActiveJob with a transactional adapter (like Sidekiq),\n      # calling .perform_later inside an after_commit block is the safest route.\n    end\n\n    # Standard way to ensure execution after the transaction block above finishes:\n    OrderProcessorJob.perform_later(self.id)\n  end\n\n  # Alternative approach: If the logic involves many related objects, \n  # use a callback to trigger the job automatically upon commit.\n  after_commit :enqueue_processing_job, on: :create\n\n  private\n\n  def enqueue_processing_job\n    OrderProcessorJob.perform_later(self.id)\n  end\nend\n```\n\n### Key Architectural Notes:\n1.  **Transaction Isolation:** By placing the `perform_later` call after the `transaction` block or inside an `after_commit` hook, you prevent a \"Race Condition\" where the worker tries to fetch the Order from the database before the DB has finished committing the transaction.\n2.  **ActiveJob:** If using `Sidekiq`, it is highly recommended to use the `sidekiq-transactional_16` (or similar) or simply stick to the `after_commit` pattern shown above to guarantee consistency."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 14875262366,
+  "load_duration": 215595724,
+  "prompt_eval_count": 98,
+  "prompt_eval_duration": 88457000,
+  "eval_count": 446,
+  "eval_duration": 14546457000
+}

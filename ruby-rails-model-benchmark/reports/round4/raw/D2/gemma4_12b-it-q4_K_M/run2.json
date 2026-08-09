@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:01:52.732875383Z",
+  "message": {
+    "role": "assistant",
+    "content": "Since **YJIT** (Yet Imaginary Just-In-Time compiler) is enabled via an environment variable at the Ruby interpreter level, it is not typically toggled inside a `config.ru` or a Rails initializer file because the Ruby process must be started with the flag active to benefit from it.\n\nHowever, if you want to ensure it is enabled and logged in your environment, you should set the environment variable. Here is how you handle this for production:\n\n### 1. The standard way (Environment Variable)\nAdd this to your `Procfile` or your production server configuration (e.g., systemd, Puma config):\n\n```bash\n# Add this to your environment variables\nRUBY_OPTIONS=\"-march=native -Y\"\n```\n\n### 2. If using a wrapper or custom loader\nIf you want to ensure the option is explicitly passed if you are manually invoking `rails server` in some environments, you can add a check, though it is much better to set the environment variable directly.\n\n```ruby\n# config/initializers/yjit_check.rb\nif defined?(RubyVM::YJIT)\n  enabled = RubyVM.compile_mode == :yjit ? \"Enabled\" : \"Disabled\"\n  Rails.logger.info \"[YJIT] #{enabled}\"\nend\n```\n\n### Recommendation for Production\nInstead of an initializer, you should set the environment variable in your deployment tool (e.g., Heroku, Capistrano, or Docker). \n\n**For example, in a `docker-compose.yml` or `.env` file:**\n```yaml\n# Ensure Ruby is started with YJIT enabled and optimized for the local architecture\nRUBY_OPTIONS: \"-march=native -Y\"\n```\n\n*Note: `-march=native` optimizes the binary for your specific CPU, and `-Y` enables the JIT. Note that YJIT requires Ruby 3.1+.*"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 13708715810,
+  "load_duration": 209663793,
+  "prompt_eval_count": 69,
+  "prompt_eval_duration": 85742000,
+  "eval_count": 411,
+  "eval_duration": 13397460000
+}

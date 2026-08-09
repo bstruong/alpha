@@ -1,0 +1,176 @@
+[
+  {
+    "prompt": "G1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 1, 'assertions': 2, 'failures': 0, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 1,
+        "assertions": 2,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 1,
+        "assertions": 2,
+        "failures": 0,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 27886\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_post_successfully:\nNoMethodError: undefined method `assert_redirect_to' for an instance of PostsControllerTest\n    test/integration/bench_g1_generated_test.rb:13:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:8\n\n\n\nFinished in 0.057882s, 17.2765 runs/s, 34.5529 assertions/s.\n1 runs, 2 assertions, 0 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 11586\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_post_successfully:\nNoMethodError: undefined method `assert_redirect_to' for an instance of PostsControllerTest\n    test/integration/bench_g1_generated_test.rb:13:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:8\n\n\n\nFinished in 0.059403s, 16.8342 runs/s, 33.6684 assertions/s.\n1 runs, 2 assertions, 0 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 2, 'assertions': 0, 'failures': 0, 'errors': 2, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 2,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 2,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 2,
+        "assertions": 0,
+        "failures": 0,
+        "errors": 2,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 2 tests in a single process (parallelization threshold is 50)\nRun options: --seed 23422\n\n# Running:\n\nE\n\nError:\nPostsTest#test_should_fail_to_publish_if_record_is_invalid:\nActiveModel::UnknownAttributeError: unknown attribute 'content' for Post.\n    test/integration/bench_g1_generated_test.rb:5:in `setup'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:27\n\nE\n\nError:\nPostsTest#test_should_publish_a_post_and_redirect_with_success_message:\nActiveModel::UnknownAttributeError: unknown attribute 'content' for Post.\n    test/integration/bench_g1_generated_test.rb:5:in `setup'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:12\n\n\n\nFinished in 0.041774s, 47.8769 runs/s, 0.0000 assertions/s.\n2 runs, 0 assertions, 0 failures, 2 errors, 0 skips\n",
+      "out_vs_broken": "Running 2 tests in a single process (parallelization threshold is 50)\nRun options: --seed 50414\n\n# Running:\n\nE\n\nError:\nPostsTest#test_should_fail_to_publish_if_record_is_invalid:\nActiveModel::UnknownAttributeError: unknown attribute 'content' for Post.\n    test/integration/bench_g1_generated_test.rb:5:in `setup'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:27\n\nE\n\nError:\nPostsTest#test_should_publish_a_post_and_redirect_with_success_message:\nActiveModel::UnknownAttributeError: unknown attribute 'content' for Post.\n    test/integration/bench_g1_generated_test.rb:5:in `setup'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:12\n\n\n\nFinished in 0.044118s, 45.3332 runs/s, 0.0000 assertions/s.\n2 runs, 0 assertions, 0 failures, 2 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 2, 'assertions': 4, 'failures': 1, 'errors': 1, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 2,
+        "assertions": 4,
+        "failures": 1,
+        "errors": 1,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 2,
+        "assertions": 4,
+        "failures": 1,
+        "errors": 1,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 2 tests in a single process (parallelization threshold is 50)\nRun options: --seed 5072\n\n# Running:\n\nF\n\nFailure:\nPostsControllerTest#test_should_show_flash_notice_on_successful_publish [test/integration/bench_g1_generated_test.rb:27]:\nExpected at least 1 element matching \"div.alert\", found 0.\nExpected 0 to be >= 1.\n\nbin/rails test test/integration/bench_g1_generated_test.rb:22\n\nE\n\nError:\nPostsControllerTest#test_should_publish_post_and_redirect_with_success_message:\nNoMethodError: undefined method `assert_redirects_to' for an instance of PostsControllerTest\n    test/integration/bench_g1_generated_test.rb:14:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:8\n\n\n\nFinished in 0.054403s, 36.7627 runs/s, 73.5255 assertions/s.\n2 runs, 4 assertions, 1 failures, 1 errors, 0 skips\n",
+      "out_vs_broken": "Running 2 tests in a single process (parallelization threshold is 50)\nRun options: --seed 44179\n\n# Running:\n\nE\n\nError:\nPostsControllerTest#test_should_publish_post_and_redirect_with_success_message:\nNoMethodError: undefined method `assert_redirects_to' for an instance of PostsControllerTest\n    test/integration/bench_g1_generated_test.rb:14:in `block in <class:PostsControllerTest>'\n\nbin/rails test test/integration/bench_g1_generated_test.rb:8\n\nF\n\nFailure:\nPostsControllerTest#test_should_show_flash_notice_on_successful_publish [test/integration/bench_g1_generated_test.rb:27]:\nExpected at least 1 element matching \"div.alert\", found 0.\nExpected 0 to be >= 1.\n\nbin/rails test test/integration/bench_g1_generated_test.rb:22\n\n\n\nFinished in 0.062496s, 32.0022 runs/s, 64.0045 assertions/s.\n2 runs, 4 assertions, 1 failures, 1 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS: correctly passes against correct implementation and fails against broken implementation",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 6,
+        "assertions": 14,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 6,
+        "assertions": 12,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 6 tests in a single process (parallelization threshold is 50)\nRun options: --seed 12098\n\n# Running:\n\n......\n\nFinished in 0.033195s, 180.7519 runs/s, 421.7545 assertions/s.\n6 runs, 14 assertions, 0 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 6 tests in a single process (parallelization threshold is 50)\nRun options: --seed 44722\n\n# Running:\n\nF\n\nFailure:\nUserTest#test_non-unique_email_is_invalid [test/models/bench_g2_generated_test.rb:21]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:18\n\n.....\n\nFinished in 0.029939s, 200.4060 runs/s, 400.8121 assertions/s.\n6 runs, 12 assertions, 1 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": true,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS: correctly passes against correct implementation and fails against broken implementation",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 7,
+        "assertions": 17,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 7,
+        "assertions": 15,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 7 tests in a single process (parallelization threshold is 50)\nRun options: --seed 56930\n\n# Running:\n\n.......\n\nFinished in 0.033751s, 207.4002 runs/s, 503.6862 assertions/s.\n7 runs, 17 assertions, 0 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 7 tests in a single process (parallelization threshold is 50)\nRun options: --seed 27930\n\n# Running:\n\n....F\n\nFailure:\nUserTest#test_email_must_be_unique_(case-insensitive) [test/models/bench_g2_generated_test.rb:22]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:19\n\n..\n\nFinished in 0.030082s, 232.6941 runs/s, 498.6302 assertions/s.\n7 runs, 15 assertions, 1 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": true,
+    "passes_broken_impl": false,
+    "false_positive": false
+  },
+  {
+    "prompt": "G2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "FAIL: does not pass even against the correct reference implementation ({'runs': 7, 'assertions': 17, 'failures': 5, 'errors': 0, 'skips': 0})",
+    "detail": {
+      "summary_vs_correct": {
+        "runs": 7,
+        "assertions": 17,
+        "failures": 5,
+        "errors": 0,
+        "skips": 0
+      },
+      "summary_vs_broken": {
+        "runs": 7,
+        "assertions": 15,
+        "failures": 5,
+        "errors": 0,
+        "skips": 0
+      },
+      "out_vs_correct": "Running 7 tests in a single process (parallelization threshold is 50)\nRun options: --seed 65095\n\n# Running:\n\nF\n\nFailure:\nUserTest#test_invalid_without_email [test/models/bench_g2_generated_test.rb:19]:\nExpected [\"can't be blank\"] to include :blank.\n\nbin/rails test test/models/bench_g2_generated_test.rb:16\n\nF\n\nFailure:\nUserTest#test_invalid_with_non-numeric_age [test/models/bench_g2_generated_test.rb:49]:\nExpected [\"is not a number\"] to include :not_a_number.\n\nbin/rails test test/models/bench_g2_generated_test.rb:46\n\nF\n\nFailure:\nUserTest#test_invalid_with_duplicate_email_(case-insensitive) [test/models/bench_g2_generated_test.rb:26]:\nExpected [\"has already been taken\"] to include :taken.\n\nbin/rails test test/models/bench_g2_generated_test.rb:22\n\nF\n\nFailure:\nUserTest#test_invalid_with_short_username [test/models/bench_g2_generated_test.rb:32]:\nExpected [\"is too short (minimum is 3 characters)\"] to include :too_short.\n\nbin/rails test test/models/bench_g2_generated_test.rb:29\n\nF\n\nFailure:\nUserTest#test_invalid_with_long_username [test/models/bench_g2_generated_test.rb:38]:\nExpected [\"is too long (maximum is 20 characters)\"] to include :too_long.\n\nbin/rails test test/models/bench_g2_generated_test.rb:35\n\n..\n\nFinished in 0.034960s, 200.2268 runs/s, 486.2651 assertions/s.\n7 runs, 17 assertions, 5 failures, 0 errors, 0 skips\n",
+      "out_vs_broken": "Running 7 tests in a single process (parallelization threshold is 50)\nRun options: --seed 63163\n\n# Running:\n\nF\n\nFailure:\nUserTest#test_invalid_with_long_username [test/models/bench_g2_generated_test.rb:38]:\nExpected [\"is too long (maximum is 20 characters)\"] to include :too_long.\n\nbin/rails test test/models/bench_g2_generated_test.rb:35\n\nF\n\nFailure:\nUserTest#test_invalid_with_duplicate_email_(case-insensitive) [test/models/bench_g2_generated_test.rb:25]:\nExpected true to be nil or false\n\nbin/rails test test/models/bench_g2_generated_test.rb:22\n\n.F\n\nFailure:\nUserTest#test_invalid_with_short_username [test/models/bench_g2_generated_test.rb:32]:\nExpected [\"is too short (minimum is 3 characters)\"] to include :too_short.\n\nbin/rails test test/models/bench_g2_generated_test.rb:29\n\nF\n\nFailure:\nUserTest#test_invalid_with_non-numeric_age [test/models/bench_g2_generated_test.rb:49]:\nExpected [\"is not a number\"] to include :not_a_number.\n\nbin/rails test test/models/bench_g2_generated_test.rb:46\n\n.F\n\nFailure:\nUserTest#test_invalid_without_email [test/models/bench_g2_generated_test.rb:19]:\nExpected [\"can't be blank\"] to include :blank.\n\nbin/rails test test/models/bench_g2_generated_test.rb:16\n\n\n\nFinished in 0.031413s, 222.8372 runs/s, 477.5082 assertions/s.\n7 runs, 15 assertions, 5 failures, 0 errors, 0 skips\n"
+    },
+    "passes_correct_impl": false,
+    "passes_broken_impl": false,
+    "false_positive": false
+  }
+]

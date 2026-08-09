@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:05:50.057433621Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\n# rails generate model Comment body:text commentable:references{polymorphic}\n\n# app/models/comment.rb\nclass Comment < ApplicationRecord\n  # The polymorphic association\n  belongs_to :commentable, polymorphic: true\nend\n\n# app/models/article.rb\nclass Article < ApplicationRecord\n  # Defines the relationship to the polymorphic Comment model\n  has_many :comments, as: :commentable\nend\n\n# app/models/post.rb\nclass Post < ApplicationRecord\n  # Defines the relationship to the polymorphic Comment model\n  has_many :comments, as: :commentable\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 4815566417,
+  "load_duration": 214050628,
+  "prompt_eval_count": 100,
+  "prompt_eval_duration": 88866000,
+  "eval_count": 140,
+  "eval_duration": 4497844000
+}

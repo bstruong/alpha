@@ -1,0 +1,200 @@
+[
+  {
+    "prompt": "B1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "migrate_rc": 0,
+      "migrate_out": "== 20990101000001 AddStatusToArticles: migrating ==============================\n-- add_column(:articles, :status, :string, {:default=>\"draft\", :null=>false})\n   -> 0.0007s\n-- add_index(:articles, :status)\n   -> 0.0004s\n== 20990101000001 AddStatusToArticles: migrated (0.0012s) =====================\n\n",
+      "migrate_err": "",
+      "check_out": "RESULT: PASS\n",
+      "check_err": ""
+    }
+  },
+  {
+    "prompt": "B1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "migrate_rc": 0,
+      "migrate_out": "== 20990101000002 AddStatusToArticles: migrating ==============================\n-- add_column(:articles, :status, :string, {:default=>\"draft\", :null=>false})\n   -> 0.0008s\n-- add_index(:articles, :status)\n   -> 0.0004s\n== 20990101000002 AddStatusToArticles: migrated (0.0013s) =====================\n\n",
+      "migrate_err": "",
+      "check_out": "RESULT: PASS\n",
+      "check_err": ""
+    }
+  },
+  {
+    "prompt": "B1",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "migrate_rc": 0,
+      "migrate_out": "== 20990101000003 AddStatusToArticles: migrating ==============================\n-- add_column(:articles, :status, :string, {:default=>\"draft\", :null=>false})\n   -> 0.0009s\n-- add_index(:articles, :status)\n   -> 0.0004s\n== 20990101000003 AddStatusToArticles: migrated (0.0014s) =====================\n\n",
+      "migrate_err": "",
+      "check_out": "RESULT: PASS\n",
+      "check_err": ""
+    }
+  },
+  {
+    "prompt": "B2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "runner_rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "runner_rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B2",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "runner_rc": 0,
+      "out": "RESULT: PASS\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B3",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "test_rc": 0,
+      "out": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 45315\n\n# Running:\n\nRESULT: PASS\n.\n\nFinished in 0.062307s, 16.0494 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 0 errors, 0 skips\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B3",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "test_rc": 0,
+      "out": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 54855\n\n# Running:\n\nRESULT: PASS\n.\n\nFinished in 0.058880s, 16.9836 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 0 errors, 0 skips\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B3",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "test_rc": 0,
+      "out": "Running 1 tests in a single process (parallelization threshold is 50)\nRun options: --seed 29092\n\n# Running:\n\nRESULT: PASS\n.\n\nFinished in 0.058913s, 16.9742 runs/s, 0.0000 assertions/s.\n1 runs, 0 assertions, 0 failures, 0 errors, 0 skips\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B4",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: enum_ok=false invalid_raised(validate:true)=false scope_ok=true",
+    "detail": {
+      "runner_rc": 0,
+      "out": "RESULT: FAIL: enum_ok=false invalid_raised(validate:true)=false scope_ok=true\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B4",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: enum_ok=false invalid_raised(validate:true)=false scope_ok=true",
+    "detail": {
+      "runner_rc": 0,
+      "out": "RESULT: FAIL: enum_ok=false invalid_raised(validate:true)=false scope_ok=true\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B4",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "RESULT: FAIL: enum_ok=false invalid_raised(validate:true)=false scope_ok=true",
+    "detail": {
+      "runner_rc": 0,
+      "out": "RESULT: FAIL: enum_ok=false invalid_raised(validate:true)=false scope_ok=true\n",
+      "err": ""
+    }
+  },
+  {
+    "prompt": "B5",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 1,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "routes_rc": 0,
+      "out": "_email_reroute POST   /rails/conductor/action_mailbox/:inbound_email_id/reroute(.:format)                               rails/conductor/action_mailbox/reroutes#create\nrails_conductor_inbound_email_incinerate POST   /rails/conductor/action_mailbox/:inbound_email_id/incinerate(.:format)                            rails/conductor/action_mailbox/incinerates#create\n                      rails_service_blob GET    /rails/active_storage/blobs/redirect/:signed_id/*filename(.:format)                               active_storage/blobs/redirect#show\n                rails_service_blob_proxy GET    /rails/active_storage/blobs/proxy/:signed_id/*filename(.:format)                                  active_storage/blobs/proxy#show\n                                         GET    /rails/active_storage/blobs/:signed_id/*filename(.:format)                                        active_storage/blobs/redirect#show\n               rails_blob_representation GET    /rails/active_storage/representations/redirect/:signed_blob_id/:variation_key/*filename(.:format) active_storage/representations/redirect#show\n         rails_blob_representation_proxy GET    /rails/active_storage/representations/proxy/:signed_blob_id/:variation_key/*filename(.:format)    active_storage/representations/proxy#show\n                                         GET    /rails/active_storage/representations/:signed_blob_id/:variation_key/*filename(.:format)          active_storage/representations/redirect#show\n                      rails_disk_service GET    /rails/active_storage/disk/:encoded_key/*filename(.:format)                                       active_storage/disk#show\n               update_rails_disk_service PUT    /rails/active_storage/disk/:encoded_token(.:format)                                               active_storage/disk#update\n                    rails_direct_uploads POST   /rails/active_storage/direct_uploads(.:format)                                                    active_storage/direct_uploads#create\n"
+    }
+  },
+  {
+    "prompt": "B5",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 2,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "routes_rc": 0,
+      "out": "_email_reroute POST   /rails/conductor/action_mailbox/:inbound_email_id/reroute(.:format)                               rails/conductor/action_mailbox/reroutes#create\nrails_conductor_inbound_email_incinerate POST   /rails/conductor/action_mailbox/:inbound_email_id/incinerate(.:format)                            rails/conductor/action_mailbox/incinerates#create\n                      rails_service_blob GET    /rails/active_storage/blobs/redirect/:signed_id/*filename(.:format)                               active_storage/blobs/redirect#show\n                rails_service_blob_proxy GET    /rails/active_storage/blobs/proxy/:signed_id/*filename(.:format)                                  active_storage/blobs/proxy#show\n                                         GET    /rails/active_storage/blobs/:signed_id/*filename(.:format)                                        active_storage/blobs/redirect#show\n               rails_blob_representation GET    /rails/active_storage/representations/redirect/:signed_blob_id/:variation_key/*filename(.:format) active_storage/representations/redirect#show\n         rails_blob_representation_proxy GET    /rails/active_storage/representations/proxy/:signed_blob_id/:variation_key/*filename(.:format)    active_storage/representations/proxy#show\n                                         GET    /rails/active_storage/representations/:signed_blob_id/:variation_key/*filename(.:format)          active_storage/representations/redirect#show\n                      rails_disk_service GET    /rails/active_storage/disk/:encoded_key/*filename(.:format)                                       active_storage/disk#show\n               update_rails_disk_service PUT    /rails/active_storage/disk/:encoded_token(.:format)                                               active_storage/disk#update\n                    rails_direct_uploads POST   /rails/active_storage/direct_uploads(.:format)                                                    active_storage/direct_uploads#create\n"
+    }
+  },
+  {
+    "prompt": "B5",
+    "model": "gemma4:12b-it-q4_K_M",
+    "run": 3,
+    "code_extracted": true,
+    "executes": true,
+    "behavior": "PASS",
+    "detail": {
+      "routes_rc": 0,
+      "out": "_email_reroute POST   /rails/conductor/action_mailbox/:inbound_email_id/reroute(.:format)                               rails/conductor/action_mailbox/reroutes#create\nrails_conductor_inbound_email_incinerate POST   /rails/conductor/action_mailbox/:inbound_email_id/incinerate(.:format)                            rails/conductor/action_mailbox/incinerates#create\n                      rails_service_blob GET    /rails/active_storage/blobs/redirect/:signed_id/*filename(.:format)                               active_storage/blobs/redirect#show\n                rails_service_blob_proxy GET    /rails/active_storage/blobs/proxy/:signed_id/*filename(.:format)                                  active_storage/blobs/proxy#show\n                                         GET    /rails/active_storage/blobs/:signed_id/*filename(.:format)                                        active_storage/blobs/redirect#show\n               rails_blob_representation GET    /rails/active_storage/representations/redirect/:signed_blob_id/:variation_key/*filename(.:format) active_storage/representations/redirect#show\n         rails_blob_representation_proxy GET    /rails/active_storage/representations/proxy/:signed_blob_id/:variation_key/*filename(.:format)    active_storage/representations/proxy#show\n                                         GET    /rails/active_storage/representations/:signed_blob_id/:variation_key/*filename(.:format)          active_storage/representations/redirect#show\n                      rails_disk_service GET    /rails/active_storage/disk/:encoded_key/*filename(.:format)                                       active_storage/disk#show\n               update_rails_disk_service PUT    /rails/active_storage/disk/:encoded_token(.:format)                                               active_storage/disk#update\n                    rails_direct_uploads POST   /rails/active_storage/direct_uploads(.:format)                                                    active_storage/direct_uploads#create\n"
+    }
+  }
+]

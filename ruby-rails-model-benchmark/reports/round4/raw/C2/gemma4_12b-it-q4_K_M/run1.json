@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T14:59:00.035076898Z",
+  "message": {
+    "role": "assistant",
+    "content": "To add authentication to a Rails app efficiently, the industry standard is the **Devise** gem. It handles session management, passwords, and registration out of the box.\n\nHere is the step-by-step implementation:\n\n### 1. Add the Gem\nAdd `devise` to your `Gemfile` and run bundle.\n\n```ruby\n# Gemfile\ngem 'devise'\n```\n\n```bash\nbundle install\n```\n\n### 2. Generate and Configure Devise\nRun the generator to install initial configuration files.\n\n```bash\nrails generate devise:install\n```\n\n*Note: Follow the \"Rails Installer\" instructions in your terminal (setting `default_url` in `config/locales/en.yml` and setting up `mail_to` if using email confirmations).*\n\n### 3. Create the User Model\nGenerate the User model specifically for Devise.\n\n```bash\nrails generate devise User\n# This will create migrations, models, and routes\n```\n\nRun the migration to update your database schema:\n\n```bash\nrails db:migrate\n```\n\n### 4. Update Controller Behavior (Optional but Recommended)\nIf you want to protect specific controllers or actions that aren't strictly \"members only,\" you can use `before_action`. However, Devise handles standard logic automatically.\n\n### Example Usage in Views and Controllers\nDevise provides helpers like `authenticate_user!`, `current_user`, and `user_signed_in?`.\n\n```ruby\n# app/controllers/pages_controller.rb\nclass PagesController < ApplicationController\n  # This ensures the user is logged in before seeing any action in this controller\n  before_action :authenticate_user!\n\n  def index\n    @message = \"Welcome, #{current_user.email}\" if user_signed_in?\n  end\nend\n```\n\n### 5. Update your Views (Layout)\nUpdate your navigation to show dynamic links based on login status.\n\n```erb\n<%# app/views/layouts/application.html.erb %>\n<nav>\n  <% if user_signed_in? %>\n    Logged in as <%= current_user.email %>\n    <%= link_to \"Logout\", destroy_user_session_path, data: { turbo: true } %>\n  <% else %>\n    <%= link_to \"Login\", new_user_session_path %>\n    <%= link_to \"Sign Up\", new_user_registration_path %>\n  <% end %>\n</nav>\n```\n\n### Summary of Key Devise Helpers:\n| Helper | Purpose |\n| :--- | :--- |\n| `authenticate_user!` | Filter that redirects users to login if not authenticated. |\n| `current_user` | Returns the model instance of the logged-in user. |\n| `user_signed_in?` | Returns `true/false` for conditional UI logic. |\n| `destroy_user_session_path` | The route used to log out (defaults to DELETE). |"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 21520357378,
+  "load_duration": 213251980,
+  "prompt_eval_count": 52,
+  "prompt_eval_duration": 129636000,
+  "eval_count": 647,
+  "eval_duration": 21152670000
+}

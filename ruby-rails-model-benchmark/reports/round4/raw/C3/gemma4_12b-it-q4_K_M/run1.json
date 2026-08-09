@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T15:00:02.34386759Z",
+  "message": {
+    "role": "assistant",
+    "content": "To configure the asset pipeline (using **Propshaft** or **Sprockets**), follow these steps. \n\n*Note: This assumes a modern Rails 7+ structure.*\n\n### 1. Define the Manifest (CSS)\nCreate your stylesheet file in `app/assets/stylesheets`. If you use SCSS, name it `.scss`.\n\n```scss\n# app/assets/stylesheets/main.css\nbody {\n  background-color: #f4f4f4;\n}\n.container {\n  padding: 20px;\n}\n```\n\n### 2. Configuration (Railtie/Initializers)\nIf you are using the default Rails asset pipeline, ensure `config/environments/development.rb` and `production.rb` have the correct assets paths.\n\n```ruby\n# config/environments/development.rb\nRails.application.configure do\n  # Ensure assets are compiled in dev (if not using a separate build step)\n  config.assets.preload = false\n  config.assets.truncate_white_space = true\nend\n\n# config/environments/production.rb\nRails.application.configure do\n  config.assets.compile = false # Set to true only for debugging\nend\n```\n\n### 3. The Layout (View)\nInclude the asset in your application layout using the `stylesheet_link_tag` helper. This automatically handles fingerprinting and paths.\n\n```erb\n<%# app/views/layouts/application.html.erb %>\n<!DOCTYPE html>\n<html>\n  <head>\n    <title>My Rails App</title>\n    <%= stylesheet_link_tag \"main\", \"data-prefix:css\" %>\n    <%= javascript_include_tag \"application\", \"data-prefix:js\" %>\n  </head>\n  <body>\n    <%= yield %>\n  </body>\n</html>\n```\n\n### 4. The Manifest (If using Sprockets)\nIf you are using the legacy `Sprockets` engine, ensure your manifest file includes the core CSS.\n\n```ruby\n# app/assets/config/manifest.js\n//= require all_css\n//= require all_js\n```\n\n### 5. Compilation Command\nTo compile and prefix assets (standard for production deployment):\n\n```bash\n# To precompile during deployment:\nbin/rails assets:precompile\n```\n\n### Summary of Files Created/Modified:\n- `app/assets/stylesheets/main.css`: The actual styles.\n- `config/environments/*.rb`: Configuration settings.\n- `app/views/layouts/application.html.erb`: Linking the asset to the HTML."
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 19046079259,
+  "load_duration": 209360892,
+  "prompt_eval_count": 60,
+  "prompt_eval_duration": 155489000,
+  "eval_count": 569,
+  "eval_duration": 18606956000
+}

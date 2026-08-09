@@ -1,0 +1,16 @@
+{
+  "model": "gemma4:12b-it-q4_K_M",
+  "created_at": "2026-08-09T14:56:54.059455721Z",
+  "message": {
+    "role": "assistant",
+    "content": "```ruby\nclass User < ApplicationRecord\n  # Presence validations\n  validates :email, presence: true\n  validates :username, presence: true\n\n  # Uniqueness validation (case-insensitive)\n  validates :email, uniqueness: { case_sensitive: false }\n\n  # Length validation for username\n  validates :username, length: { in: 3..20 }\n\n  # Numericity validation for age\n  # allow_nil: true allows the field to be empty/null in the database\n  validates :age, numericality: { only: :integer, allow_nil: true }\nend\n```"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 4771124838,
+  "load_duration": 210787070,
+  "prompt_eval_count": 100,
+  "prompt_eval_duration": 87184000,
+  "eval_count": 139,
+  "eval_duration": 4462816000
+}
