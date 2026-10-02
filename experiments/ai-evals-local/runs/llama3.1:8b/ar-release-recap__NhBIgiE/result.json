@@ -1,0 +1,63 @@
+{
+  "trial": "ar-release-recap__NhBIgiE",
+  "task": "ar-release-recap",
+  "agent": "miniswen",
+  "model": "ollama/llama3.1:8b",
+  "index": 1,
+  "profile_digest": "284d9267553b3273",
+  "task_digest": "71f50f3c9a741500",
+  "revision": {
+    "commit": null,
+    "dirty": null
+  },
+  "lemans_version": "1.0.0",
+  "tags": [
+    "rails",
+    "active-record",
+    "callbacks",
+    "transactions",
+    "caching"
+  ],
+  "metadata": {
+    "category": "api-knowledge",
+    "rails_anchor": "run_commit_callbacks_on_first_saved_instances_in_transaction"
+  },
+  "phases": [
+    {
+      "name": "environment_setup",
+      "started_at": "2026-08-26T16:18:25.667752Z",
+      "finished_at": "2026-08-26T16:18:26.587953Z"
+    },
+    {
+      "name": "agent",
+      "started_at": "2026-08-26T16:18:26.587964Z",
+      "finished_at": "2026-08-26T16:20:14.654602Z"
+    },
+    {
+      "name": "verifier",
+      "started_at": "2026-08-26T16:20:14.742884Z",
+      "finished_at": "2026-08-26T16:20:26.702035Z"
+    }
+  ],
+  "reward": 0.0,
+  "outcome": {
+    "name": "completed",
+    "scored": true
+  },
+  "usage": {
+    "input_tokens": 476644,
+    "output_tokens": 5876,
+    "cached_tokens": 471889,
+    "steps": 92,
+    "cost_usd": 0.0,
+    "cost_source": {
+      "name": "local_provider",
+      "model": "ollama/llama3.1:8b",
+      "priced_as": "ollama/llama3.1:8b ($0.00, local)",
+      "registry": null
+    }
+  },
+  "duration": 121.0,
+  "started_at": "2026-08-26T16:18:25Z",
+  "finished_at": "2026-08-26T16:20:26Z"
+}
