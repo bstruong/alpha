@@ -1,0 +1,62 @@
+{
+  "trial": "sup-cache-library-digest__KerCpu8",
+  "task": "sup-cache-library-digest",
+  "agent": "miniswen",
+  "model": "ollama/llama3.1:8b",
+  "index": 1,
+  "profile_digest": "284d9267553b3273",
+  "task_digest": "e231b19b99016d8f",
+  "revision": {
+    "commit": null,
+    "dirty": null
+  },
+  "lemans_version": "1.0.0",
+  "tags": [
+    "rails",
+    "active-support",
+    "caching",
+    "cache-keys"
+  ],
+  "metadata": {
+    "category": "api-knowledge",
+    "rails_anchor": "cache_slot"
+  },
+  "phases": [
+    {
+      "name": "environment_setup",
+      "started_at": "2026-08-26T16:17:25.275718Z",
+      "finished_at": "2026-08-26T16:17:26.152369Z"
+    },
+    {
+      "name": "agent",
+      "started_at": "2026-08-26T16:17:26.152382Z",
+      "finished_at": "2026-08-26T16:17:42.665427Z"
+    },
+    {
+      "name": "verifier",
+      "started_at": "2026-08-26T16:17:42.752999Z",
+      "finished_at": "2026-08-26T16:17:54.127557Z"
+    }
+  ],
+  "reward": 0.0,
+  "outcome": {
+    "name": "completed",
+    "scored": true
+  },
+  "usage": {
+    "input_tokens": 24543,
+    "output_tokens": 953,
+    "cached_tokens": 22861,
+    "steps": 13,
+    "cost_usd": 0.0,
+    "cost_source": {
+      "name": "local_provider",
+      "model": "ollama/llama3.1:8b",
+      "priced_as": "ollama/llama3.1:8b ($0.00, local)",
+      "registry": null
+    }
+  },
+  "duration": 28.9,
+  "started_at": "2026-08-26T16:17:25Z",
+  "finished_at": "2026-08-26T16:17:54Z"
+}

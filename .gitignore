@@ -14,3 +14,9 @@ llm-benchmark/fixtures/*
 # Permanent deliverables -- final reports, appendices, anything meant to be
 # read later rather than regenerated -- live in each project's reports/
 # folder instead, which no rule here ever covers. See CONVENTIONS.md.
+
+# Local LLM model weights and test cache
+*.gguf
+experiments/models/
+.pytest_cache/
+

@@ -1,0 +1,57 @@
+{
+  "trial": "hello-world__hkw4WDU",
+  "task": "hello-world",
+  "agent": "miniswen",
+  "model": "ollama/llama3.1:8b",
+  "index": 1,
+  "profile_digest": "284d9267553b3273",
+  "task_digest": "f5318b9b1d55ef14",
+  "revision": {
+    "commit": null,
+    "dirty": null
+  },
+  "lemans_version": "1.0.0",
+  "tags": [],
+  "metadata": {
+    "category": "infrastructure",
+    "rails_anchor": "none - infrastructure hello-world, deliberately not a Rails task"
+  },
+  "phases": [
+    {
+      "name": "environment_setup",
+      "started_at": "2026-08-26T16:15:42.744992Z",
+      "finished_at": "2026-08-26T16:15:43.682573Z"
+    },
+    {
+      "name": "agent",
+      "started_at": "2026-08-26T16:15:43.682584Z",
+      "finished_at": "2026-08-26T16:16:15.186644Z"
+    },
+    {
+      "name": "verifier",
+      "started_at": "2026-08-26T16:16:15.278277Z",
+      "finished_at": "2026-08-26T16:16:27.735568Z"
+    }
+  ],
+  "reward": 0.0,
+  "outcome": {
+    "name": "completed",
+    "scored": true
+  },
+  "usage": {
+    "input_tokens": 17116,
+    "output_tokens": 1890,
+    "cached_tokens": 16229,
+    "steps": 9,
+    "cost_usd": 0.0,
+    "cost_source": {
+      "name": "local_provider",
+      "model": "ollama/llama3.1:8b",
+      "priced_as": "ollama/llama3.1:8b ($0.00, local)",
+      "registry": null
+    }
+  },
+  "duration": 45.0,
+  "started_at": "2026-08-26T16:15:42Z",
+  "finished_at": "2026-08-26T16:16:27Z"
+}
