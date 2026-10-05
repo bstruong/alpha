@@ -1,0 +1,29 @@
+{
+  "providers": {
+    "openai-compatible": {
+      "name": "Local llama.cpp (RTX 3060)",
+      "baseUrl": "http://127.0.0.1:8080/v1",
+      "api": "openai-completions",
+      "apiKey": "dummy",
+      "models": [
+        {
+          "id": "qwen36-coder",
+          "name": "Qwen 3.6 35B (Local)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 262144,
+          "maxTokens": 4096
+        },
+        {
+          "id": "glm47-reap",
+          "name": "GLM 4.7 Flash (Local)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 131072,
+          "maxTokens": 4096
+        }
+      ]
+    }
+  }
+}
+

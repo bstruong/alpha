@@ -1,0 +1,42 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: berserker-n8n
+    restart: unless-stopped
+
+    # ---------------------------------------------------------------------------
+    # Networking Strategy:
+    # ---------------------------------------------------------------------------
+    # By default on Linux, 'network_mode: host' allows n8n to connect directly
+    # to host services bound to loopback (such as llama-server at 127.0.0.1:8080)
+    # without needing proxying, and automatically exposes n8n on host port 5678.
+    #
+    # If deploying on macOS / Windows Docker Desktop or prefer bridge mode:
+    # 1. Comment out 'network_mode: host'
+    # 2. Uncomment 'ports:' and 'extra_hosts:' below
+    # 3. Ensure llama-server is listening on 0.0.0.0 (or accessible via gateway)
+    #    and point n8n to http://host.docker.internal:8080/v1
+    # ---------------------------------------------------------------------------
+    network_mode: host
+
+    # ports:
+    #   - "5678:5678"
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+    environment:
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_HOST=localhost
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=UTC
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_METRICS=true
+      - N8N_LOG_LEVEL=info
+
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
+    driver: local
