@@ -1,0 +1,221 @@
+{
+  "before": {
+    "aggregate": {
+      "structural": {
+        "documents": 10,
+        "planted": 33,
+        "caught": 33,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 2,
+        "type_errors": 0
+      },
+      "adversarial": {
+        "documents": 6,
+        "planted": 3,
+        "caught": 3,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 13,
+        "type_errors": 0
+      },
+      "overall": {
+        "documents": 16,
+        "planted": 36,
+        "caught": 36,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 15,
+        "precision": 70.6,
+        "type_errors": 0,
+        "ambiguous": 0
+      }
+    },
+    "clean_false_positives": 14
+  },
+  "after": {
+    "aggregate": {
+      "structural": {
+        "documents": 10,
+        "planted": 33,
+        "caught": 33,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 2,
+        "type_errors": 0
+      },
+      "adversarial": {
+        "documents": 6,
+        "planted": 3,
+        "caught": 3,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 3,
+        "type_errors": 0
+      },
+      "overall": {
+        "documents": 16,
+        "planted": 36,
+        "caught": 36,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 5,
+        "precision": 87.8,
+        "type_errors": 0,
+        "ambiguous": 0
+      }
+    },
+    "clean_false_positives": 4
+  },
+  "dropped_by_filter": [
+    {
+      "doc": "v3-ad-04",
+      "text": "***-****",
+      "type": "phone",
+      "confidence": "high",
+      "reason": "mask_echo"
+    },
+    {
+      "doc": "v3-ad-04",
+      "text": "***",
+      "type": "name",
+      "confidence": "high",
+      "reason": "mask_echo"
+    },
+    {
+      "doc": "v3-ad-04",
+      "text": "█████████",
+      "type": "address",
+      "confidence": "high",
+      "reason": "mask_echo"
+    },
+    {
+      "doc": "v3-ad-04",
+      "text": "[REDACTED]",
+      "type": "name",
+      "confidence": "high",
+      "reason": "mask_echo"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Full name",
+      "type": "name",
+      "confidence": "high",
+      "reason": "label_echo"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Date of birth",
+      "type": "dob",
+      "confidence": "high",
+      "reason": "label_echo"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Social security number",
+      "type": "ssn",
+      "confidence": "high",
+      "reason": "label_echo"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Email address",
+      "type": "email",
+      "confidence": "high",
+      "reason": "label_echo"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Telephone",
+      "type": "phone",
+      "confidence": "low",
+      "reason": "label_echo"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Mailing address",
+      "type": "address",
+      "confidence": "high",
+      "reason": "label_echo"
+    }
+  ],
+  "false_positives_caught": [
+    {
+      "doc": "v3-ad-04",
+      "text": "***-****",
+      "type": "phone"
+    },
+    {
+      "doc": "v3-ad-04",
+      "text": "***",
+      "type": "name"
+    },
+    {
+      "doc": "v3-ad-04",
+      "text": "█████████",
+      "type": "address"
+    },
+    {
+      "doc": "v3-ad-04",
+      "text": "[REDACTED]",
+      "type": "name"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Full name",
+      "type": "name"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Date of birth",
+      "type": "dob"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Social security number",
+      "type": "ssn"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Email address",
+      "type": "email"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Telephone",
+      "type": "phone"
+    },
+    {
+      "doc": "v3-ad-05",
+      "text": "Mailing address",
+      "type": "address"
+    }
+  ],
+  "false_positives_surviving": [
+    {
+      "doc": "v3-st-03",
+      "text": "Boise, ID 83702",
+      "type": "address"
+    },
+    {
+      "doc": "v3-st-10",
+      "text": "HX-4471-B",
+      "type": "name"
+    },
+    {
+      "doc": "v3-ad-06",
+      "text": "Project Wolfram Hale",
+      "type": "name"
+    },
+    {
+      "doc": "v3-ad-06",
+      "text": "Ranger Mills",
+      "type": "name"
+    },
+    {
+      "doc": "v3-ad-06",
+      "text": "Baker Douglas",
+      "type": "name"
+    }
+  ]
+}

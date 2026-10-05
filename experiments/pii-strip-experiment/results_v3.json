@@ -1,0 +1,1015 @@
+{
+  "aborted": null,
+  "variant_B_all": {
+    "aggregate": {
+      "structural": {
+        "documents": 10,
+        "planted": 33,
+        "caught": 33,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 2,
+        "type_errors": 0
+      },
+      "adversarial": {
+        "documents": 6,
+        "planted": 3,
+        "caught": 3,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 13,
+        "type_errors": 0
+      },
+      "overall": {
+        "documents": 16,
+        "planted": 36,
+        "caught": 36,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 15,
+        "precision": 70.6,
+        "type_errors": 0,
+        "ambiguous": 0
+      }
+    },
+    "clean_false_positives": 14
+  },
+  "variant_B_high_only": {
+    "aggregate": {
+      "structural": {
+        "documents": 10,
+        "planted": 33,
+        "caught": 32,
+        "missed": 1,
+        "recall": 97.0,
+        "false_positives": 2,
+        "type_errors": 0
+      },
+      "adversarial": {
+        "documents": 6,
+        "planted": 3,
+        "caught": 3,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 12,
+        "type_errors": 0
+      },
+      "overall": {
+        "documents": 16,
+        "planted": 36,
+        "caught": 35,
+        "missed": 1,
+        "recall": 97.2,
+        "false_positives": 14,
+        "precision": 71.4,
+        "type_errors": 0,
+        "ambiguous": 0
+      }
+    },
+    "clean_false_positives": 13
+  },
+  "by_pii_type": {
+    "address": {
+      "planted": 5,
+      "caught": 5,
+      "recall": 100.0
+    },
+    "phone": {
+      "planted": 9,
+      "caught": 9,
+      "recall": 100.0
+    },
+    "name": {
+      "planted": 13,
+      "caught": 13,
+      "recall": 100.0
+    },
+    "email": {
+      "planted": 6,
+      "caught": 6,
+      "recall": 100.0
+    },
+    "dob": {
+      "planted": 2,
+      "caught": 2,
+      "recall": 100.0
+    },
+    "ssn": {
+      "planted": 1,
+      "caught": 1,
+      "recall": 100.0
+    }
+  },
+  "confidence_usage": {
+    "structural": {
+      "high": 40,
+      "low": 3
+    },
+    "adversarial": {
+      "high": 15,
+      "low": 1
+    }
+  },
+  "per_document": [
+    {
+      "id": "v3-st-01",
+      "tier": "structural",
+      "planted": 2,
+      "caught": 2,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "address",
+          "text": "62 Tanner's Wharf, Suite 900, Baltimore, MD 21230",
+          "caught": true,
+          "matched_span": "62 Tanner's Wharf, Suite 900, Baltimore, MD 21230",
+          "flagged_as": "address",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0118",
+          "caught": true,
+          "matched_span": "office 555-0118",
+          "flagged_as": "phone",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "62 Tanner's Wharf, Suite 900, Baltimore, MD 21230",
+          "type": "address",
+          "confidence": "high"
+        },
+        {
+          "text": "office 555-0118",
+          "type": "phone",
+          "confidence": "high"
+        },
+        {
+          "text": "Baltimore, MD 21230",
+          "type": "address",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 1.93
+    },
+    {
+      "id": "v3-st-02",
+      "tier": "structural",
+      "planted": 3,
+      "caught": 3,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Ingrid Solheim-Baptiste",
+          "caught": true,
+          "matched_span": "Ingrid Solheim-Baptiste",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "email",
+          "text": "i.solheim@example.org",
+          "caught": true,
+          "matched_span": "i.solheim@example.org",
+          "flagged_as": "email",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0127",
+          "caught": true,
+          "matched_span": "555-0127",
+          "flagged_as": "phone",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "i.solheim@example.org",
+          "type": "email",
+          "confidence": "high"
+        },
+        {
+          "text": "555-0127",
+          "type": "phone",
+          "confidence": "high"
+        },
+        {
+          "text": "Ingrid Solheim-Baptiste",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "Ingrid",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "Solheim-Baptiste",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 2.58
+    },
+    {
+      "id": "v3-st-03",
+      "tier": "structural",
+      "planted": 5,
+      "caught": 5,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [
+        {
+          "text": "Boise, ID 83702",
+          "type": "address"
+        }
+      ],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Folasade Oyelaran",
+          "caught": true,
+          "matched_span": "Oyelaran",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "dob",
+          "text": "06/14/1972",
+          "caught": true,
+          "matched_span": "06/14/1972",
+          "flagged_as": "dob",
+          "type_correct": true
+        },
+        {
+          "type": "ssn",
+          "text": "900-77-3391",
+          "caught": true,
+          "matched_span": "900-77-3391",
+          "flagged_as": "ssn",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0135",
+          "caught": true,
+          "matched_span": "555-0135",
+          "flagged_as": "phone",
+          "type_correct": true
+        },
+        {
+          "type": "address",
+          "text": "5511 Juniper Bend Road",
+          "caught": true,
+          "matched_span": "Juniper Bend Road",
+          "flagged_as": "address",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Oyelaran",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "Folasade",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "06/14/1972",
+          "type": "dob",
+          "confidence": "high"
+        },
+        {
+          "text": "900-77-3391",
+          "type": "ssn",
+          "confidence": "high"
+        },
+        {
+          "text": "555-0135",
+          "type": "phone",
+          "confidence": "high"
+        },
+        {
+          "text": "Juniper Bend Road",
+          "type": "address",
+          "confidence": "low"
+        },
+        {
+          "text": "5511",
+          "type": "address",
+          "confidence": "low"
+        },
+        {
+          "text": "Boise, ID 83702",
+          "type": "address",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 3.9
+    },
+    {
+      "id": "v3-st-04",
+      "tier": "structural",
+      "planted": 9,
+      "caught": 9,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Devendra Kulkarni",
+          "caught": true,
+          "matched_span": "Devendra Kulkarni",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "email",
+          "text": "d.kulkarni@example.com",
+          "caught": true,
+          "matched_span": "d.kulkarni@example.com",
+          "flagged_as": "email",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0144",
+          "caught": true,
+          "matched_span": "555-0144",
+          "flagged_as": "phone",
+          "type_correct": true
+        },
+        {
+          "type": "name",
+          "text": "Marguerite Oyono",
+          "caught": true,
+          "matched_span": "Marguerite Oyono",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "email",
+          "text": "m.oyono@example.com",
+          "caught": true,
+          "matched_span": "m.oyono@example.com",
+          "flagged_as": "email",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0151",
+          "caught": true,
+          "matched_span": "555-0151",
+          "flagged_as": "phone",
+          "type_correct": true
+        },
+        {
+          "type": "name",
+          "text": "Anselm Thackeray",
+          "caught": true,
+          "matched_span": "Anselm Thackeray",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "email",
+          "text": "a.thackeray@example.com",
+          "caught": true,
+          "matched_span": "a.thackeray@example.com",
+          "flagged_as": "email",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0166",
+          "caught": true,
+          "matched_span": "555-0166",
+          "flagged_as": "phone",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Devendra Kulkarni",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "d.kulkarni@example.com",
+          "type": "email",
+          "confidence": "high"
+        },
+        {
+          "text": "555-0144",
+          "type": "phone",
+          "confidence": "high"
+        },
+        {
+          "text": "Marguerite Oyono",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "m.oyono@example.com",
+          "type": "email",
+          "confidence": "high"
+        },
+        {
+          "text": "555-0151",
+          "type": "phone",
+          "confidence": "high"
+        },
+        {
+          "text": "Anselm Thackeray",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "a.thackeray@example.com",
+          "type": "email",
+          "confidence": "high"
+        },
+        {
+          "text": "555-0166",
+          "type": "phone",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 4.45
+    },
+    {
+      "id": "v3-st-05",
+      "tier": "structural",
+      "planted": 1,
+      "caught": 1,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "phone",
+          "text": "555-0173",
+          "caught": true,
+          "matched_span": "555-01 73",
+          "flagged_as": "phone",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "555-01 73",
+          "type": "phone",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 0.79
+    },
+    {
+      "id": "v3-st-06",
+      "tier": "structural",
+      "planted": 1,
+      "caught": 1,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "address",
+          "text": "1290 Ellersley Court, Apt 12, Winston-Salem, NC 27101",
+          "caught": true,
+          "matched_span": "1290 Ellersley",
+          "flagged_as": "address",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "1290 Ellersley",
+          "type": "address",
+          "confidence": "high"
+        },
+        {
+          "text": "Court, Apt 12",
+          "type": "address",
+          "confidence": "high"
+        },
+        {
+          "text": "Winston-Salem, NC 27101",
+          "type": "address",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 1.74
+    },
+    {
+      "id": "v3-st-07",
+      "tier": "structural",
+      "planted": 6,
+      "caught": 6,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Cecelia Aubuchon",
+          "caught": true,
+          "matched_span": "Cecelia Aubuchon",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0182",
+          "caught": true,
+          "matched_span": "555-0182",
+          "flagged_as": "phone",
+          "type_correct": true
+        },
+        {
+          "type": "name",
+          "text": "Ravindra Pillai",
+          "caught": true,
+          "matched_span": "Ravindra Pillai",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "email",
+          "text": "r.pillai@example.net",
+          "caught": true,
+          "matched_span": "r.pillai@example.net",
+          "flagged_as": "email",
+          "type_correct": true
+        },
+        {
+          "type": "name",
+          "text": "Halvard Ottesen",
+          "caught": true,
+          "matched_span": "Halvard Ottesen",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "address",
+          "text": "4417 Sandpiper Loop, Tulsa, OK 74133",
+          "caught": true,
+          "matched_span": "4417 Sandpiper Loop, Tulsa, OK 74133",
+          "flagged_as": "address",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Cecelia Aubuchon",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "555-0182",
+          "type": "phone",
+          "confidence": "high"
+        },
+        {
+          "text": "r.pillai@example.net",
+          "type": "email",
+          "confidence": "high"
+        },
+        {
+          "text": "Ravindra Pillai",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "4417 Sandpiper Loop, Tulsa, OK 74133",
+          "type": "address",
+          "confidence": "high"
+        },
+        {
+          "text": "Halvard Ottesen",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 3.19
+    },
+    {
+      "id": "v3-st-08",
+      "tier": "structural",
+      "planted": 3,
+      "caught": 3,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Perpetua Vandersloot",
+          "caught": true,
+          "matched_span": "Perpetua Vandersloot",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "phone",
+          "text": "555-0193",
+          "caught": true,
+          "matched_span": "555-0193",
+          "flagged_as": "phone",
+          "type_correct": true
+        },
+        {
+          "type": "email",
+          "text": "p.vandersloot@example.org",
+          "caught": true,
+          "matched_span": "p.vandersloot@example.org",
+          "flagged_as": "email",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Perpetua Vandersloot",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "p.vandersloot@example.org",
+          "type": "email",
+          "confidence": "high"
+        },
+        {
+          "text": "555-0193",
+          "type": "phone",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 1.75
+    },
+    {
+      "id": "v3-st-09",
+      "tier": "structural",
+      "planted": 3,
+      "caught": 3,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Thaddeus Wrenfield",
+          "caught": true,
+          "matched_span": "Thaddeus Wrenfield",
+          "flagged_as": "name",
+          "type_correct": true
+        },
+        {
+          "type": "address",
+          "text": "78 Coldharbour Rise, Unit B, Norfolk, VA 23510",
+          "caught": true,
+          "matched_span": "78 Coldharbour Rise, Unit B",
+          "flagged_as": "address",
+          "type_correct": true
+        },
+        {
+          "type": "dob",
+          "text": "02/29/1988",
+          "caught": true,
+          "matched_span": "02/29/1988",
+          "flagged_as": "dob",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Thaddeus Wrenfield",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "02/29/1988",
+          "type": "dob",
+          "confidence": "high"
+        },
+        {
+          "text": "78 Coldharbour Rise, Unit B",
+          "type": "address",
+          "confidence": "low"
+        },
+        {
+          "text": "Norfolk, VA 23510",
+          "type": "address",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 2.28
+    },
+    {
+      "id": "v3-st-10",
+      "tier": "structural",
+      "planted": 0,
+      "caught": 0,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [
+        {
+          "text": "HX-4471-B",
+          "type": "name"
+        }
+      ],
+      "ambiguous": [],
+      "detail": [],
+      "clean": true,
+      "findings": [
+        {
+          "text": "HX-4471-B",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 0.77
+    },
+    {
+      "id": "v3-ad-01",
+      "tier": "adversarial",
+      "planted": 1,
+      "caught": 1,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Hope Adeyemi",
+          "caught": true,
+          "matched_span": "Hope Adeyemi",
+          "flagged_as": "name",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Hope Adeyemi",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 0.81
+    },
+    {
+      "id": "v3-ad-02",
+      "tier": "adversarial",
+      "planted": 1,
+      "caught": 1,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Paris Nkemdirim",
+          "caught": true,
+          "matched_span": "Paris Nkemdirim",
+          "flagged_as": "name",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Paris Nkemdirim",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 0.8
+    },
+    {
+      "id": "v3-ad-03",
+      "tier": "adversarial",
+      "planted": 1,
+      "caught": 1,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [],
+      "ambiguous": [],
+      "detail": [
+        {
+          "type": "name",
+          "text": "Bartholomew Field",
+          "caught": true,
+          "matched_span": "Bartholomew Field",
+          "flagged_as": "name",
+          "type_correct": true
+        }
+      ],
+      "clean": false,
+      "findings": [
+        {
+          "text": "Bartholomew Field",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 0.78
+    },
+    {
+      "id": "v3-ad-04",
+      "tier": "adversarial",
+      "planted": 0,
+      "caught": 0,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [
+        {
+          "text": "***-****",
+          "type": "phone"
+        },
+        {
+          "text": "***",
+          "type": "name"
+        },
+        {
+          "text": "█████████",
+          "type": "address"
+        },
+        {
+          "text": "[REDACTED]",
+          "type": "name"
+        }
+      ],
+      "ambiguous": [],
+      "detail": [],
+      "clean": true,
+      "findings": [
+        {
+          "text": "***-****",
+          "type": "phone",
+          "confidence": "high"
+        },
+        {
+          "text": "***",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "█████████",
+          "type": "address",
+          "confidence": "high"
+        },
+        {
+          "text": "[REDACTED]",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 1.96
+    },
+    {
+      "id": "v3-ad-05",
+      "tier": "adversarial",
+      "planted": 0,
+      "caught": 0,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [
+        {
+          "text": "Full name",
+          "type": "name"
+        },
+        {
+          "text": "Date of birth",
+          "type": "dob"
+        },
+        {
+          "text": "Social security number",
+          "type": "ssn"
+        },
+        {
+          "text": "Email address",
+          "type": "email"
+        },
+        {
+          "text": "Telephone",
+          "type": "phone"
+        },
+        {
+          "text": "Mailing address",
+          "type": "address"
+        }
+      ],
+      "ambiguous": [],
+      "detail": [],
+      "clean": true,
+      "findings": [
+        {
+          "text": "Full name",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "Date of birth",
+          "type": "dob",
+          "confidence": "high"
+        },
+        {
+          "text": "Social security number",
+          "type": "ssn",
+          "confidence": "high"
+        },
+        {
+          "text": "Email address",
+          "type": "email",
+          "confidence": "high"
+        },
+        {
+          "text": "Telephone",
+          "type": "phone",
+          "confidence": "low"
+        },
+        {
+          "text": "Mailing address",
+          "type": "address",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 2.78
+    },
+    {
+      "id": "v3-ad-06",
+      "tier": "adversarial",
+      "planted": 0,
+      "caught": 0,
+      "missed": [],
+      "type_errors": 0,
+      "false_positives": [
+        {
+          "text": "Project Wolfram Hale",
+          "type": "name"
+        },
+        {
+          "text": "Ranger Mills",
+          "type": "name"
+        },
+        {
+          "text": "Baker Douglas",
+          "type": "name"
+        }
+      ],
+      "ambiguous": [],
+      "detail": [],
+      "clean": true,
+      "findings": [
+        {
+          "text": "Project Wolfram Hale",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "Ranger Mills",
+          "type": "name",
+          "confidence": "high"
+        },
+        {
+          "text": "Baker Douglas",
+          "type": "name",
+          "confidence": "high"
+        }
+      ],
+      "elapsed": 1.6
+    }
+  ]
+}
