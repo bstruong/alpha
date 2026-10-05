@@ -1,0 +1,64 @@
+{
+  "trial": "ar-erase-account__Q1exr7C",
+  "task": "ar-erase-account",
+  "agent": "miniswen",
+  "model": "openai/qwen36-coder",
+  "index": 1,
+  "profile_digest": "10855846362e6f57",
+  "task_digest": "9f37a087cccc24bd",
+  "revision": {
+    "commit": "b799f091cf138bbc880baa6423eccd0d26066dbb",
+    "dirty": true
+  },
+  "lemans_version": "1.0.0",
+  "tags": [
+    "rails",
+    "active-record",
+    "dependent-destroy",
+    "callbacks",
+    "foreign-keys",
+    "data-erasure"
+  ],
+  "metadata": {
+    "category": "api-knowledge",
+    "rails_anchor": "delegated_type"
+  },
+  "phases": [
+    {
+      "name": "environment_setup",
+      "started_at": "2026-10-05T21:49:20.599212Z",
+      "finished_at": "2026-10-05T21:49:21.415194Z"
+    },
+    {
+      "name": "agent",
+      "started_at": "2026-10-05T21:49:21.415205Z",
+      "finished_at": "2026-10-05T21:59:47.971827Z"
+    },
+    {
+      "name": "verifier",
+      "started_at": "2026-10-05T21:59:48.099887Z",
+      "finished_at": "2026-10-05T22:00:02.357268Z"
+    }
+  ],
+  "reward": 0.0,
+  "outcome": {
+    "name": "completed",
+    "scored": true
+  },
+  "usage": {
+    "input_tokens": 1483574,
+    "output_tokens": 19476,
+    "cached_tokens": 1449339,
+    "steps": 67,
+    "cost_usd": 0.0,
+    "cost_source": {
+      "name": "local_provider",
+      "model": "openai/qwen36-coder",
+      "priced_as": "openai/qwen36-coder ($0.00, local)",
+      "registry": null
+    }
+  },
+  "duration": 641.8,
+  "started_at": "2026-10-05T21:49:20Z",
+  "finished_at": "2026-10-05T22:00:02Z"
+}
