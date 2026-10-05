@@ -1,0 +1,132 @@
+{
+  "variant_A": {
+    "aggregate": {
+      "obvious": {
+        "documents": 5,
+        "planted": 9,
+        "caught": 9,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 1,
+        "type_errors": 2
+      },
+      "tricky": {
+        "documents": 5,
+        "planted": 6,
+        "caught": 5,
+        "missed": 1,
+        "recall": 83.3,
+        "false_positives": 2,
+        "type_errors": 0
+      },
+      "noisy": {
+        "documents": 8,
+        "planted": 14,
+        "caught": 13,
+        "missed": 1,
+        "recall": 92.9,
+        "false_positives": 5,
+        "type_errors": 0
+      },
+      "overall": {
+        "documents": 18,
+        "planted": 29,
+        "caught": 27,
+        "missed": 2,
+        "recall": 93.1,
+        "false_positives": 8,
+        "precision": 77.1,
+        "type_errors": 2,
+        "ambiguous": 0
+      }
+    },
+    "clean_false_positives": 4
+  },
+  "variant_B_all": {
+    "aggregate": {
+      "obvious": {
+        "documents": 5,
+        "planted": 9,
+        "caught": 9,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 1,
+        "type_errors": 0
+      },
+      "tricky": {
+        "documents": 5,
+        "planted": 6,
+        "caught": 5,
+        "missed": 1,
+        "recall": 83.3,
+        "false_positives": 1,
+        "type_errors": 0
+      },
+      "noisy": {
+        "documents": 8,
+        "planted": 14,
+        "caught": 14,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 3,
+        "type_errors": 0
+      },
+      "overall": {
+        "documents": 18,
+        "planted": 29,
+        "caught": 28,
+        "missed": 1,
+        "recall": 96.6,
+        "false_positives": 5,
+        "precision": 84.8,
+        "type_errors": 0,
+        "ambiguous": 0
+      }
+    },
+    "clean_false_positives": 3
+  },
+  "variant_B_high_only": {
+    "aggregate": {
+      "obvious": {
+        "documents": 5,
+        "planted": 9,
+        "caught": 9,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 0,
+        "type_errors": 0
+      },
+      "tricky": {
+        "documents": 5,
+        "planted": 6,
+        "caught": 5,
+        "missed": 1,
+        "recall": 83.3,
+        "false_positives": 1,
+        "type_errors": 0
+      },
+      "noisy": {
+        "documents": 8,
+        "planted": 14,
+        "caught": 14,
+        "missed": 0,
+        "recall": 100.0,
+        "false_positives": 1,
+        "type_errors": 0
+      },
+      "overall": {
+        "documents": 18,
+        "planted": 29,
+        "caught": 28,
+        "missed": 1,
+        "recall": 96.6,
+        "false_positives": 2,
+        "precision": 93.3,
+        "type_errors": 0,
+        "ambiguous": 0
+      }
+    },
+    "clean_false_positives": 1
+  },
+  "ambiguous_cases": []
+}
