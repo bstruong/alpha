@@ -1,0 +1,223 @@
+name: PR Description Auto-filler
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  autofill:
+    name: Auto-fill PR Description
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet requests google-genai
+
+      - name: Auto-fill PR Description with Gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 - << 'EOF'
+          import os
+          import sys
+          import json
+          import re
+          import textwrap
+          import requests
+
+          def is_default_or_empty(body: str, template: str) -> bool:
+              """Determine if PR description is blank or only contains default placeholder template."""
+              if not body or not body.strip():
+                  return True
+              if body.strip() == template.strip():
+                  return True
+
+              # Strip HTML comments
+              body_no_comments = re.sub(r"<!--.*?-->", "", body, flags=re.DOTALL)
+
+              # Strip markdown headers and default checkbox items to see if meaningful content was provided
+              def clean_tokens(s):
+                  s = re.sub(r"#+\s*[^\n]+", "", s)
+                  s = re.sub(r"-\s*\[\s*\]\s*Step\s*\d+", "", s)
+                  return "".join(s.split())
+
+              return clean_tokens(body_no_comments) == ""
+
+          def call_gemini(prompt: str, api_key: str, model: str = "gemini-2.5-flash") -> str:
+              """Invoke Gemini via google-genai SDK with automatic fallback to REST API."""
+              try:
+                  from google import genai
+                  client = genai.Client(api_key=api_key)
+                  response = client.models.generate_content(
+                      model=model,
+                      contents=prompt,
+                  )
+                  if response and response.text:
+                      return response.text
+              except Exception as e:
+                  print(f"google-genai SDK note: {e}. Trying REST API fallback...")
+
+              url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+              headers = {"Content-Type": "application/json"}
+              payload = {"contents": [{"parts": [{"text": prompt}]}]}
+
+              resp = requests.post(url, headers=headers, json=payload, timeout=60)
+              if resp.status_code == 404 and model != "gemini-1.5-flash":
+                  return call_gemini(prompt, api_key, model="gemini-1.5-flash")
+              if resp.status_code != 200:
+                  raise RuntimeError(f"Gemini API request failed ({resp.status_code}): {resp.text}")
+
+              data = resp.json()
+              candidates = data.get("candidates", [])
+              if candidates:
+                  parts = candidates[0].get("content", {}).get("parts", [])
+                  if parts:
+                      return parts[0].get("text", "")
+              raise RuntimeError(f"Unexpected response structure: {data}")
+
+          def main():
+              repo = os.environ.get("GITHUB_REPOSITORY", "")
+              token = os.environ.get("GITHUB_TOKEN", "")
+              pr_number = os.environ.get("PR_NUMBER", "")
+              api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+
+              event_path = os.environ.get("GITHUB_EVENT_PATH")
+              pr_title = ""
+              pr_body = ""
+              if event_path and os.path.exists(event_path):
+                  with open(event_path, "r", encoding="utf-8") as f:
+                      event_data = json.load(f)
+                      if not repo and "repository" in event_data:
+                          repo = event_data["repository"].get("full_name")
+                      if "pull_request" in event_data:
+                          pr_obj = event_data["pull_request"]
+                          if not pr_number:
+                              pr_number = str(pr_obj.get("number"))
+                          pr_title = pr_obj.get("title", "")
+                          pr_body = pr_obj.get("body", "")
+
+              if not repo or not pr_number:
+                  print("Error: GITHUB_REPOSITORY and PR_NUMBER must be set.")
+                  sys.exit(1)
+
+              headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github.v3+json",
+                  "User-Agent": "berserker-pr-autofill"
+              }
+
+              # Fetch latest PR details if body was empty from event
+              pr_url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
+              if not pr_body:
+                  resp = requests.get(pr_url, headers=headers, timeout=30)
+                  if resp.status_code == 200:
+                      pr_data = resp.json()
+                      pr_body = pr_data.get("body", "")
+                      if not pr_title:
+                          pr_title = pr_data.get("title", "")
+
+              # Read repo pull request template
+              template_content = ""
+              for t_path in [".github/pull_request_template.md", "pull_request_template.md"]:
+                  if os.path.exists(t_path):
+                      with open(t_path, "r", encoding="utf-8") as tf:
+                          template_content = tf.read()
+                      break
+
+              if not is_default_or_empty(pr_body, template_content):
+                  print("PR description is already populated with custom content. Skipping auto-fill.")
+                  sys.exit(0)
+
+              print(f"Detected unpopulated PR description for PR #{pr_number}. Proceeding with auto-fill...")
+
+              if not api_key:
+                  print("::warning::GEMINI_API_KEY secret is not configured. Cannot auto-fill description.")
+                  sys.exit(0)
+
+              # Fetch commit history for PR
+              commits_url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/commits"
+              commits_resp = requests.get(commits_url, headers=headers, timeout=30)
+              commit_messages = []
+              if commits_resp.status_code == 200:
+                  for item in commits_resp.json():
+                      msg = item.get("commit", {}).get("message", "").strip()
+                      if msg:
+                          commit_messages.append(msg)
+
+              # Fetch unified diff
+              diff_headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github.v3.diff",
+                  "User-Agent": "berserker-pr-autofill"
+              }
+              diff_resp = requests.get(pr_url, headers=diff_headers, timeout=30)
+              diff_text = diff_resp.text if diff_resp.status_code == 200 else ""
+
+              prompt = textwrap.dedent(f"""
+              You are an expert AI software engineer auto-populating a GitHub Pull Request description for repository '{repo}'.
+              The PR title is: "{pr_title}".
+              The description was left blank or contains the default unpopulated template.
+
+              Commits in this PR:
+              {chr(10).join(f'- {m}' for m in commit_messages[:20])}
+
+              Unified Diff:
+              {diff_text[:50000]}
+
+              Generate a clear, professional Pull Request description adhering EXACTLY to the structure of `.github/pull_request_template.md`:
+
+              ## Summary of the Problem
+              <Explain the context and why this change is necessary. What problem does it solve?>
+
+              ## What was Built
+              <Provide a high-level description of the implementation, components added or modified, and key design decisions made.>
+
+              ## How to Test / Verify / Use
+              - [ ] <Specific executable step, command, or verification procedure>
+              - [ ] <Step 2>
+
+              Guidelines:
+              - Output ONLY the markdown text for the PR description.
+              - Do NOT include any HTML comments (<!-- ... -->).
+              - Do NOT wrap your output in triple backtick markdown fences (```markdown ... ```).
+              - Provide real, copy-pasteable verification commands where appropriate.
+              """).strip()
+
+              try:
+                  generated_body = call_gemini(prompt, api_key)
+                  # Strip any accidental outer fences
+                  generated_body = generated_body.strip()
+                  if generated_body.startswith("```"):
+                      generated_body = re.sub(r"^```(?:markdown)?\s*", "", generated_body)
+                      generated_body = re.sub(r"\s*```$", "", generated_body)
+
+                  # Update PR body via GitHub API
+                  patch_resp = requests.patch(pr_url, headers=headers, json={"body": generated_body}, timeout=30)
+                  if patch_resp.status_code == 200:
+                      print(f"Successfully auto-filled PR #{pr_number} description!")
+                  else:
+                      print(f"Failed to update PR description: {patch_resp.status_code} {patch_resp.text}")
+                      sys.exit(1)
+              except Exception as e:
+                  print(f"Error generating or updating PR description: {e}")
+                  sys.exit(1)
+
+          if __name__ == "__main__":
+              main()
+          EOF

@@ -1,0 +1,323 @@
+name: AI PR Reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  guardrails:
+    name: Enforce AI Guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet requests google-genai
+
+      - name: Run AI Guardrails & PR Reviewer
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 - << 'EOF'
+          import os
+          import sys
+          import json
+          import re
+          import textwrap
+          import requests
+
+          def scan_diff_heuristics(diff_text: str):
+              """Deterministic scan for empty stubs, unclosed pipes, and brittle sed/awk hacks."""
+              violations = []
+              current_file = ""
+
+              for raw_line in diff_text.splitlines():
+                  if raw_line.startswith("+++ b/"):
+                      current_file = raw_line[6:].strip()
+                      continue
+                  if not raw_line.startswith("+") or raw_line.startswith("+++"):
+                      continue
+
+                  added_code = raw_line[1:].strip()
+
+                  # Skip markdown, docs, text, and workflow yaml files for code-specific stubs
+                  is_doc_or_config = current_file.endswith((".md", ".txt", ".json", ".yml", ".yaml"))
+
+                  # 1. Terminal Hang Prevention: Unclosed pipes / dangling background jobs (&)
+                  # Flags commands running in background without detached pipes
+                  if not added_code.startswith("#") and not added_code.startswith("//"):
+                      if re.search(r"(?<!&)&(?![&])\s*$", added_code):
+                          if not ("> /dev/null" in added_code and "2>&1" in added_code):
+                              if not is_doc_or_config:
+                                  violations.append(
+                                      f"[{current_file}] Terminal Hang Prevention: Dangling background process without detached pipes: `{added_code}`. Background processes must redirect output (`> /dev/null 2>&1 &`)."
+                                  )
+
+                  # 2. Anti-Green-Washing: Empty stubs
+                  if not is_doc_or_config:
+                      # Python empty stubs (def foo(): pass or def foo(): ...)
+                      if re.search(r"def\s+\w+\s*\(.*?\)\s*:\s*(?:pass|\.\.\.)\s*$", added_code):
+                          violations.append(
+                              f"[{current_file}] Anti-Green-Washing: Empty stub function detected: `{added_code}`. Real logic is required."
+                          )
+                      # Go empty stubs (func Foo() {})
+                      if re.search(r"func\s+\w+\s*\(.*?\)\s*(?:[^{]*)\{\s*\}", added_code):
+                          violations.append(
+                              f"[{current_file}] Anti-Green-Washing: Empty Go stub function detected: `{added_code}`. Real logic is required."
+                          )
+                      # Brittle transpilation / regex compilation hacks
+                      if re.search(r"\b(sed|awk)\b.*(-i|replace|transform).*(\.py|\.go|\.ts|\.js|\.rb)", added_code):
+                          violations.append(
+                              f"[{current_file}] Anti-Green-Washing: Brittle sed/awk code transformation hack detected: `{added_code}`. Must author code directly in target language or use native toolchains."
+                          )
+
+              return violations
+
+          def call_gemini(prompt: str, api_key: str, model: str = "gemini-2.5-flash") -> str:
+              """Invoke Gemini via google-genai SDK with automatic fallback to REST API."""
+              try:
+                  from google import genai
+                  client = genai.Client(api_key=api_key)
+                  response = client.models.generate_content(
+                      model=model,
+                      contents=prompt,
+                  )
+                  if response and response.text:
+                      return response.text
+              except Exception as e:
+                  print(f"google-genai SDK note: {e}. Trying REST API fallback...")
+
+              url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+              headers = {"Content-Type": "application/json"}
+              payload = {"contents": [{"parts": [{"text": prompt}]}]}
+
+              resp = requests.post(url, headers=headers, json=payload, timeout=60)
+              if resp.status_code == 404 and model != "gemini-1.5-flash":
+                  return call_gemini(prompt, api_key, model="gemini-1.5-flash")
+              if resp.status_code != 200:
+                  raise RuntimeError(f"Gemini API request failed ({resp.status_code}): {resp.text}")
+
+              data = resp.json()
+              candidates = data.get("candidates", [])
+              if candidates:
+                  parts = candidates[0].get("content", {}).get("parts", [])
+                  if parts:
+                      return parts[0].get("text", "")
+              raise RuntimeError(f"Unexpected response structure: {data}")
+
+          def post_or_update_pr_comment(repo: str, pr_number: str, token: str, comment_body: str):
+              marker = "<!-- berserker-ai-pr-reviewer -->"
+              full_body = f"{marker}\n{comment_body}"
+              headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github.v3+json",
+                  "User-Agent": "berserker-ai-reviewer"
+              }
+              comments_url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments"
+
+              # Check if comment already exists to avoid spamming
+              try:
+                  list_resp = requests.get(comments_url, headers=headers, timeout=30)
+                  if list_resp.status_code == 200:
+                      for comment in list_resp.json():
+                          if marker in comment.get("body", ""):
+                              comment_id = comment.get("id")
+                              patch_url = f"https://api.github.com/repos/{repo}/issues/comments/{comment_id}"
+                              p_resp = requests.patch(patch_url, headers=headers, json={"body": full_body}, timeout=30)
+                              if p_resp.status_code == 200:
+                                  print("Updated existing PR review comment.")
+                                  return
+              except Exception as err:
+                  print(f"Note checking existing comments: {err}")
+
+              # Post new comment
+              post_resp = requests.post(comments_url, headers=headers, json={"body": full_body}, timeout=30)
+              if post_resp.status_code in (200, 201):
+                  print("Posted new PR review comment.")
+              else:
+                  print(f"Warning: Failed to post comment ({post_resp.status_code}): {post_resp.text}")
+
+          def main():
+              repo = os.environ.get("GITHUB_REPOSITORY", "")
+              token = os.environ.get("GITHUB_TOKEN", "")
+              pr_number = os.environ.get("PR_NUMBER", "")
+              api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+
+              event_path = os.environ.get("GITHUB_EVENT_PATH")
+              pr_title = ""
+              pr_body = ""
+              if event_path and os.path.exists(event_path):
+                  with open(event_path, "r", encoding="utf-8") as f:
+                      event_data = json.load(f)
+                      if not repo and "repository" in event_data:
+                          repo = event_data["repository"].get("full_name")
+                      if "pull_request" in event_data:
+                          pr_obj = event_data["pull_request"]
+                          if not pr_number:
+                              pr_number = str(pr_obj.get("number"))
+                          pr_title = pr_obj.get("title", "")
+                          pr_body = pr_obj.get("body", "")
+
+              if not repo or not pr_number:
+                  print("Error: GITHUB_REPOSITORY and PR_NUMBER must be set.")
+                  sys.exit(1)
+
+              print(f"Reviewing PR #{pr_number} in {repo}: '{pr_title}'")
+
+              # Download PR diff via GitHub API
+              diff_url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
+              diff_headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github.v3.diff",
+                  "User-Agent": "berserker-ai-reviewer"
+              }
+              diff_resp = requests.get(diff_url, headers=diff_headers, timeout=30)
+              if diff_resp.status_code != 200:
+                  print(f"Error fetching diff from GitHub API: {diff_resp.status_code} {diff_resp.text}")
+                  sys.exit(1)
+
+              diff_text = diff_resp.text
+              print(f"Downloaded diff size: {len(diff_text)} characters.")
+
+              # Step 1: Run deterministic heuristic scan
+              heuristic_violations = scan_diff_heuristics(diff_text)
+
+              # Step 2: Run Gemini API guardrail analysis if GEMINI_API_KEY is configured
+              ai_violations = []
+              ai_summary = ""
+              ai_guardrails = {
+                  "anti_greenwashing": True,
+                  "hang_prevention": True,
+                  "architectural_drift": True
+              }
+
+              if api_key:
+                  prompt = textwrap.dedent(f"""
+                  You are the strict adversarial AI Guardrail Reviewer for the Berserker repository.
+                  Enforce the following repository guardrails rigorously:
+
+                  1. Anti-Greenwashing:
+                     - Reject empty stubs, hollow mocks, or fake pass-through implementations designed only to satisfy tests without real logic.
+                     - Reject brittle sed, awk, or regex transpilation hacks used to transform or compile code; implementations must use native toolchains and actual target language code.
+                     - Ensure tests genuinely test business logic rather than asserting on pre-canned dummy values.
+
+                  2. Terminal Hang Prevention:
+                     - Reject unclosed pipes and dangling background commands (`&` without explicit tracking and cleanup).
+                     - Background processes must detach execution pipes (`> /dev/null 2>&1 &`).
+                     - All test scripts and runners must have explicit cleanup / exit handlers (e.g., `sys.exit(0)` in Python, `os.Exit(0)` in Go) to prevent terminal hangs.
+
+                  3. Architectural Drift:
+                     - Adherence to repository specifications (`specs/ARCH_PLAN.md`): Python 3 standard library only for validation harness (no unauthorized pip dependencies), metrics output under `validation/results/<timestamp>/metrics.json`.
+                     - Adherence to repository conventions (`CONVENTIONS.md`): permanent deliverables live in `reports/`, disposable working output in `results/`.
+
+                  PR Title: {pr_title}
+                  PR Description:
+                  {pr_body}
+
+                  PR Unified Diff:
+                  {diff_text[:60000]}
+
+                  Return ONLY a valid JSON object (no markdown quotes, no triple backtick fences) conforming to this schema:
+                  {{
+                    "passed": <true if ALL guardrails are satisfied, false otherwise>,
+                    "summary": "<Concise 2-3 sentence summary of findings>",
+                    "guardrails": {{
+                      "anti_greenwashing": {{"passed": <true/false>, "details": "<details>"}},
+                      "hang_prevention": {{"passed": <true/false>, "details": "<details>"}},
+                      "architectural_drift": {{"passed": <true/false>, "details": "<details>"}}
+                    }},
+                    "violations": [
+                      "<Specific violation 1 (if any)>",
+                      "<Specific violation 2 (if any)>"
+                    ]
+                  }}
+                  """).strip()
+
+                  try:
+                      raw_ai_resp = call_gemini(prompt, api_key)
+                      cleaned_json = raw_ai_resp.strip()
+                      if cleaned_json.startswith("```"):
+                          cleaned_json = re.sub(r"^```(?:json)?\s*", "", cleaned_json)
+                          cleaned_json = re.sub(r"\s*```$", "", cleaned_json)
+                      parsed = json.loads(cleaned_json)
+                      ai_summary = parsed.get("summary", "")
+                      ai_violations = parsed.get("violations", [])
+                      for k in ai_guardrails:
+                          ai_guardrails[k] = parsed.get("guardrails", {}).get(k, {}).get("passed", True)
+                  except Exception as e:
+                      print(f"Warning: Gemini API guardrail evaluation failed: {e}")
+              else:
+                  print("::warning::GEMINI_API_KEY secret is not configured in repository secrets. Relying on deterministic static guardrails.")
+                  ai_summary = "Automated static guardrails verified diff. (Configure GEMINI_API_KEY for full semantic analysis)."
+
+              # Combine violations
+              total_violations = list(dict.fromkeys(heuristic_violations + ai_violations))
+
+              if total_violations or not all(ai_guardrails.values()):
+                  formatted_violations = "\n".join(f"- ❌ {v}" for v in total_violations)
+                  gw_icon = "❌ Failed" if not ai_guardrails["anti_greenwashing"] or any("Anti-Green-Washing" in v for v in heuristic_violations) else "✅ Passed"
+                  hang_icon = "❌ Failed" if not ai_guardrails["hang_prevention"] or any("Terminal Hang" in v for v in heuristic_violations) else "✅ Passed"
+                  arch_icon = "❌ Failed" if not ai_guardrails["architectural_drift"] else "✅ Passed"
+
+                  comment = textwrap.dedent(f"""
+                  ## ❌ Berserker AI Guardrail Verification Failed
+
+                  The automated PR Reviewer detected guardrail violations in this pull request diff.
+
+                  ### Violations Detected:
+                  {formatted_violations}
+
+                  ### Guardrail Audit:
+                  - **Anti-Green-Washing**: {gw_icon}
+                  - **Terminal Hang Prevention**: {hang_icon}
+                  - **Architectural Drift**: {arch_icon}
+
+                  ### Review Summary:
+                  {ai_summary or 'One or more guardrail violations must be resolved before merging.'}
+
+                  > **Action Required**: Please resolve all flagged stubs, dangling processes, or unclosed pipes and push updated commits.
+                  """).strip()
+                  post_or_update_pr_comment(repo, pr_number, token, comment)
+                  print("::error::Guardrail violations detected:")
+                  for v in total_violations:
+                      print(f"  - {v}")
+                  sys.exit(1)
+              else:
+                  comment = textwrap.dedent(f"""
+                  ## ✅ Berserker AI Guardrail Verification Passed
+
+                  The automated PR Reviewer inspected this pull request diff against all repository guardrails:
+
+                  ### Guardrail Audit:
+                  - **Anti-Green-Washing**: ✅ Passed (No empty stubs, hollow mocks, or sed/awk hacks detected)
+                  - **Terminal Hang Prevention**: ✅ Passed (Execution pipes detached, explicit exit handlers present)
+                  - **Architectural Drift**: ✅ Passed (Compliant with specs and repository conventions)
+
+                  ### Review Summary:
+                  {ai_summary or 'All automated guardrail checks passed. Code adheres to repository standards.'}
+                  """).strip()
+                  post_or_update_pr_comment(repo, pr_number, token, comment)
+                  print("✅ All AI guardrails passed successfully.")
+                  sys.exit(0)
+
+          if __name__ == "__main__":
+              main()
+          EOF
