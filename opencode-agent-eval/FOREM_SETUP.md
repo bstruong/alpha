@@ -1,10 +1,10 @@
-# Forem Rails eval — setup progress (Metrotower)
+# Forem Rails eval — setup progress (Workstation)
 
 Branch: `opencode-eval-rails` (disposable), repo cloned to `~/forem` (2.0GB).
 
 ## Done
 - Cloned `https://github.com/forem/forem.git`, branch `opencode-eval-rails` created, clean at clone time.
-- **Ruby version mismatch found and resolved**: Forem pinned `.ruby-version` = 3.3.0; Metrotower's
+- **Ruby version mismatch found and resolved**: Forem pinned `.ruby-version` = 3.3.0; Workstation's
   mise only had 3.4.8 installed (used elsewhere, untouched). Installed Ruby 3.3.0 via mise
   (additive), hit a native-extension build failure on `ruby-prof` (1.7.0) against GCC 16.1.1:
   `unknown type name 'bool'` in `scan_args.h` (Ruby 3.3.0's C headers don't include `<stdbool.h>`;
@@ -25,7 +25,7 @@ Branch: `opencode-eval-rails` (disposable), repo cloned to `~/forem` (2.0GB).
   pins exact versions: **postgres 13.12, redis 6.0.9**.
 
 ## Blocked — stopped per instructions, awaiting go-ahead
-Neither PostgreSQL nor Redis exist on Metrotower at all — no binary, no systemd unit (`could not be
+Neither PostgreSQL nor Redis exist on Workstation at all — no binary, no systemd unit (`could not be
 found`, not just inactive), no pacman package. Have NOT installed anything. Next step once approved:
 `mise install` (Forem's own `.mise.toml` already pins the exact versions needed) vs. system packages
 vs. Docker — decision pending.

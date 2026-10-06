@@ -2,7 +2,7 @@
 
 **Branch:** `archive/pii-strip-experiment` (PR #4)  
 **Date:** October 2026  
-**Evaluator:** Berserker Benchmark Harness  
+**Evaluator:** Hybrid-AI-Harness Benchmark Harness  
 **Target Environment:** Local LLM Inference (`llama3.1:8b` via `llama.cpp` server)  
 **Task:** Entity identification and span extraction for PII redaction/sanitization in Ruby applications  
 

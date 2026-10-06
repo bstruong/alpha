@@ -1,5 +1,5 @@
 ---
-repo: /home/user/Projects/berserker
+repo: /home/user/Projects/hybrid-ai-harness
 ---
 
 # Architecture Plan: Validation Suite (v2 TDD)

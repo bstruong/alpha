@@ -1,7 +1,7 @@
-# Metrotower AI Stack Architecture
+# Workstation AI Stack Architecture
 
 ## Overview
-This document outlines the architecture for the `berserker` repository's local AI stack, designed to run entirely on the "Metrotower" workstation (Ryzen 7 9700X, RTX 3060 12GB VRAM, 32GB DDR5). 
+This document outlines the architecture for the `hybrid-ai-harness` repository's local AI stack, designed to run entirely on the "Workstation" workstation (Ryzen 7 9700X, RTX 3060 12GB VRAM, 32GB DDR5). 
 
 The stack is designed around a **Frontier-to-Local Handoff Workflow**:
 1. Frontier models (e.g., Gemini, Claude) generate stage-gated architectural plans (`ARCH_PLAN.md`).
@@ -17,7 +17,7 @@ flowchart TD
         A[Frontier Model / Antigravity] -->|Writes| B(specs/ARCH_PLAN.md)
     end
     
-    subgraph Local [Metrotower Workstation]
+    subgraph Local [Workstation Workstation]
         B --> C{Orchestration Harness}
         
         C -->|Command Line / CLI| D[Pi Coding Agent]
