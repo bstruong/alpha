@@ -20,3 +20,4 @@ llm-benchmark/fixtures/*
 experiments/models/
 .pytest_cache/
 
+experiments/ai-evals-rails/
