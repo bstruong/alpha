@@ -3,7 +3,7 @@
 **Date:** 2026-08-09
 **Model:** `gemma4:12b-it-q4_K_M` (7.6 GB per the Ollama library, ~7.4 GB actual pull size), run in default mode via Ollama's `think: false` API parameter — confirmed via log inspection that all 90 generations show `thinking_present=False`.
 **VRAM:** measured empirically before proceeding, per the round's hard-stop gate. Baseline (display running on the same RTX 3060, cable not moved): 317 MiB used / 11590 MiB free / 12288 MiB total. With the model loaded (triggered via a real generation call): **8143 MiB used / 3764 MiB free / 12288 MiB total** (`ollama ps` reported the model split 7%/93% CPU/GPU — a handful of layers offloaded to CPU, no effect on output correctness, only speed). 3.7+ GiB of free VRAM remained throughout the run — comfortably above the ~500–800 MiB hard-stop threshold, so generation proceeded without any workaround to `OLLAMA_CONTEXT_LENGTH`/`OLLAMA_KV_CACHE_TYPE`/quantization.
-**Sandbox:** `~/Projects/berserker/ruby-rails-model-benchmark/rails-scratch` — same disposable sandbox as Rounds 1–3, confirmed clean (`git status` — nothing to commit) before starting, no drift.
+**Sandbox:** `~/Projects/hybrid-ai-harness/ruby-rails-model-benchmark/rails-scratch` — same disposable sandbox as Rounds 1–3, confirmed clean (`git status` — nothing to commit) before starting, no drift.
 **Scope:** the exact same 30 prompts from Rounds 1–3, reused byte-identical from their `prompts.json` source (diffed to confirm) × 1 model × 3 fresh runs = 90 generations.
 **Raw data:** `APPENDIX_ROUND4.md` (all 90 outputs, annotated with scores), `category_c_dump.txt` (Category C qualitative dump), and `scores_a.json` / `scores_b.json` / `scores_d.json` / `scores_e.json` / `scores_f.json` / `scores_g.json` / `scores_h.json`.
 

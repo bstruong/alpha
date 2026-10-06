@@ -1,5 +1,5 @@
 ---
-repo: /home/brian/Projects/berserker
+repo: /home/brian/Projects/hybrid-ai-harness
 ---
 
 # Architecture Plan: Experiment 3 (Pure Ruby PII Airgap)

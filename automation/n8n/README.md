@@ -1,6 +1,6 @@
 # Phase 3: On-Demand Automation Harness (n8n Integration)
 
-This directory provides the containerized orchestration harness for **Phase 3** of the Berserker project, integrating [n8n](https://n8n.io/) with the local OpenAI-compatible inference engine (`llama-server`) running on the host workstation.
+This directory provides the containerized orchestration harness for **Phase 3** of the Hybrid-AI-Harness project, integrating [n8n](https://n8n.io/) with the local OpenAI-compatible inference engine (`llama-server`) running on the host workstation.
 
 ---
 
@@ -16,7 +16,7 @@ This directory provides the containerized orchestration harness for **Phase 3** 
 │                                 ▲                                       │
 │                                 │ Direct Loopback / Host Networking     │
 │                                 ▼                                       │
-│   Docker Container: berserker-n8n (:5678)                              │
+│   Docker Container: hybrid-ai-harness-n8n (:5678)                              │
 │   ├─ Network Mode: host                                                 │
 │   ├─ Workflow: email_triage_workflow.json                               │
 │   └─ Data Persistence: n8n_data volume                                  │
@@ -41,7 +41,7 @@ The pipeline ingests incoming tasks/emails in batches, evaluates their urgency a
 ## Prerequisites
 
 1. **Docker & Docker Compose**: Ensure Docker is installed and the daemon is active (`docker compose version`).
-2. **Local Engine Active**: Ensure the Berserker local engine is running on port 8080:
+2. **Local Engine Active**: Ensure the Hybrid-AI-Harness local engine is running on port 8080:
    ```bash
    # From the repository root:
    ./engine/bin/llama-up.sh
@@ -128,7 +128,7 @@ Because `llama-server` exposes an OpenAI-compatible API, we configure n8n's stan
 2. Click **Add Credential** (top right) and search for **OpenAI**.
 3. Select **OpenAI API**.
 4. Configure the following fields:
-   * **API Key**: `dummy` (or any string, e.g. `sk-local-berserker`).
+   * **API Key**: `dummy` (or any string, e.g. `sk-local-hybrid-ai-harness`).
    * **Base URL**: `http://127.0.0.1:8080/v1` *(or `http://host.docker.internal:8080/v1` if using bridge mode)*.
 5. Click **Save** and name the credential `Local llama-server`.
 
@@ -153,7 +153,7 @@ Because `llama-server` exposes an OpenAI-compatible API, we configure n8n's stan
 
 ## Workflow Walkthrough
 
-The imported workflow (`Berserker - Email & Task Triage Pipeline`) comprises 6 stages:
+The imported workflow (`Hybrid-AI-Harness - Email & Task Triage Pipeline`) comprises 6 stages:
 
 ```
 [When clicking 'Test workflow']

@@ -1,26 +1,30 @@
-# Local Pi Engine Instructions
+# Frontier Planner & Orchestration Protocols
 
-## Execution Protocol
-1. **Locate and Read Specification:** Always begin by reviewing the active execution phase in \`specs/ARCH_PLAN.md\` (or the plan provided by the user). Confirm target files, constraints, and success criteria before modifying code.
-2. **Single-Phase Discipline:** Complete the current phase completely and verify it before reporting completion. Never jump ahead to subsequent phases.
+## Role Definition: Frontier Architect
+If you are a frontier model reading this document, your primary role in this framework is the **Planner and Architect**. You do not execute the micro-tasks directly. Instead, your objective is to act as the primary brain:
+1. **Analyze Requirements:** Understand the system goals and constraints.
+2. **Author Specifications:** Draft comprehensive Test-Driven Development (TDD) specifications and step-by-step plans in `specs/ARCH_PLAN.md`.
+3. **Orchestrate Handoff:** Hand off the bounded execution of these plans to the local execution harness (running on the Workstation or within the Home Lab).
+
+## Local Execution Protocol (For the Offloaded Engine)
+When you hand off to the local executor (e.g., Qwen 35B MoE), it will follow these strict rules to implement your design:
+
+1. **Locate and Read Specification:** The local agent begins by reviewing the active execution phase in `specs/ARCH_PLAN.md` to confirm target files, constraints, and success criteria.
+2. **Single-Phase Discipline:** The executor completes the current phase entirely and verifies it before reporting back. It is instructed never to jump ahead.
 3. **Local Tooling & Clean Execution:**
    - Run tests and verifications using local project tools.
-   - Keep file edits surgical and minimal.
-   - Follow repo conventions (e.g., \`CONVENTIONS.md\` for deliverables vs disposable outputs).
-4. **Hardware Awareness:** Running on local RTX 3060 / Zen 5 hardware with offloaded MoE layers. Favor focused, clean edits to avoid unnecessary context churn.
-5. **Privacy:** Keep all execution and data strictly local.
+   - Keep file edits surgical and minimal to optimize offloaded MoE layer performance.
+   - Follow repository conventions for deliverables.
+4. **Privacy & Security:** All execution is strictly local, ensuring zero-cost operation and 100% PII-secure processing.
 
-## Strict Implementation Directives
-1. **No Brittle Transpilation / Regex Compilation:**
-   - You must NEVER use \`sed\`, \`awk\`, or regex to compile, transpile, or transform code (e.g., attempting to transpile TypeScript with \`sed\`). Always author code directly in the target language or use real toolchains.
-   - Properly resolve missing dependencies via the terminal (e.g., package managers like \`uv\`, \`npm\`, or system packages) rather than hacking around them.
-2. **Mandatory Static Analysis & Linting:**
-   - You must run \`ruff check\` on all Python code and fix any errors before marking a phase complete.
-   - Use \`pyright\` to verify type safety and catch attribute/argument errors before reporting completion.
-3. **No Empty Stubs or Mock Logic:**
-   - Empty stub functions (like an empty \`main()\` in Go or hollow pass-through mocks) are strictly forbidden. Actual logic must be implemented to fulfill specifications and pass tests.
+## Strict Implementation Directives (Enforced by Local Engine)
+When designing your TDD specs, assume the local agent is bound by these rules:
+1. **No Brittle Transpilation / Regex Compilation:** Local agents must author code directly. They are forbidden from using `sed`, `awk`, or regex to compile or transpile code. They will resolve dependencies directly via standard package managers.
+2. **Mandatory Static Analysis:** The execution loop strictly enforces `ruff check` on Python code and `pyright` for type safety. Your plans should account for these checks passing before a phase is marked complete.
+3. **No Empty Stubs:** The executor cannot fake completion; hollow pass-through mocks are forbidden.
 
 ### Process Execution & Hang Prevention (CRITICAL)
-1. **No Dangling Background Processes:** Never run commands in the background using \`&\` unless absolutely necessary. If you must start a server or long-running process, you must kill it explicitly before ending your turn.
-2. **Explicit Thread Cleanup:** All test scripts and execution wrappers must have explicit cleanup logic (e.g., \`sys.exit(0)\` in Python or \`os.Exit(0)\` in Go) to forcefully terminate all lingering background threads.
-3. **Pipe Detachment:** If you absolutely must spawn a persistent background process, you must redirect its output to detach it from the execution pipe: \`command > /dev/null 2>&1 &\`.
+Your orchestrated tests and execution wrappers will be subjected to the framework's unclosed-pipe hang prevention measures:
+1. **No Dangling Background Processes:** Processes launched with `&` are strictly forbidden unless fully detached.
+2. **Explicit Thread Cleanup:** All generated test scripts must include explicit cleanup logic (e.g., `sys.exit(0)` or `os.Exit(0)`) to forcefully terminate lingering threads.
+3. **Pipe Detachment:** If persistent background processing is absolutely necessary in your architecture, the executor will force detachment (`command > /dev/null 2>&1 &`) to prevent orchestration deadlocks.
