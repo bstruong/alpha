@@ -1,6 +1,6 @@
-# Metrotower Local AI Engine (`engine/`)
+# Workstation Local AI Engine (`engine/`)
 
-This directory contains the core engine runtime configurations, startup tooling, and system tuning for running large MoE coding models on the **Metrotower** workstation.
+This directory contains the core engine runtime configurations, startup tooling, and system tuning for running large MoE coding models on the **Workstation** workstation.
 
 ---
 
@@ -20,7 +20,7 @@ This directory contains the core engine runtime configurations, startup tooling,
 ```
 engine/
 ├── models.ini                  # Single source of truth for presets ([*], [qwen36-coder], etc.)
-├── metrotower.env              # Environment variable defaults (paths, port, default preset)
+├── workstation.env              # Environment variable defaults (paths, port, default preset)
 ├── bin/
 │   ├── ini2args.py             # Parses models.ini sections into CLI arguments
 │   ├── preflight.sh            # Hardware, memory, VRAM, port, and Ollama validation script
@@ -29,10 +29,10 @@ engine/
 │   └── setup-memlock.sh        # Diagnostic and installation helper for RLIMIT_MEMLOCK
 ├── run/                        # Runtime state (PID files, logs) - gitignored
 ├── system/
-│   ├── 90-berserker-memlock.conf      # PAM limits configuration (/etc/security/limits.d/)
+│   ├── 90-hybrid-ai-harness-memlock.conf      # PAM limits configuration (/etc/security/limits.d/)
 │   └── user@.service.d/memlock.conf   # Systemd user manager drop-in
 ├── systemd/
-│   └── berserker-llama.service        # User unit for systemd management
+│   └── hybrid-ai-harness-llama.service        # User unit for systemd management
 └── README.md                   # This specification and operations manual
 ```
 
@@ -40,7 +40,7 @@ engine/
 
 ## 3. Flag Rationale & Technical Deep-Dive
 
-All presets in `models.ini` inherit from global section `[*]`. Each non-obvious flag addresses specific hardware and algorithmic constraints of Metrotower:
+All presets in `models.ini` inherit from global section `[*]`. Each non-obvious flag addresses specific hardware and algorithmic constraints of Workstation:
 
 ### Threads (`threads = 7`, `threads-batch = 7`)
 The Ryzen 7 9700X is a single-CCD 8-core CPU. CPU MoE expert matrix multiplications are strictly memory-bandwidth bound. On dual-channel DDR5-6000, read bandwidth caps at ~60–65 GB/s. Active expert weights take ~0.6 GB per token:
@@ -111,7 +111,7 @@ Because Qwen3.6 is a hybrid model with only 10 attention layers, 256k context at
 If TurboQuant KV is required for larger dense models or full-attention 512k context in Phase 4:
 1. Clone the TurboQuant fork repository into `experiments/turboquant-build/`.
 2. Build with CUDA support: `cmake -B build -DGGML_CUDA=ON && cmake --build build --config Release -j 8`.
-3. Point `LLAMA_SERVER_BIN` in `engine/metrotower.env` to the custom binary.
+3. Point `LLAMA_SERVER_BIN` in `engine/workstation.env` to the custom binary.
 4. Evaluate quality and tok/s against baseline q8_0 via `validation/run_suite.py`.
 
 ---
@@ -119,7 +119,7 @@ If TurboQuant KV is required for larger dense models or full-attention 512k cont
 ## 6. System Limit Configurations (mlock, Swappiness, Ollama)
 
 ### 1. Memory Locking (RLIMIT_MEMLOCK)
-Metrotower's current default limit is `ulimit -l = 8192 KB` (8 MiB). When `llama-server --load-mode mlock` runs under this limit, the `mlock()` syscall fails with `ENOMEM`, printing a warning and leaving `VmLck: 0 kB`.
+Workstation's current default limit is `ulimit -l = 8192 KB` (8 MiB). When `llama-server --load-mode mlock` runs under this limit, the `mlock()` syscall fails with `ENOMEM`, printing a warning and leaving `VmLck: 0 kB`.
 
 To configure unlimited memory locking:
 Run the diagnostic and installer helper:
@@ -134,14 +134,14 @@ sudo engine/bin/setup-memlock.sh --install
 systemctl --user daemon-reexec
 ```
 Files provided:
-* `engine/system/90-berserker-memlock.conf` -> `/etc/security/limits.d/90-berserker-memlock.conf`
+* `engine/system/90-hybrid-ai-harness-memlock.conf` -> `/etc/security/limits.d/90-hybrid-ai-harness-memlock.conf`
 * `engine/system/user@.service.d/memlock.conf` -> `/etc/systemd/system/user@.service.d/memlock.conf`
 
 ### 2. Swappiness Tuning (`vm.swappiness = 10`)
-Metrotower has a 33 GB NVMe swap partition with `vm.swappiness = 60`. Under memory pressure, the kernel aggressively pages out inactive anonymous memory even when NVMe read bandwidth is high. To reduce swap thrashing:
+Workstation has a 33 GB NVMe swap partition with `vm.swappiness = 60`. Under memory pressure, the kernel aggressively pages out inactive anonymous memory even when NVMe read bandwidth is high. To reduce swap thrashing:
 ```bash
 sudo sysctl vm.swappiness=10
-echo "vm.swappiness = 10" | sudo tee /etc/sysctl.d/99-berserker-swap.conf
+echo "vm.swappiness = 10" | sudo tee /etc/sysctl.d/99-hybrid-ai-harness-swap.conf
 ```
 
 ### 3. Ollama Contention Management
@@ -190,10 +190,10 @@ To migrate from the old configuration (PID 337100: 3 threads, repeat-penalty 1.1
    * **Option B: Systemd user service:**
      ```bash
      mkdir -p ~/.config/systemd/user/
-     cp engine/systemd/berserker-llama.service ~/.config/systemd/user/
+     cp engine/systemd/hybrid-ai-harness-llama.service ~/.config/systemd/user/
      systemctl --user daemon-reload
-     systemctl --user enable --now berserker-llama.service
-     systemctl --user status berserker-llama.service
+     systemctl --user enable --now hybrid-ai-harness-llama.service
+     systemctl --user status hybrid-ai-harness-llama.service
      ```
 
 ### Stopping the Engine
@@ -202,7 +202,7 @@ engine/bin/llama-down.sh
 ```
 Or if running as a systemd user unit:
 ```bash
-systemctl --user stop berserker-llama.service
+systemctl --user stop hybrid-ai-harness-llama.service
 ```
 
 ### Checking Status & Health

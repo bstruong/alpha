@@ -104,7 +104,7 @@ within noise (~34 tok/s); both fully GPU-resident.
 ## Reproduce
 
 ```
-cd ~/Projects/berserker/llm-benchmark
+cd ~/Projects/hybrid-ai-harness/llm-benchmark
 ruby bin/generate_fixtures --seed 42
 ruby bin/benchmark --models qwen3:14b,phi4:14b --runs 3
 ```
