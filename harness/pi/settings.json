@@ -1,0 +1,19 @@
+{
+  "defaultProvider": "openai-compatible",
+  "defaultModel": "qwen36-coder",
+  "defaultThinkingLevel": "low",
+  "defaultProjectTrust": "always",
+  "extensions": [
+    "./node_modules/pi-llama-cpp"
+  ],
+  "llamaSettings": {
+    "servers": [
+      {
+        "url": "http://127.0.0.1:8080",
+        "id": "local",
+        "name": "Local Server"
+      }
+    ]
+  }
+}
+

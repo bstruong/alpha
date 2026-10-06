@@ -1,0 +1,273 @@
+{
+  "name": "Berserker - Email & Task Triage Pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger-01",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger-01",
+      "name": "Batch Polling Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simulate fetching a batch of unread emails / incoming tasks\nreturn [\n  {\n    json: {\n      id: \"EML-2026-001\",\n      sender: \"devops-alert@berserker.internal\",\n      subject: \"CRITICAL: Database connection pool exhausted on payment-service\",\n      received_at: \"2026-10-05T14:00:00Z\",\n      body: \"CRITICAL ALERT: payment-service db pool active connections reached 100/100. P99 latency spiked to 32,400ms. 504 Gateway Timeouts reported by 42 users. Immediate on-call escalation required to prevent billing drops.\"\n    }\n  },\n  {\n    json: {\n      id: \"EML-2026-002\",\n      sender: \"sarah.chen@partner-enterprise.com\",\n      subject: \"Regression: Benchmark worker segfaults when evaluating 35B models\",\n      received_at: \"2026-10-05T14:02:15Z\",\n      body: \"Hi Berserker team, after pulling master commit db0ee01, our worker nodes segfault during the warm-up phase of Qwen3.6-35B-A3B. Stack trace indicates memory lock failure in llama-server. Please advise on workaround or fix.\"\n    }\n  },\n  {\n    json: {\n      id: \"EML-2026-003\",\n      sender: \"billing-inquiries@acmecorp.io\",\n      subject: \"Invoice #INV-9821 inquiry: PO number update request\",\n      received_at: \"2026-10-05T14:05:00Z\",\n      body: \"Hello Finance team, could you please re-issue invoice #INV-9821 with our updated corporate purchase order PO-88310 before the end of the billing cycle? Thanks, Accounting Dept.\"\n    }\n  },\n  {\n    json: {\n      id: \"EML-2026-004\",\n      sender: \"alex.dev@community.org\",\n      subject: \"Feature Request: Expose prometheus metrics endpoint in automation harness\",\n      received_at: \"2026-10-05T14:08:22Z\",\n      body: \"Would love to see an exported /metrics endpoint on the n8n runner container so we can ingest pipeline throughput and queue depths directly into Grafana dashboards. Keep up the awesome work!\"\n    }\n  },\n  {\n    json: {\n      id: \"EML-2026-005\",\n      sender: \"deals-promo@backlinks-booster.biz\",\n      subject: \"EXCLUSIVE OFFER: Claim 50,000 free backlinks today only!\",\n      received_at: \"2026-10-05T14:10:00Z\",\n      body: \"Click here to boost your search domain rating by 300% in 48 hours. Act now before this special promotional deal expires. Unsubscribe by replying STOP.\"\n    }\n  }\n];"
+      },
+      "id": "fetch-batch-01",
+      "name": "Fetch Email & Task Batch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "generateChatCompletion",
+        "model": "qwen36-coder",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "content": "You are Berserker AI Email & Task Triage Assistant. Analyze the incoming message and output strictly valid JSON with the following schema:\n{\n  \"category\": \"incident\" | \"bug\" | \"billing\" | \"feature_request\" | \"spam\",\n  \"priority\": \"P0\" | \"P1\" | \"P2\" | \"P3\" | \"P4\",\n  \"urgency\": \"high\" | \"medium\" | \"low\",\n  \"action\": \"immediate_escalation\" | \"engineering_ticket\" | \"finance_review\" | \"product_backlog\" | \"archive\",\n  \"summary\": \"Concise one-sentence description of the issue or request\",\n  \"suggested_reply\": \"Professional draft response if a customer reply is needed\"\n}\nDo not include any conversational filler or reasoning, output only the JSON object."
+            },
+            {
+              "role": "user",
+              "content": "=Email ID: {{ $json.id }}\nFrom: {{ $json.sender }}\nSubject: {{ $json.subject }}\nReceived: {{ $json.received_at }}\nBody:\n{{ $json.body }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 1024
+        }
+      },
+      "id": "openai-triage-01",
+      "name": "Local Engine Email Triage (OpenAI Node)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        720,
+        620
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "8YW3piPN81zcRpsg",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8080/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({\n  \"model\": \"qwen36-coder\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Berserker AI Email & Task Triage Assistant. Analyze the incoming message and output strictly valid JSON with the schema: {\\\"category\\\": \\\"incident\\\"|\\\"bug\\\"|\\\"billing\\\"|\\\"feature_request\\\"|\\\"spam\\\", \\\"priority\\\": \\\"P0\\\"|\\\"P1\\\"|\\\"P2\\\"|\\\"P3\\\"|\\\"P4\\\", \\\"urgency\\\": \\\"high\\\"|\\\"medium\\\"|\\\"low\\\", \\\"action\\\": \\\"immediate_escalation\\\"|\\\"engineering_ticket\\\"|\\\"finance_review\\\"|\\\"product_backlog\\\"|\\\"archive\\\", \\\"summary\\\": \\\"...\\\", \\\"suggested_reply\\\": \\\"...\\\"}. Respond ONLY with raw JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Email ID: \" + $json.id + \"\\nFrom: \" + $json.sender + \"\\nSubject: \" + $json.subject + \"\\nReceived: \" + $json.received_at + \"\\nBody:\\n\" + $json.body\n    }\n  ],\n  \"temperature\": 0.1,\n  \"max_tokens\": 1024\n}) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "http-request-fallback-01",
+      "name": "Direct HTTP Request (Zero-Cred Alternative)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse LLM triage output and merge with original email metadata\nconst items = $input.all();\n\nreturn items.map((item, index) => {\n  const original = $('Fetch Email & Task Batch').all()[index]?.json || {};\n  let rawContent = item.json.message?.content || item.json.choices?.[0]?.message?.content || item.json.text || '';\n  \n  // Clean markdown code blocks if present\n  rawContent = rawContent.replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/```\\s*$/i, '').trim();\n  \n  let parsed = {};\n  try {\n    parsed = JSON.parse(rawContent);\n  } catch (err) {\n    // Fallback extraction regex if extra text surrounds JSON\n    const match = rawContent.match(/\\{[\\s\\S]*\\}/);\n    if (match) {\n      try {\n        parsed = JSON.parse(match[0]);\n      } catch (e) {\n        parsed = { parse_error: true, raw_response: rawContent };\n      }\n    } else {\n      parsed = { parse_error: true, raw_response: rawContent };\n    }\n  }\n\n  const priority = (parsed.priority || 'P2').toUpperCase();\n  const urgency = (parsed.urgency || 'medium').toLowerCase();\n  const category = (parsed.category || 'general').toLowerCase();\n  const isUrgent = priority === 'P0' || priority === 'P1' || urgency === 'high' || category === 'incident';\n\n  return {\n    json: {\n      email_id: original.id || ('ITEM-' + index),\n      sender: original.sender,\n      subject: original.subject,\n      received_at: original.received_at,\n      triage: {\n        category: category,\n        priority: priority,\n        urgency: urgency,\n        action: parsed.action || 'review',\n        summary: parsed.summary || original.subject,\n        suggested_reply: parsed.suggested_reply || null,\n        is_urgent: isUrgent\n      },\n      is_urgent: isUrgent,\n      processed_at: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "id": "parse-results-01",
+      "name": "Parse & Format Triage Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "condition-urgent-check",
+              "leftValue": "={{ $json.is_urgent }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-priority-01",
+      "name": "Route Urgent vs Routine",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1240,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dispatch high-priority alert (PagerDuty / Slack / On-call notification payload)\nconst urgentItems = $input.all();\nreturn urgentItems.map(item => {\n  const data = item.json;\n  return {\n    json: {\n      status: 'ESCALATED',\n      channel: '#eng-incidents',\n      alert_level: 'HIGH_PRIORITY',\n      email_id: data.email_id,\n      subject: data.subject,\n      priority: data.triage.priority,\n      category: data.triage.category,\n      action: data.triage.action,\n      summary: data.triage.summary,\n      dispatched_at: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "id": "urgent-action-01",
+      "name": "Urgent Escalation Dispatcher",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Queue routine tickets to respective departments (CRM / Jira / Auto-Archive)\nconst routineItems = $input.all();\nreturn routineItems.map(item => {\n  const data = item.json;\n  const category = data.triage.category;\n  let targetQueue = 'support_general';\n  \n  if (category === 'billing') {\n    targetQueue = 'finance_inbox';\n  } else if (category === 'feature_request') {\n    targetQueue = 'product_backlog';\n  } else if (category === 'spam') {\n    targetQueue = 'spam_quarantine';\n  } else if (category === 'bug') {\n    targetQueue = 'engineering_triage';\n  }\n\n  return {\n    json: {\n      status: 'QUEUED',\n      destination_queue: targetQueue,\n      email_id: data.email_id,\n      subject: data.subject,\n      priority: data.triage.priority,\n      category: category,\n      action: data.triage.action,\n      suggested_reply: data.triage.suggested_reply,\n      queued_at: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "id": "routine-action-01",
+      "name": "Routine Ticket & Queue Dispatcher",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        520
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Fetch Email & Task Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch Polling Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Email & Task Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Email & Task Batch": {
+      "main": [
+        [
+          {
+            "node": "Direct HTTP Request (Zero-Cred Alternative)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Format Triage Results": {
+      "main": [
+        [
+          {
+            "node": "Route Urgent vs Routine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Urgent vs Routine": {
+      "main": [
+        [
+          {
+            "node": "Urgent Escalation Dispatcher",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Routine Ticket & Queue Dispatcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Direct HTTP Request (Zero-Cred Alternative)": {
+      "main": [
+        [
+          {
+            "node": "Parse & Format Triage Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f4a2b971-789a-41d8-bc23-64e9a4f78021",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "berserker-local-n8n"
+  },
+  "id": "berserker-email-triage",
+  "tags": []
+}
