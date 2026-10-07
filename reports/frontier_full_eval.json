@@ -1,0 +1,42 @@
+{
+  "telemetry": {
+    "2000": {
+      "ttft_sec": 2.19,
+      "prefill_throughput_tps": 913.11,
+      "decode_throughput_tps": 45.32,
+      "peak_ram_mb": 24904.74,
+      "peak_vram_mb": 6285
+    },
+    "8000": {
+      "ttft_sec": 6.332,
+      "prefill_throughput_tps": 1263.39,
+      "decode_throughput_tps": 45.35,
+      "peak_ram_mb": 24969.94,
+      "peak_vram_mb": 6311
+    },
+    "32000": {
+      "ttft_sec": 24.003,
+      "prefill_throughput_tps": 1333.17,
+      "decode_throughput_tps": 39.89,
+      "peak_ram_mb": 24967.61,
+      "peak_vram_mb": 6311
+    },
+    "64000": {
+      "ttft_sec": 30.059,
+      "prefill_throughput_tps": 2129.16,
+      "decode_throughput_tps": 10.93,
+      "peak_ram_mb": 24956.03,
+      "peak_vram_mb": 6311
+    }
+  },
+  "spec_traps": {
+    "Test_A": false,
+    "Test_B": false,
+    "Test_C": false
+  },
+  "pipeline": {
+    "swap_latency_sec": 0.0,
+    "worker_time_sec": 10.674,
+    "worker_success": true
+  }
+}
