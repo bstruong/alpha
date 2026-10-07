@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# berserker / harness / pi / bin / pi-monitored.sh
+# hybrid-ai-harness / harness / pi / bin / pi-monitored.sh
 # Monitored runner for Pi Local Harness with engine lifecycle management
 # =============================================================================
 set -e
@@ -25,6 +25,24 @@ fi
 
 LLAMA_SERVER_URL="${LLAMA_SERVER_URL:-http://127.0.0.1:8080}"
 LLAMA_HEALTH_URL="${LLAMA_SERVER_URL}/health"
+
+# -----------------------------------------------------------------------------
+# Model-to-Presets Mapping
+# -----------------------------------------------------------------------------
+# Extract the model name from --model <name> argument and build the preset.
+extract_model_preset() {
+    local preset="router qwen36-coder"  # legacy fallback
+    local i=1
+    while [[ $i -lt $# ]]; do
+        if [[ "${!i}" == "--model" ]]; then
+            local model="${!((i+1))}"
+            preset="router ${model}"
+            break
+        fi
+        ((i++))
+    done
+    echo "${preset}"
+}
 
 # -----------------------------------------------------------------------------
 # Lifecycle Cleanup & Traps
@@ -113,17 +131,19 @@ ensure_engine_ready() {
             fi
         fi
     else
-        echo "[pi-monitored] llama-server is not running. Spinning up single qwen36-coder..."
+        local model_preset
+        model_preset=$(extract_model_preset "$@")
+        echo "[pi-monitored] llama-server is not running. Spinning up ${model_preset}..."
         if [[ ! -x "${LLAMA_UP}" ]]; then
             echo "[pi-monitored] Error: llama-up script not found or executable at ${LLAMA_UP}." >&2
             exit 1
         fi
-        "${LLAMA_UP}" single qwen36-coder
+        "${LLAMA_UP}" ${model_preset}
     fi
 }
 
 if [[ "${BERSERKER_SKIP_ENGINE:-0}" != "1" && "${SKIP_ENGINE:-0}" != "1" ]]; then
-    ensure_engine_ready
+    ensure_engine_ready "$@"
 fi
 
 # -----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# berserker / engine / bin/llama-up.sh
-# Startup script for Metrotower llama-server
+# hybrid-ai-harness / engine / bin/llama-up.sh
+# Startup script for Workstation llama-server
 # =============================================================================
 set -euo pipefail
 
@@ -10,7 +10,7 @@ ENGINE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 REPO_DIR="$(cd "${ENGINE_DIR}/.." && pwd)"
 
 # Source environment defaults
-ENV_FILE="${ENGINE_DIR}/metrotower.env"
+ENV_FILE="${ENGINE_DIR}/workstation.env"
 if [[ -f "${ENV_FILE}" ]]; then
     # shellcheck source=/dev/null
     source "${ENV_FILE}"
@@ -39,7 +39,7 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [MODE] [PRESET] [OPTIONS]
 
-Start the Metrotower llama-server local AI engine.
+Start the Workstation llama-server local AI engine.
 
 Modes:
     single [preset]    Run single model with preset CLI flags (default)
