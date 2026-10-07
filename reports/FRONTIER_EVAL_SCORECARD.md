@@ -1,6 +1,6 @@
 # Frontier Model Evaluation Scorecard
 **Date:** 2026-10-07 03:11:21 UTC
-**Hardware Target:** Metrotower (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
+**Hardware Target:** Workstation (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
 
 ## 1. Hardware Throughput Matrix
 
