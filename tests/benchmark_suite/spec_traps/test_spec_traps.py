@@ -97,7 +97,7 @@ def run_oracle(files: dict[str, str], check_source: str) -> dict:
     Exit code contract for the check: 0 = pass, 1 = spec violation, 2 = inconclusive
     (import/API mismatch). Returns {"ran", "conclusive", "passed", "output"}.
     """
-    with tempfile.TemporaryDirectory(prefix="berserker_oracle_") as tmp:
+    with tempfile.TemporaryDirectory(prefix="haif_oracle_") as tmp:
         for rel, source in files.items():
             path = os.path.join(tmp, rel)
             os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -128,7 +128,7 @@ def run_oracle(files: dict[str, str], check_source: str) -> dict:
 
 def run_pytest_if_available(tmp_files: dict[str, str], test_file: str) -> dict | None:
     """Run the model's own tests (informational only). None if pytest is missing."""
-    with tempfile.TemporaryDirectory(prefix="berserker_pytest_") as tmp:
+    with tempfile.TemporaryDirectory(prefix="haif_pytest_") as tmp:
         for rel, source in tmp_files.items():
             path = os.path.join(tmp, rel)
             os.makedirs(os.path.dirname(path), exist_ok=True)

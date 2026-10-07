@@ -87,7 +87,7 @@ def generate_markdown_report(results: dict, report_path: str) -> None:
 
     md = f"""# Frontier Model Evaluation Scorecard
 **Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
-**Hardware Target:** Metrotower (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
+**Hardware Target:** Workstation (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
 **Harness:** v3+ — independent modules; temp 0 / seed {SEED} / no prompt cache; slot erase; oracles A/B; soft Test C; primary telemetry 2k/8k; Test C named deliverables+retry; planner token cap
 **Modules last updated:** telemetry={updated.get('telemetry', 'never')} · spec_traps={updated.get('spec_traps', 'never')} · pipeline={updated.get('pipeline', 'never')}
 

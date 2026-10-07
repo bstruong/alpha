@@ -1,6 +1,6 @@
-# Qwen 3.8 Flash Benchmark Report (Metrotower)
+# Qwen 3.8 Flash Benchmark Report (Workstation)
 
-**Canonical aggregate** of Flash benchmark iterations on Metrotower.  
+**Canonical aggregate** of Flash benchmark iterations on Workstation.  
 **Date range:** 2026-10-07 (v1 exploratory → v3 full suite → v3+ Module 1+2 refresh)  
 **Do not re-run from this doc** unless you intend to burn ~45–75 minutes of wall time with the engine up.
 
@@ -24,7 +24,7 @@ Historical host logs (not in git): `/tmp/frontier_benchmark.log`, `/tmp/frontier
 
 | Item | Value |
 |------|--------|
-| Host | **Metrotower** — AMD Ryzen 7 9700X (8C/16T), RTX 3060 12GB, 32GB DDR5, Samsung 990 Pro NVMe (Btrfs zstd:3) |
+| Host | **Workstation** — AMD Ryzen 7 9700X (8C/16T), RTX 3060 12GB, 32GB DDR5, Samsung 990 Pro NVMe (Btrfs zstd:3) |
 | Engine binary | Custom CUDA `llama-server` at `experiments/llama.cpp-qwen4exp/build/bin/llama-server` (commit `4d756bc+`, **qwen4exp**). System package `llama.cpp-cuda` b10631 lacks `LLM_ARCH_QWEN4EXP`. |
 | Router | `llama-up.sh router … --models-max 1` (one resident model; Flash↔Tier-1 swaps unload/load) |
 | Flash preset | `[qwen3.8-flash]` / alias `qwen-3.8-flash` — `load-mode = mmap`, `n-cpu-moe = 56`, `ctx-size = 69632`, `parallel = 1`, `spec-type = none`, KV `q4_0` |
@@ -107,7 +107,7 @@ Scorecard §3 still shows the prior HEALTHY pipeline with expensive planner. Re-
 
 ## 4. Verdict
 
-**Qwen 3.8 Flash on Metrotower is a specialist reasoner, not a daily driver.**
+**Qwen 3.8 Flash on Workstation is a specialist reasoner, not a daily driver.**
 
 - **Strengths:** With v3+ oracles and deliverable grading, Flash clears precision and multi-file traps that earlier harnesses (and Tier-1 alone) missed. Useful as planner / architect / hard-reviewer when quality justifies slow tokens.
 - **Limits:** Primary decode is ~**2.1 / 1.0 t/s** at 2k/8k under mmap. Long-context decode is NVMe-bound. Full-suite wall time is dominated by Flash generation, especially planner phases without a tight token cap.
@@ -129,7 +129,7 @@ Scorecard §3 still shows the prior HEALTHY pipeline with expensive planner. Re-
 
 - `tests/benchmark_suite/` — common knobs, reporting, telemetry, spec traps + fixtures, pipeline
 - `scripts/run_module{1,2,3}_*.py`, `run_full_benchmark.py` — independent runners
-- Engine/harness Flash enablement: `engine/models.ini` Flash preset + slot-save-path, `metrotower.env` → qwen4exp binary, `setup-memlock.sh` mkdir fix, Pi Flash model entry, `pi-monitored.sh` model→preset mapping
+- Engine/harness Flash enablement: `engine/models.ini` Flash preset + slot-save-path, `workstation.env` → qwen4exp binary, `setup-memlock.sh` mkdir fix, Pi Flash model entry, `pi-monitored.sh` model→preset mapping
 - Reports: this file, scorecard, JSON dumps, stack brief, trimmed handoff / next-run docs
 
 **Intentionally not committed:** root `models.ini` duplicate, `fix_preset.py`, root `pipeline_results.json`, `experiments/llama.cpp-qwen4exp/` build tree, GGUF weights, PID files, `/tmp` logs, legacy `experiments/hyperbolic-time-chamber/` (see note below).

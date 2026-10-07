@@ -4,7 +4,7 @@
 
 ### `load-mode = mmap`
 **Evaluation: Conceptually Valid & Absolutely Necessary**
-The real 180B model at 3-bit quantization will be roughly 67.5GB in size. Our target hardware (Metrotower) only has 32GB of system RAM and 12GB of VRAM. Because the model vastly exceeds the combined physical memory limits, `mlock` would immediately trigger an OOM. `mmap` allows the OS to transparently page weights directly from the NVMe SSD to RAM/VRAM as needed. This is the only way a 180B model can run on this hardware.
+The real 180B model at 3-bit quantization will be roughly 67.5GB in size. Our target hardware (Workstation) only has 32GB of system RAM and 12GB of VRAM. Because the model vastly exceeds the combined physical memory limits, `mlock` would immediately trigger an OOM. `mmap` allows the OS to transparently page weights directly from the NVMe SSD to RAM/VRAM as needed. This is the only way a 180B model can run on this hardware.
 
 ### `--n-cpu-moe 56`
 **Evaluation: Conceptually Valid & Necessary**
