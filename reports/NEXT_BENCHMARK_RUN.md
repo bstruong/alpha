@@ -8,7 +8,7 @@ Latest scorecard: [`FRONTIER_EVAL_SCORECARD.md`](FRONTIER_EVAL_SCORECARD.md).
 ## Run (when ready)
 
 ```bash
-cd /home/brian/Projects/berserker
+cd /path/to/hybrid-ai-harness   # local clone (directory may still be named berserker)
 
 engine/bin/llama-up.sh router qwen3.8-flash --force
 

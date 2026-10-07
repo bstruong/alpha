@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# berserker / harness / pi / bin / pi-monitored.sh
+# hybrid-ai-harness / harness / pi / bin / pi-monitored.sh
 # Monitored runner for Pi Local Harness with engine lifecycle management
 # =============================================================================
 set -e

@@ -1,6 +1,6 @@
 # Frontier Model Evaluation Scorecard
 **Date:** 2026-10-07 22:20:02 UTC
-**Hardware Target:** Metrotower (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
+**Hardware Target:** Workstation (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
 **Harness:** v3+ — independent modules; temp 0 / seed 12345 / no prompt cache; slot erase; oracles A/B; soft Test C; primary telemetry 2k/8k; Test C named deliverables+retry; planner token cap
 **Modules last updated:** telemetry=2026-10-07T21:41:04.552767+00:00 · spec_traps=2026-10-07T22:15:26.958314+00:00 · pipeline=never
 
