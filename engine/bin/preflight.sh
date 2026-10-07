@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# berserker / engine / bin/preflight.sh
-# Preflight environment and hardware check for Metrotower llama-server
+# hybrid-ai-harness / engine / bin/preflight.sh
+# Preflight environment and hardware check for Workstation llama-server
 # =============================================================================
 set -euo pipefail
 
@@ -10,7 +10,7 @@ ENGINE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 REPO_DIR="$(cd "${ENGINE_DIR}/.." && pwd)"
 
 # Source environment defaults if available
-ENV_FILE="${ENGINE_DIR}/metrotower.env"
+ENV_FILE="${ENGINE_DIR}/workstation.env"
 if [[ -f "${ENV_FILE}" ]]; then
     # shellcheck source=/dev/null
     source "${ENV_FILE}"
@@ -30,7 +30,7 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Preflight check for Metrotower llama-server execution environment.
+Preflight check for Workstation llama-server execution environment.
 Checks memlock limits, CPU RAM, GPU VRAM, port availability, model files,
 and Ollama status.
 
@@ -108,7 +108,7 @@ log_header() {
     fi
 }
 
-log_header "Metrotower Preflight Check (Preset: ${PRESET})"
+log_header "Workstation Preflight Check (Preset: ${PRESET})"
 
 # -----------------------------------------------------------------------------
 # 1. Preset & Model Validation

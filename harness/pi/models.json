@@ -15,6 +15,14 @@
           "maxTokens": 4096
         },
         {
+          "id": "qwen3.8-flash",
+          "name": "Qwen 3.8 Flash MoE",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 69632,
+          "maxTokens": 4096
+        },
+        {
           "id": "glm47-reap",
           "name": "GLM 4.7 Flash (Local)",
           "reasoning": true,

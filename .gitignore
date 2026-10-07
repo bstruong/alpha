@@ -21,3 +21,11 @@ experiments/models/
 .pytest_cache/
 
 experiments/ai-evals-rails/
+
+# Flash eval / local engine noise
+experiments/hyperbolic-time-chamber/
+experiments/llama.cpp-qwen4exp/
+engine/run/*.pid
+engine/run/slots/
+scripts/__pycache__/
+tests/**/__pycache__/
