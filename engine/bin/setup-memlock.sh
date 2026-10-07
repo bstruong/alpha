@@ -62,6 +62,7 @@ show_commands() {
 To configure unlimited memlock on Metrotower, run the following commands with sudo:
 
   # 1. Install PAM limits for user sessions:
+  sudo mkdir -p "$(dirname "${PAM_DST}")"
   sudo cp "${PAM_SRC}" "${PAM_DST}"
   sudo chmod 0644 "${PAM_DST}"
 
@@ -90,6 +91,8 @@ install_files() {
     fi
 
     echo "Installing PAM limits to ${PAM_DST}..."
+    # Arch/minimal installs may lack limits.d; create it (standard pam_limits path).
+    mkdir -p "$(dirname "${PAM_DST}")"
     cp "${PAM_SRC}" "${PAM_DST}"
     chmod 0644 "${PAM_DST}"
 
