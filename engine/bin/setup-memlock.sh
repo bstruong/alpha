@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# berserker / engine / bin/setup-memlock.sh
-# Diagnostic and helper tool for Metrotower RLIMIT_MEMLOCK configuration
+# hybrid-ai-harness / engine / bin/setup-memlock.sh
+# Diagnostic and helper tool for Workstation RLIMIT_MEMLOCK configuration
 # =============================================================================
 set -euo pipefail
 
@@ -17,7 +17,7 @@ SYSTEMD_SRC="${SYSTEM_DIR}/user@.service.d/memlock.conf"
 SYSTEMD_DST="${SYSTEMD_DROPIN_DIR}/memlock.conf"
 
 check_status() {
-    echo "=== Metrotower RLIMIT_MEMLOCK Status ==="
+    echo "=== Workstation RLIMIT_MEMLOCK Status ==="
     echo ""
 
     # Current shell limit
@@ -59,7 +59,7 @@ check_status() {
 
 show_commands() {
     cat <<EOF
-To configure unlimited memlock on Metrotower, run the following commands with sudo:
+To configure unlimited memlock on Workstation, run the following commands with sudo:
 
   # 1. Install PAM limits for user sessions:
   sudo mkdir -p "$(dirname "${PAM_DST}")"
@@ -128,7 +128,7 @@ while [[ $# -gt 0 ]]; do
             cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Tool to check and configure RLIMIT_MEMLOCK for Metrotower llama-server.
+Tool to check and configure RLIMIT_MEMLOCK for Workstation llama-server.
 
 Options:
     --status, --check    Check and print current memlock status (default)

@@ -3,14 +3,14 @@
 > Generated from the [Deep dive local AI stack](bf74dcd8-b336-4082-893c-f0475b4ddbd1) research pass.
 > Sources: ggml-org/llama.cpp, earendil-works/pi, thecodacus/spec-wins, GenerelSchwerz/llama.cpp wiki.
 
-# Metrotower local AI stack: research report
+# Workstation local AI stack: research report
 
 **Sources read.** Everything below comes from fetched primary sources, with these exceptions:
 - **llama.cpp:** the root README, `tools/server/README.md`, `docs/speculative.md`, `docs/preset.md`, `docs/build.md` and `tools/quantize/README.md`. I also read the ggml README and the GGUF spec.
 - **Pi:** the root README and `packages/coding-agent/docs/{how-pi-works,llama-cpp,models,compaction,cli,settings,security}.md`. I also read the `pi-ai` and `pi-agent-core` READMEs and your local `node_modules/pi-llama-cpp/README.md`.
 - **spec-wins:** the README, `docs/answer-key.md`, `docs/prompts.md` and `results/*`.
 - **Wiki:** I cloned the wiki repo and read about 25 of its 67 pages, including Home, the 12GB guide, the MoE-Cache flags and host-pinning pages, the Qwen3.8 reproduction runs, and the stock-vs-fork comparison.
-- **Local files:** `engine/models.ini`, `engine/metrotower.env`, `harness/pi/*`, `scripts/start_qwen_flash.sh`, `specs/BENCHMARK_ARCH_PLAN.md`, `reports/EVAL_REVIEW.md`, `reports/FRONTIER_EVAL_SCORECARD.md` and `tests/benchmark_suite/*`.
+- **Local files:** `engine/models.ini`, `engine/workstation.env`, `harness/pi/*`, `scripts/start_qwen_flash.sh`, `specs/BENCHMARK_ARCH_PLAN.md`, `reports/EVAL_REVIEW.md`, `reports/FRONTIER_EVAL_SCORECARD.md` and `tests/benchmark_suite/*`.
 
 Claims I could not verify are marked **[uncertain]** or **[inference]**.
 
@@ -361,12 +361,12 @@ Claims I could not verify are marked **[uncertain]** or **[inference]**.
   - 36.2 tok/s with a 24 GB partial-pin budget.
   - Partial pinning cut prefill to 27% and decode to 65% of the full-pin figures, because of CPU repacking and staging.
 
-**Limits for Metrotower**
+**Limits for Workstation**
 - The cache needs the whole cold expert source in RAM (`--load-mode none`) or mmap. With mmap the wiki says "page faults and eviction can dominate", and automatic pinning doesn't apply to mapped sources.
   - The Flash Next UD-Q3_K_XL experts are 53,237 MiB. Your 80 GB model on 32 GB RAM is outside every owner-verified case.
   - It is not tested at less than 62 GiB RAM. **[inference: the fork's gain would likely be limited, and the cache could help only by keeping the hottest experts on the GPU]**
 - **KV budget on 12 GB:** the benchmark geometries used 4k–64k context. Your 256k q8 KV (~2.66 GiB per your own `models.ini` math) is not in any recorded run. The cache slots and KV compete for the same ~11 GiB of usable VRAM.
-- **Hardware differences [inference]:** the owner's test card (5070 Ti) has much higher memory bandwidth and likely a faster PCIe link than a 3060 on PCIe 4.0 x16. Expert-miss transfer cost will be higher on Metrotower.
+- **Hardware differences [inference]:** the owner's test card (5070 Ti) has much higher memory bandwidth and likely a faster PCIe link than a 3060 on PCIe 4.0 x16. Expert-miss transfer cost will be higher on Workstation.
 - **Build target:** the 3060 is sm_86. The Docker page lists `CUDA_DOCKER_ARCH=86` for RTX 30 series. The owner builds used `120a-real`, so rebuild with `-DCMAKE_CUDA_ARCHITECTURES=86`.
 - **Single GPU only:** no row or tensor split across GPUs. That is fine for you.
 - **Private ABI:** the fork requires matched fork-built libraries; don't mix with upstream binaries.
@@ -456,7 +456,7 @@ weights: GGUF (mlock'd in RAM for Qwen3.6; mmap'd from NVMe for Flash; PLE table
 - Test one flag at a time.
 - Confirm the grouped path ran via logs.
 
-### 5.4 Operator checklist for Metrotower
+### 5.4 Operator checklist for Workstation
 
 1. **Verify identity.** Run `llama-server --version` and confirm the binary matches `LLAMA_SERVER_BIN` (upstream `4d756bc`). Confirm no fork build is in use.
 2. **Verify model IDs.** `GET /models` should match what clients send. Pi uses `qwen3.8-flash`, the benchmarks send `qwen-3.8-flash`, and the preset section is `qwen3.8-flash` with `alias = qwen-3.8-flash`. The docs say the router overwrites alias, so confirm which name routes. **[uncertain]**
