@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# berserker / engine / bin/llama-down.sh
-# Graceful shutdown script for Metrotower llama-server
+# hybrid-ai-harness / engine / bin/llama-down.sh
+# Graceful shutdown script for Workstation llama-server
 # =============================================================================
 set -euo pipefail
 
@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENGINE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Source environment defaults
-ENV_FILE="${ENGINE_DIR}/metrotower.env"
+ENV_FILE="${ENGINE_DIR}/workstation.env"
 if [[ -f "${ENV_FILE}" ]]; then
     # shellcheck source=/dev/null
     source "${ENV_FILE}"
@@ -24,7 +24,7 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Stop the Metrotower llama-server local AI engine.
+Stop the Workstation llama-server local AI engine.
 
 Options:
     --port <port>   Port to inspect if pidfile is missing (default: ${PORT})

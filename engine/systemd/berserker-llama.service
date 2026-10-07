@@ -1,12 +1,12 @@
 [Unit]
-Description=Berserker llama-server local AI engine (Metrotower)
+Description=hybrid-ai-harness llama-server local AI engine (Workstation)
 Documentation=https://github.com/bstruong/berserker
 After=network.target
 
 [Service]
 Type=exec
 WorkingDirectory=/home/brian/Projects/berserker
-EnvironmentFile=-/home/brian/Projects/berserker/engine/metrotower.env
+EnvironmentFile=-/home/brian/Projects/berserker/engine/workstation.env
 ExecStart=/home/brian/Projects/berserker/engine/bin/llama-up.sh single qwen36-coder --foreground
 Restart=on-failure
 RestartSec=5s
