@@ -2,7 +2,7 @@
 
 **Date:** October 7, 2026
 **Models Evaluated:** Qwen 3.8 Flash 177B (Frontier) vs. Qwen 3.6 35B (Tier 1)
-**Hardware Target:** Metrotower (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
+**Hardware Target:** Workstation (AMD Ryzen 7 9700X, RTX 3060 12GB, 32GB RAM, Samsung 990 Pro NVMe)
 
 ## 1. Hardware Throughput Matrices
 
@@ -52,4 +52,4 @@ The benchmark also evaluated a pipeline handoff from the Frontier model (archite
 ### Handoff Quality Score
 Overall Pipeline Status: **✅ HEALTHY**
 
-The pipeline shows exceptional promise. The 0.0s swap latency and ~10.6s worker execution time confirm that the Metrotower hardware can fluidly hand off tasks from a heavy cloud/frontier model to a highly efficient local 35B model.
+The pipeline shows exceptional promise. The 0.0s swap latency and ~10.6s worker execution time confirm that the Workstation hardware can fluidly hand off tasks from a heavy cloud/frontier model to a highly efficient local 35B model.
