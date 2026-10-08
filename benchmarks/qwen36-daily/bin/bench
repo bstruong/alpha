@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+root = File.expand_path("..", __dir__)
+version_file = File.join(root, "library/.ruby-version")
+version = File.read(version_file).strip.sub(/\Aruby-/, "")
+wanted = File.expand_path("~/.local/share/mise/installs/ruby/#{version}/bin/ruby")
+if File.executable?(wanted) && RbConfig.ruby != File.realpath(wanted)
+  exec(wanted, __FILE__, *ARGV)
+end
+
+require_relative "../lib/bench"
+exit Bench::CLI.call(ARGV)

@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Rebuild environment.patch and solution.patch from each task's buggy/ tree.
+# environment.patch turns the golden app into the seed. solution.patch turns
+# the seed back into the golden app.
+
+root = File.expand_path("..", __dir__)
+library = File.join(root, "library")
+tasks = File.join(root, "tasks")
+
+def diff(from, to, rel)
+  out = IO.popen([ "diff", "-u", "--label", "a/#{rel}", "--label", "b/#{rel}", from, to ], &:read)
+  status = $?.exitstatus
+  return "" if status.zero?
+  raise "diff failed for #{rel}" unless status == 1
+
+  out
+end
+
+Dir.children(tasks).sort.each do |name|
+  buggy_root = File.join(tasks, name, "buggy")
+  next unless Dir.exist?(buggy_root)
+
+  env_parts = []
+  sol_parts = []
+  Dir.glob(File.join(buggy_root, "**/*")).sort.each do |buggy|
+    next unless File.file?(buggy)
+
+    rel = buggy.delete_prefix("#{buggy_root}/")
+    golden = File.join(library, rel)
+    raise "#{name}: golden file missing for #{rel}" unless File.file?(golden)
+
+    env_parts << diff(golden, buggy, rel)
+    sol_parts << diff(buggy, golden, rel)
+  end
+
+  File.write(File.join(tasks, name, "environment.patch"), env_parts.join)
+  File.write(File.join(tasks, name, "solution.patch"), sol_parts.join)
+  puts "#{name}: #{env_parts.size} file(s)"
+end

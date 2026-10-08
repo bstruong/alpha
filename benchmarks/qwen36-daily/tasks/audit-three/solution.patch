@@ -1,0 +1,36 @@
+--- a/app/controllers/accounts_controller.rb
++++ b/app/controllers/accounts_controller.rb
+@@ -7,6 +7,8 @@
+ 
+   private
+     def account_params
+-      params.require(:account).permit(:name, :email, :role)
++      keys = [ :name, :email ]
++      keys << :role if Current.account&.role == "admin"
++      params.require(:account).permit(*keys)
+     end
+ end
+--- a/app/controllers/books_controller.rb
++++ b/app/controllers/books_controller.rb
+@@ -1,6 +1,11 @@
+ class BooksController < ApplicationController
+   def destroy
+     book = Book.find(params[:id])
++    unless Current.account&.role == "admin" || book.grants.exists?(account: Current.account, level: "editor")
++      head :forbidden
++      return
++    end
++
+     book.destroy!
+     head :no_content
+   end
+--- a/app/models/book_search.rb
++++ b/app/models/book_search.rb
+@@ -1,5 +1,6 @@
+ class BookSearch
+   def self.call(account, term)
+-    Book.where(id: account.visible_books.select(:id)).where("title LIKE ?", "%#{term}%")
++    escaped = ActiveRecord::Base.sanitize_sql_like(term.to_s)
++    Book.where(id: account.visible_books.select(:id)).where("title LIKE ? ESCAPE '\\'", "%#{escaped}%")
+   end
+ end

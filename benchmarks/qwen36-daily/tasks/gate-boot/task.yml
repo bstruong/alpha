@@ -1,0 +1,5 @@
+name: gate-boot
+kind: gate
+expected_seed: 1
+anchor:
+restore: []

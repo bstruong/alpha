@@ -1,0 +1,23 @@
+--- a/app/models/receipt.rb
++++ b/app/models/receipt.rb
+@@ -4,7 +4,7 @@
+   after_commit :send_notice, on: :create
+ 
+   def self.quote(first, second)
+-    first.to_f + second.to_f
++    BigDecimal(first.to_s) + BigDecimal(second.to_s)
+   end
+ 
+   def send_notice
+--- a/test/models/receipt_test.rb
++++ b/test/models/receipt_test.rb
+@@ -4,7 +4,8 @@
+   test "two tenths make three tenths" do
+     total = Receipt.quote("0.1", "0.2")
+ 
+-    assert_in_delta 0.3, total, 0.0001
++    assert_instance_of BigDecimal, total
++    assert_equal BigDecimal("0.3"), total
+   end
+ 
+   test "a batch of one stores a receipt" do

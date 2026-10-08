@@ -1,0 +1,10 @@
+--- a/app/models/book.rb
++++ b/app/models/book.rb
+@@ -5,6 +5,6 @@
+   has_many :grants, dependent: :destroy
+ 
+   def leaf_count
+-    drafts.count
++    0
+   end
+ end
