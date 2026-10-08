@@ -1,0 +1,1 @@
+A private book is destroyed, and so are its drafts and its search rows. A shared book loses its creator and keeps its text under the byline "Deleted author". Sign-in rows match both the current email and the address saved as original_email. Another account's books, grants, and sign-ins stay.

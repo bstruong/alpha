@@ -1,0 +1,8 @@
+name: erase-account
+kind: graded
+expected_seed: 0
+anchor: 'find_each\(&:destroy\)'
+restore:
+  - test
+  - bin
+  - config/environments/test.rb
