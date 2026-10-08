@@ -1,0 +1,3 @@
+class SearchEntry < ApplicationRecord
+  belongs_to :book
+end
