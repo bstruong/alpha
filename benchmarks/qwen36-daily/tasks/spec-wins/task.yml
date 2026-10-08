@@ -1,0 +1,10 @@
+name: spec-wins
+kind: graded
+expected_seed: 0
+anchor: BigDecimal
+restore:
+  - test
+  - bin
+  - config/environments/test.rb
+restore_except:
+  - test/models/receipt_test.rb

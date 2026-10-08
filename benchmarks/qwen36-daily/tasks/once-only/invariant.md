@@ -1,0 +1,1 @@
+Store the idempotency key before the notice is delivered, and send from an after_commit callback. A second deliver with the same key does not create another receipt and does not send again, including when the first attempt claimed the receipt and never recorded sent_at. ReceiptBatch.deliver([]) does not raise.

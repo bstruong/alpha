@@ -1,0 +1,8 @@
+name: once-only
+kind: graded
+expected_seed: 0
+anchor: after_commit
+restore:
+  - test
+  - bin
+  - config/environments/test.rb
