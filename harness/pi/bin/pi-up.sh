@@ -19,11 +19,6 @@ export LLAMA_SERVER_URL="${LLAMA_SERVER_URL:-http://127.0.0.1:8080}"
 export LLAMA_BASE_URL="${LLAMA_BASE_URL:-http://127.0.0.1:8080}"
 export OPENAI_API_BASE="${OPENAI_API_BASE:-http://127.0.0.1:8080/v1}"
 
-# Route through Pi Heartbeat & Sidecar Log monitor if present
-MONITOR_SCRIPT="${SCRIPT_DIR}/pi-monitor.py"
-if [[ -f "${MONITOR_SCRIPT}" ]]; then
-  export PI_BIN="${PI_BIN}"
-  exec python3 "${MONITOR_SCRIPT}" "$@"
-else
-  exec "${PI_BIN}" "$@"
-fi
+# Route through the Ruby heartbeat monitor. The Python monitor remains beside it.
+export PI_BIN="${PI_BIN}"
+exec ruby "${SCRIPT_DIR}/pi-monitor.rb" "$@"
