@@ -1,4 +1,8 @@
 results/
+benchmarks/qwen36-daily/library/config/master.key
+benchmarks/qwen36-daily/library/storage/*.sqlite3
+benchmarks/qwen36-daily/library/tmp/
+benchmarks/qwen36-daily/library/log/*.log
 bench_*.txt
 *.log
 __pycache__/
