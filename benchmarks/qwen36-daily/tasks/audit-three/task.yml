@@ -1,0 +1,8 @@
+name: audit-three
+kind: graded
+expected_seed: 0
+anchor: sanitize_sql_like
+restore:
+  - test
+  - bin
+  - config/environments/test.rb

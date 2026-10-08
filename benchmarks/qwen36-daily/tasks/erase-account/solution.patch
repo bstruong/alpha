@@ -1,0 +1,22 @@
+--- a/app/models/account.rb
++++ b/app/models/account.rb
+@@ -17,10 +17,14 @@
+   end
+ 
+   def erase!
+-    update!(
+-      active: false,
+-      original_email: original_email || email,
+-      email: "deactivated-#{id}@example.com"
+-    )
++    transaction do
++      books.where(shared: false).find_each(&:destroy)
++      books.where(shared: true).find_each do |book|
++        book.update!(author: "Deleted author", account_id: nil)
++      end
++      grants.destroy_all
++      SignIn.where(email: [ email, original_email ].compact).delete_all
++      destroy!
++    end
+   end
+ end

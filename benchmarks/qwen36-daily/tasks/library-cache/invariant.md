@@ -1,0 +1,1 @@
+The cache entry is per account. A second read inside the hour does not query again. A grant created after the digest appears once the hour has passed, and it never appears in another account's overview.

@@ -1,0 +1,32 @@
+--- a/app/models/receipt.rb
++++ b/app/models/receipt.rb
+@@ -1,8 +1,6 @@
+ class Receipt < ApplicationRecord
+   belongs_to :account
+ 
+-  after_commit :send_notice, on: :create
+-
+   def self.quote(first, second)
+     BigDecimal(first.to_s) + BigDecimal(second.to_s)
+   end
+--- a/app/models/receipt_batch.rb
++++ b/app/models/receipt_batch.rb
+@@ -1,13 +1,15 @@
+ class ReceiptBatch
+   def self.deliver(rows)
+-    rows.each do |row|
+-      next if Receipt.exists?(idempotency_key: row.fetch(:key))
++    raise ArgumentError, "nothing to send" if rows.empty?
+ 
+-      Receipt.create!(
++    rows.each do |row|
++      receipt = Receipt.create!(
+         account: row.fetch(:account),
+         amount: row.fetch(:amount),
+         idempotency_key: row.fetch(:key)
+       )
++      ReceiptNotice.deliver(receipt)
++      receipt.update_column(:sent_at, Time.current)
+     end
+   end
+ end

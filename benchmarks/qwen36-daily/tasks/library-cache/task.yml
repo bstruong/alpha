@@ -1,0 +1,8 @@
+name: library-cache
+kind: graded
+expected_seed: 0
+anchor: 'library-digest/\#\{id\}'
+restore:
+  - test
+  - bin
+  - config/environments/test.rb
