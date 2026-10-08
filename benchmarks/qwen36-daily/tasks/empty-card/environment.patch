@@ -1,0 +1,17 @@
+--- a/app/models/library_card.rb
++++ b/app/models/library_card.rb
+@@ -1,10 +1,10 @@
+ class LibraryCard
+   def self.load_legacy(payload)
+-    books = payload["books"] || []
++    books = payload.fetch("books")
+     {
+-      title: payload["title"],
+-      author: payload["author"],
+-      leaf_count: books.sum { |book| book["leaf_count"].to_i }
++      title: payload.fetch("title"),
++      author: payload.fetch("author"),
++      leaf_count: books.sum { |book| book.fetch("leaf_count") }
+     }
+   end
+ end

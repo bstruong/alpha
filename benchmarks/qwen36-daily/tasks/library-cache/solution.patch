@@ -1,0 +1,11 @@
+--- a/app/models/account.rb
++++ b/app/models/account.rb
+@@ -4,7 +4,7 @@
+   has_many :receipts, dependent: :destroy
+ 
+   def library_digest
+-    Rails.cache.fetch("library-digest", expires_in: 1.hour) do
++    Rails.cache.fetch("library-digest/#{id}", expires_in: 1.hour) do
+       visible_books.map { |book| { id: book.id, title: book.title, leaf_count: book.leaf_count } }
+     end
+   end
