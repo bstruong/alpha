@@ -20,7 +20,7 @@ from tests.benchmark_suite.spec_traps.test_spec_traps import run_all_spec_traps
 
 def main() -> None:
     require_server()
-    erase_slots(os.environ.get("BENCH_MODEL", FLASH_MODEL), label="module2 start")
+    erase_slots(os.environ.get("BENCHMARK_MODEL", os.environ.get("BENCH_MODEL", FLASH_MODEL)), label="module2 start")
     print("--- Module 2: Cognitive Spec Traps ---", flush=True)
     try:
         results = run_all_spec_traps()
