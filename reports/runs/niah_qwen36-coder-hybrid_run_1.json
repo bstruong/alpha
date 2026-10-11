@@ -1,0 +1,28 @@
+{
+  "model": "qwen36-coder-hybrid",
+  "tests": [
+    {
+      "context_target": 16000,
+      "actual_prompt_tokens": 16093,
+      "needle_depth_percent": 0.5,
+      "exact_match": true,
+      "wall_sec": 10.98,
+      "ttft_sec": 10.674,
+      "prefill_tps": 1507.68,
+      "decode_tps": 44.97,
+      "response_preview": "VAULT-ALPHA-7729-OMEGA"
+    },
+    {
+      "context_target": 32000,
+      "actual_prompt_tokens": 32093,
+      "needle_depth_percent": 0.5,
+      "exact_match": true,
+      "wall_sec": 22.39,
+      "ttft_sec": 22.045,
+      "prefill_tps": 1455.77,
+      "decode_tps": 41.04,
+      "response_preview": "VAULT-ALPHA-7729-OMEGA"
+    }
+  ],
+  "all_passed": true
+}

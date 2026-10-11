@@ -126,8 +126,108 @@ def run_rspec_caster():
     }
 
 
+FAILING_REMINDER_SPEC = """require "rails_helper"
+
+RSpec.describe Reminder, type: :model do
+  describe "#snoozed?" do
+    let(:person) { create(:person) }
+    let(:active_reminder) { create(:reminder, person: person) }
+    let(:snoozed_reminder) { create(:reminder, person: person, snoozed_until: Date.today + 1.day) }
+
+    it "returns false for active reminders" do
+      expect(active_reminder.snoozed?).to be false
+    end
+
+    it "returns false for reminders that are not snoozed" do
+      expect(snoozed_reminder.snoozed?).to be false
+    end
+
+    it "returns true for reminders that are snoozed" do
+      expect(snoozed_reminder.snoozed?).to be true
+    end
+  end
+end
+"""
+
+FAILING_INTERACTION_SPEC = """require "rails_helper"
+
+RSpec.describe Interaction, type: :model do
+  describe "validations" do
+    it { should validate_presence_of(:interaction_type) }
+    it { should validate_presence_of(:occurred_at) }
+  end
+
+  describe "scopes" do
+    let(:person) { create(:person) }
+    let!(:active_interaction) { create(:interaction, person: person) }
+    let!(:voided_interaction) { create(:interaction, person: person, voided_at: Time.current) }
+    let!(:recent_interaction) { create(:interaction, person: person, occurred_at: Time.current - RECENT_WINDOW) }
+    let!(:not_recent_interaction) { create(:interaction, person: person, occurred_at: Time.current - RECENT_WINDOW - 1.day) }
+
+    it "active excludes voided records" do
+      expect(Interaction.active).to include(active_interaction)
+      expect(Interaction.active).not_to include(voided_interaction)
+    end
+
+    it "voided excludes active records" do
+      expect(Interaction.voided).to include(voided_interaction)
+      expect(Interaction.voided).not_to include(active_interaction)
+    end
+
+    it "recent includes recent records" do
+      expect(Interaction.recent).to include(recent_interaction)
+      expect(Interaction.recent).not_to include(not_recent_interaction)
+    end
+
+    it "recent excludes not recent records" do
+      expect(Interaction.recent).not_to include(active_interaction)
+      expect(Interaction.recent).not_to include(voided_interaction)
+      expect(Interaction.recent).not_to include(not_recent_interaction)
+    end
+  end
+end
+"""
+
+TRUNCATED_LISTING_NORMALIZER = """class ListingNormalizer
+  CONVERTERS = {
+    # ...
+    "list_price_cents"  => :price_cents,
+    "sale_price_cents"  => :price_cents,
+    # ...
+  }.freeze
+
+  # ...
+
+  def convert(type, value)
+    return nil if value.blank?
+    send(type, value)
+  end
+
+  def price_cents(value) = Cents.to_cents(value)
+  # ...
+end
+"""
+
+
+def reset_saber_fixtures():
+    with open(os.path.join(SABER_DIR, "spec/models/reminder_spec.rb"), "w") as f:
+        f.write(FAILING_REMINDER_SPEC)
+    with open(os.path.join(SABER_DIR, "spec/models/interaction_spec.rb"), "w") as f:
+        f.write(FAILING_INTERACTION_SPEC)
+
+
+def reset_caster_fixtures():
+    with open(os.path.join(CASTER_DIR, "app/models/listing_normalizer.rb"), "w") as f:
+        f.write(TRUNCATED_LISTING_NORMALIZER)
+
+
+def restore_clean_repos():
+    subprocess.run("git checkout HEAD -- app/models/listing_normalizer.rb", shell=True, cwd=CASTER_DIR)
+
+
 def eval_saber(model: str):
     print(f"\n--- [Saber] Evaluating {model} on Saber Test Suite ---", flush=True)
+    reset_saber_fixtures()
     erase_slots(model, label="saber_eval")
 
     # Step A: Fix spec/models/reminder_spec.rb
@@ -293,6 +393,7 @@ Return ONLY the complete updated `spec/models/interaction_spec.rb` content in a 
 
 def eval_caster(model: str):
     print(f"\n--- [Caster] Evaluating {model} on Caster ListingNormalizer ---", flush=True)
+    reset_caster_fixtures()
     erase_slots(model, label="caster_eval")
 
     prompt_caster = """You are a senior Ruby on Rails engineer.
@@ -441,6 +542,7 @@ Return ONLY the complete updated file content in a ```ruby code block.
 def main():
     parser = argparse.ArgumentParser(description="Stone 2: Production Repo Coding Benchmark")
     parser.add_argument("--model", required=True, help="Model preset (glm47-reap, qwen36-coder-hybrid)")
+    parser.add_argument("--run", type=int, default=None, help="Run number (e.g. 1, 2, 3)")
     args = parser.parse_args()
 
     saber_result = eval_saber(args.model)
@@ -448,6 +550,7 @@ def main():
 
     summary = {
         "model": args.model,
+        "run_id": args.run,
         "saber": saber_result,
         "caster": caster_result,
         "both_passed": saber_result["pass"] and caster_result["pass"],
@@ -456,7 +559,17 @@ def main():
     out_file = os.path.join(REPORTS_DIR, f"repo_coding_{args.model}.json")
     with open(out_file, "w") as f:
         json.dump(summary, f, indent=2)
+    if args.run is not None:
+        runs_dir = os.path.join(REPORTS_DIR, "runs")
+        os.makedirs(runs_dir, exist_ok=True)
+        run_file = os.path.join(runs_dir, f"repo_coding_{args.model}_run_{args.run}.json")
+        with open(run_file, "w") as f:
+            json.dump(summary, f, indent=2)
+        print(f"Saved repo coding benchmark run {args.run} to {run_file}", flush=True)
     print(f"\nSaved repo coding benchmark to {out_file}", flush=True)
+
+    # Restore clean state on caster so repo stays green
+    restore_clean_repos()
     return summary
 
 

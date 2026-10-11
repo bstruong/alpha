@@ -72,10 +72,10 @@ def send_inference(model: str, slot_label: str, prompt_tokens: int, max_tokens: 
     }
 
 
-def benchmark_concurrency(model: str, prompt_tokens: int = 1000, max_tokens: int = 150):
+def benchmark_concurrency(model: str, prompt_tokens: int = 1000, max_tokens: int = 150, run_id: int = None):
     print(f"\n=======================================================", flush=True)
     print(f" Stone 1: Dual-Slot Simultaneous Concurrency Benchmark", flush=True)
-    print(f" Model: {model} | Slots: 2 Concurrent | Target: {max_tokens} tokens", flush=True)
+    print(f" Model: {model} | Run: {run_id or 'default'} | Slots: 2 Concurrent | Target: {max_tokens} tokens", flush=True)
     print(f"=======================================================\n", flush=True)
 
     erase_slots(model, label="concurrency_init")
@@ -108,6 +108,7 @@ def benchmark_concurrency(model: str, prompt_tokens: int = 1000, max_tokens: int
 
     summary = {
         "model": model,
+        "run_id": run_id,
         "single_slot_baseline": solo_res,
         "dual_slot_concurrent": {
             "overall_wall_sec": round(overall_wall, 3),
@@ -121,6 +122,13 @@ def benchmark_concurrency(model: str, prompt_tokens: int = 1000, max_tokens: int
     out_file = os.path.join(REPORTS_DIR, f"concurrency_{model}.json")
     with open(out_file, "w") as f:
         json.dump(summary, f, indent=2)
+    if run_id is not None:
+        runs_dir = os.path.join(REPORTS_DIR, "runs")
+        os.makedirs(runs_dir, exist_ok=True)
+        run_file = os.path.join(runs_dir, f"concurrency_{model}_run_{run_id}.json")
+        with open(run_file, "w") as f:
+            json.dump(summary, f, indent=2)
+        print(f"Saved concurrency benchmark run {run_id} to {run_file}", flush=True)
     print(f"Saved concurrency benchmark to {out_file}", flush=True)
     return summary
 
@@ -128,9 +136,10 @@ def benchmark_concurrency(model: str, prompt_tokens: int = 1000, max_tokens: int
 def main():
     parser = argparse.ArgumentParser(description="Dual-Slot Concurrency Benchmark")
     parser.add_argument("--model", required=True, help="Model preset (glm47-reap, qwen36-coder-hybrid)")
+    parser.add_argument("--run", type=int, default=None, help="Run number (e.g. 1, 2, 3)")
     args = parser.parse_args()
 
-    benchmark_concurrency(args.model)
+    benchmark_concurrency(args.model, run_id=args.run)
 
 
 if __name__ == "__main__":
