@@ -1,0 +1,473 @@
+{
+  "glm47-reap": {
+    "runs_count": 3,
+    "telemetry_2k": {
+      "ttft": {
+        "mean": 1.37,
+        "min": 1.36,
+        "max": 1.39,
+        "std": 0.01,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 1459.2,
+        "min": 1443.59,
+        "max": 1470.97,
+        "std": 11.5,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 35.71,
+        "min": 34.89,
+        "max": 36.75,
+        "std": 0.78,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 19608.53,
+        "min": 19513.14,
+        "max": 19742.78,
+        "std": 97.7,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6195.0,
+        "min": 6195,
+        "max": 6195,
+        "std": 0.0,
+        "samples": 3
+      }
+    },
+    "telemetry_8k": {
+      "ttft": {
+        "mean": 7.04,
+        "min": 7.04,
+        "max": 7.04,
+        "std": 0.0,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 1136.54,
+        "min": 1135.9,
+        "max": 1137.07,
+        "std": 0.48,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 32.54,
+        "min": 31.72,
+        "max": 33.06,
+        "std": 0.59,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 19617.8,
+        "min": 19530.44,
+        "max": 19743.84,
+        "std": 91.31,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6195.0,
+        "min": 6195,
+        "max": 6195,
+        "std": 0.0,
+        "samples": 3
+      }
+    },
+    "telemetry_32k": {
+      "ttft": {
+        "mean": 30.02,
+        "min": 30.02,
+        "max": 30.02,
+        "std": 0.0,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 1065.82,
+        "min": 1065.77,
+        "max": 1065.85,
+        "std": 0.04,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 0.36,
+        "min": 0.36,
+        "max": 0.36,
+        "std": 0.0,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 19653.64,
+        "min": 19605.66,
+        "max": 19710.92,
+        "std": 43.47,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6195.0,
+        "min": 6195,
+        "max": 6195,
+        "std": 0.0,
+        "samples": 3
+      }
+    },
+    "telemetry_64k": {
+      "ttft": {
+        "mean": 30.03,
+        "min": 30.03,
+        "max": 30.03,
+        "std": 0.0,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 2131.43,
+        "min": 2131.36,
+        "max": 2131.49,
+        "std": 0.05,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "std": 0.0,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 19667.53,
+        "min": 19608.43,
+        "max": 19703.88,
+        "std": 42.16,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6195.0,
+        "min": 6195,
+        "max": 6195,
+        "std": 0.0,
+        "samples": 3
+      }
+    },
+    "spec_traps": {
+      "test_a_pass": 3,
+      "test_b_pass": 3,
+      "test_c_pass": 3,
+      "total_runs": 3
+    }
+  },
+  "qwen36-coder": {
+    "runs_count": 3,
+    "telemetry_2k": {
+      "ttft": {
+        "mean": 1.59,
+        "min": 1.58,
+        "max": 1.61,
+        "std": 0.01,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 1254.76,
+        "min": 1244.17,
+        "max": 1267.81,
+        "std": 9.81,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 46.91,
+        "min": 45.79,
+        "max": 47.5,
+        "std": 0.79,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 26935.02,
+        "min": 26866.02,
+        "max": 27008.22,
+        "std": 58.13,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6904.33,
+        "min": 6891,
+        "max": 6911,
+        "std": 9.43,
+        "samples": 3
+      }
+    },
+    "telemetry_8k": {
+      "ttft": {
+        "mean": 5.57,
+        "min": 5.57,
+        "max": 5.57,
+        "std": 0.0,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 1436.71,
+        "min": 1436.0,
+        "max": 1437.56,
+        "std": 0.64,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 45.25,
+        "min": 45.13,
+        "max": 45.4,
+        "std": 0.11,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 27006.02,
+        "min": 26924.86,
+        "max": 27098.8,
+        "std": 71.49,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6911.0,
+        "min": 6911,
+        "max": 6911,
+        "std": 0.0,
+        "samples": 3
+      }
+    },
+    "telemetry_32k": {
+      "ttft": {
+        "mean": 22.97,
+        "min": 22.94,
+        "max": 22.98,
+        "std": 0.02,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 1393.38,
+        "min": 1392.47,
+        "max": 1394.78,
+        "std": 1.0,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 39.77,
+        "min": 39.73,
+        "max": 39.81,
+        "std": 0.03,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 27004.67,
+        "min": 26923.28,
+        "max": 27138.82,
+        "std": 95.57,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6911.0,
+        "min": 6911,
+        "max": 6911,
+        "std": 0.0,
+        "samples": 3
+      }
+    },
+    "telemetry_64k": {
+      "ttft": {
+        "mean": 30.06,
+        "min": 30.05,
+        "max": 30.06,
+        "std": 0.0,
+        "samples": 3
+      },
+      "prefill_tps": {
+        "mean": 2129.28,
+        "min": 2129.13,
+        "max": 2129.42,
+        "std": 0.12,
+        "samples": 3
+      },
+      "decode_tps": {
+        "mean": 1.57,
+        "min": 1.56,
+        "max": 1.58,
+        "std": 0.01,
+        "samples": 3
+      },
+      "ram_mb": {
+        "mean": 27002.55,
+        "min": 26894.18,
+        "max": 27165.34,
+        "std": 117.2,
+        "samples": 3
+      },
+      "vram_mb": {
+        "mean": 6911.0,
+        "min": 6911,
+        "max": 6911,
+        "std": 0.0,
+        "samples": 3
+      }
+    },
+    "spec_traps": {
+      "test_a_pass": 3,
+      "test_b_pass": 3,
+      "test_c_pass": 3,
+      "total_runs": 3
+    }
+  },
+  "qwen36-coder-hybrid": {
+    "runs_count": 1,
+    "telemetry_2k": {
+      "ttft": {
+        "mean": 1.46,
+        "min": 1.46,
+        "max": 1.46,
+        "std": 0.0,
+        "samples": 1
+      },
+      "prefill_tps": {
+        "mean": 1367.59,
+        "min": 1367.59,
+        "max": 1367.59,
+        "std": 0.0,
+        "samples": 1
+      },
+      "decode_tps": {
+        "mean": 50.27,
+        "min": 50.27,
+        "max": 50.27,
+        "std": 0.0,
+        "samples": 1
+      },
+      "ram_mb": {
+        "mean": 23206.45,
+        "min": 23206.45,
+        "max": 23206.45,
+        "std": 0.0,
+        "samples": 1
+      },
+      "vram_mb": {
+        "mean": 10699.0,
+        "min": 10699,
+        "max": 10699,
+        "std": 0.0,
+        "samples": 1
+      }
+    },
+    "telemetry_8k": {
+      "ttft": {
+        "mean": 5.18,
+        "min": 5.18,
+        "max": 5.18,
+        "std": 0.0,
+        "samples": 1
+      },
+      "prefill_tps": {
+        "mean": 1544.74,
+        "min": 1544.74,
+        "max": 1544.74,
+        "std": 0.0,
+        "samples": 1
+      },
+      "decode_tps": {
+        "mean": 48.35,
+        "min": 48.35,
+        "max": 48.35,
+        "std": 0.0,
+        "samples": 1
+      },
+      "ram_mb": {
+        "mean": 23279.67,
+        "min": 23279.67,
+        "max": 23279.67,
+        "std": 0.0,
+        "samples": 1
+      },
+      "vram_mb": {
+        "mean": 10719.0,
+        "min": 10719,
+        "max": 10719,
+        "std": 0.0,
+        "samples": 1
+      }
+    },
+    "telemetry_32k": {
+      "ttft": {
+        "mean": 21.56,
+        "min": 21.56,
+        "max": 21.56,
+        "std": 0.0,
+        "samples": 1
+      },
+      "prefill_tps": {
+        "mean": 1484.36,
+        "min": 1484.36,
+        "max": 1484.36,
+        "std": 0.0,
+        "samples": 1
+      },
+      "decode_tps": {
+        "mean": 41.67,
+        "min": 41.67,
+        "max": 41.67,
+        "std": 0.0,
+        "samples": 1
+      },
+      "ram_mb": {
+        "mean": 23505.18,
+        "min": 23505.18,
+        "max": 23505.18,
+        "std": 0.0,
+        "samples": 1
+      },
+      "vram_mb": {
+        "mean": 10719.0,
+        "min": 10719,
+        "max": 10719,
+        "std": 0.0,
+        "samples": 1
+      }
+    },
+    "telemetry_64k": {
+      "ttft": {
+        "mean": 30.05,
+        "min": 30.05,
+        "max": 30.05,
+        "std": 0.0,
+        "samples": 1
+      },
+      "prefill_tps": {
+        "mean": 2129.48,
+        "min": 2129.48,
+        "max": 2129.48,
+        "std": 0.0,
+        "samples": 1
+      },
+      "decode_tps": {
+        "mean": 1.78,
+        "min": 1.78,
+        "max": 1.78,
+        "std": 0.0,
+        "samples": 1
+      },
+      "ram_mb": {
+        "mean": 23476.97,
+        "min": 23476.97,
+        "max": 23476.97,
+        "std": 0.0,
+        "samples": 1
+      },
+      "vram_mb": {
+        "mean": 10719.0,
+        "min": 10719,
+        "max": 10719,
+        "std": 0.0,
+        "samples": 1
+      }
+    },
+    "spec_traps": {
+      "test_a_pass": 1,
+      "test_b_pass": 1,
+      "test_c_pass": 1,
+      "total_runs": 1
+    }
+  }
+}

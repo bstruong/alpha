@@ -5,6 +5,7 @@
 - llama-server slot erase between modules / traps (needs `slot-save-path` in the preset).
 - Per-request metrics (wall clock + usage + llama.cpp timings) for the JSON report.
 """
+import os
 import time
 
 import requests
@@ -12,10 +13,10 @@ import requests
 BASE_URL = "http://localhost:8080"
 CHAT_ENDPOINT = f"{BASE_URL}/v1/chat/completions"
 
-# Canonical id = router section name = what `GET /v1/models` returns ("qwen3.8-flash").
-# The models.ini alias `qwen-3.8-flash` is still accepted by the router but not used by clients.
-FLASH_MODEL = "qwen3.8-flash"
-WORKER_MODEL = "qwen36-coder"
+# Canonical id = router section name = what `GET /v1/models` returns.
+# Overridable via BENCHMARK_MODEL (or legacy BENCH_MODEL).
+FLASH_MODEL = os.environ.get("BENCHMARK_MODEL", os.environ.get("BENCH_MODEL", "glm47-reap"))
+WORKER_MODEL = os.environ.get("WORKER_MODEL", "qwen36-coder")
 
 SEED = 12345
 
