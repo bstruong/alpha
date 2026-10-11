@@ -94,10 +94,10 @@ def run_needle_test(model: str, context_size: int, depth_percent: float = 0.5):
     return result
 
 
-def benchmark_niah(model: str, contexts=[16000, 32000]):
+def benchmark_niah(model: str, contexts=[16000, 32000], run_id: int = None):
     print(f"\n=======================================================", flush=True)
     print(f" Stone 3: Long-Context Needle-in-a-Haystack (NIAH) Test", flush=True)
-    print(f" Model: {model} | Contexts: {contexts}", flush=True)
+    print(f" Model: {model} | Run: {run_id or 'default'} | Contexts: {contexts}", flush=True)
     print(f"=======================================================\n", flush=True)
 
     results = []
@@ -107,6 +107,7 @@ def benchmark_niah(model: str, contexts=[16000, 32000]):
 
     summary = {
         "model": model,
+        "run_id": run_id,
         "tests": results,
         "all_passed": all(r["exact_match"] for r in results),
     }
@@ -114,6 +115,13 @@ def benchmark_niah(model: str, contexts=[16000, 32000]):
     out_file = os.path.join(REPORTS_DIR, f"niah_{model}.json")
     with open(out_file, "w") as f:
         json.dump(summary, f, indent=2)
+    if run_id is not None:
+        runs_dir = os.path.join(REPORTS_DIR, "runs")
+        os.makedirs(runs_dir, exist_ok=True)
+        run_file = os.path.join(runs_dir, f"niah_{model}_run_{run_id}.json")
+        with open(run_file, "w") as f:
+            json.dump(summary, f, indent=2)
+        print(f"\nSaved NIAH run {run_id} to {run_file}", flush=True)
     print(f"\nSaved NIAH results to {out_file}", flush=True)
     return summary
 
@@ -122,9 +130,10 @@ def main():
     parser = argparse.ArgumentParser(description="Long-Context NIAH Retrieval Benchmark")
     parser.add_argument("--model", required=True, help="Model preset (glm47-reap, qwen36-coder-hybrid)")
     parser.add_argument("--contexts", nargs="+", type=int, default=[16000, 32000], help="Context sizes to evaluate")
+    parser.add_argument("--run", type=int, default=None, help="Run number (e.g. 1, 2, 3)")
     args = parser.parse_args()
 
-    benchmark_niah(args.model, args.contexts)
+    benchmark_niah(args.model, args.contexts, run_id=args.run)
 
 
 if __name__ == "__main__":
