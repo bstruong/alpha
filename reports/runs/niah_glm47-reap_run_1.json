@@ -1,0 +1,28 @@
+{
+  "model": "glm47-reap",
+  "tests": [
+    {
+      "context_target": 16000,
+      "actual_prompt_tokens": 16080,
+      "needle_depth_percent": 0.5,
+      "exact_match": true,
+      "wall_sec": 20.22,
+      "ttft_sec": 19.769,
+      "prefill_tps": 813.41,
+      "decode_tps": 26.96,
+      "response_preview": "VAULT-ALPHA-7729-OMEGA"
+    },
+    {
+      "context_target": 32000,
+      "actual_prompt_tokens": 32080,
+      "needle_depth_percent": 0.5,
+      "exact_match": true,
+      "wall_sec": 61.4,
+      "ttft_sec": 60.879,
+      "prefill_tps": 526.95,
+      "decode_tps": 23.54,
+      "response_preview": "VAULT-ALPHA-7729-OMEGA"
+    }
+  ],
+  "all_passed": true
+}

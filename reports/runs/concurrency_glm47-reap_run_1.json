@@ -1,0 +1,29 @@
+{
+  "model": "glm47-reap",
+  "single_slot_baseline": {
+    "slot": "Slot_Solo",
+    "wall_sec": 5.26,
+    "ttft_sec": 0.979,
+    "tokens_generated": 150,
+    "decode_throughput_tps": 35.04
+  },
+  "dual_slot_concurrent": {
+    "overall_wall_sec": 8.079,
+    "aggregate_throughput_tps": 34.66,
+    "slot_0": {
+      "slot": "Slot_0",
+      "wall_sec": 8.054,
+      "ttft_sec": 0.922,
+      "tokens_generated": 144,
+      "decode_throughput_tps": 20.19
+    },
+    "slot_1": {
+      "slot": "Slot_1",
+      "wall_sec": 7.843,
+      "ttft_sec": 1.927,
+      "tokens_generated": 136,
+      "decode_throughput_tps": 22.99
+    },
+    "concurrency_efficiency_ratio": 0.99
+  }
+}
