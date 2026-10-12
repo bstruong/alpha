@@ -74,7 +74,7 @@ def chat_completion(messages, max_tokens: int) -> tuple[str, str, dict, dict]:
     """Returns (graded_text, content_only, raw_body, metrics)."""
     body, metrics = timed_post(
         {
-            "model": os.environ.get("BENCH_MODEL", FLASH_MODEL),
+            "model": os.environ.get("BENCHMARK_MODEL", os.environ.get("BENCH_MODEL", FLASH_MODEL)),
             "messages": messages,
             "max_tokens": max_tokens,
             "chat_template_kwargs": {"enable_thinking": True},
@@ -470,8 +470,9 @@ Output your reasoning in <scratchpad> tags before outputting the final answer.
 
 def run_all_spec_traps():
     results = {}
+    target_model = os.environ.get("BENCHMARK_MODEL", os.environ.get("BENCH_MODEL", FLASH_MODEL))
     for name, fn in (("Test_A", run_test_a), ("Test_B", run_test_b), ("Test_C", run_test_c)):
-        erase_slots(os.environ.get("BENCH_MODEL", FLASH_MODEL), label=f"before {name}")
+        erase_slots(target_model, label=f"before {name}")
         results[name] = fn()
     return results
 

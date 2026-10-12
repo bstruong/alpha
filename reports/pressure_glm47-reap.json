@@ -1,0 +1,137 @@
+{
+  "Baseline_0GB": {
+    "pressure_gb": 0.0,
+    "mem_before_test": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 11889.01,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.54,
+      "swap_used_mb": 3372.16
+    },
+    "mem_under_pressure": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 11889.01,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.54,
+      "swap_used_mb": 3372.16
+    },
+    "mem_after_test": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 11810.18,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.55,
+      "swap_used_mb": 3372.14
+    },
+    "swap_spill_mb": 0.0,
+    "context_2k": {
+      "wall_sec": 1.733,
+      "ttft_sec": 1.422,
+      "prefill_tps": 1406.5,
+      "decode_tps": 35.36,
+      "tokens_generated": 11,
+      "prompt_tokens_reported": 2021,
+      "peak_ram_mb": 19339.47,
+      "peak_vram_mb": 6195
+    },
+    "context_8k": {
+      "wall_sec": 7.389,
+      "ttft_sec": 7.063,
+      "prefill_tps": 1132.68,
+      "decode_tps": 33.75,
+      "tokens_generated": 11,
+      "prompt_tokens_reported": 8021,
+      "peak_ram_mb": 19389.48,
+      "peak_vram_mb": 6195
+    }
+  },
+  "4GB": {
+    "pressure_gb": 4.0,
+    "mem_before_test": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 11797.29,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.6,
+      "swap_used_mb": 3372.1
+    },
+    "mem_under_pressure": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 7705.14,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.6,
+      "swap_used_mb": 3372.1
+    },
+    "mem_after_test": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 7608.91,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.69,
+      "swap_used_mb": 3372.01
+    },
+    "swap_spill_mb": 0.0,
+    "context_2k": {
+      "wall_sec": 1.661,
+      "ttft_sec": 1.365,
+      "prefill_tps": 1464.77,
+      "decode_tps": 37.16,
+      "tokens_generated": 11,
+      "prompt_tokens_reported": 2021,
+      "peak_ram_mb": 23492.4,
+      "peak_vram_mb": 6195
+    },
+    "context_8k": {
+      "wall_sec": 7.403,
+      "ttft_sec": 7.075,
+      "prefill_tps": 1130.79,
+      "decode_tps": 33.5,
+      "tokens_generated": 11,
+      "prompt_tokens_reported": 8021,
+      "peak_ram_mb": 23597.59,
+      "peak_vram_mb": 6195
+    }
+  },
+  "6GB": {
+    "pressure_gb": 6.0,
+    "mem_before_test": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 11698.45,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.69,
+      "swap_used_mb": 3372.01
+    },
+    "mem_under_pressure": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 5744.71,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.69,
+      "swap_used_mb": 3372.01
+    },
+    "mem_after_test": {
+      "mem_total_mb": 31189.99,
+      "mem_avail_mb": 5706.9,
+      "swap_total_mb": 34309.7,
+      "swap_free_mb": 30937.7,
+      "swap_used_mb": 3372.0
+    },
+    "swap_spill_mb": 0.0,
+    "context_2k": {
+      "wall_sec": 1.663,
+      "ttft_sec": 1.367,
+      "prefill_tps": 1463.15,
+      "decode_tps": 37.15,
+      "tokens_generated": 11,
+      "prompt_tokens_reported": 2021,
+      "peak_ram_mb": 25477.41,
+      "peak_vram_mb": 6195
+    },
+    "context_8k": {
+      "wall_sec": 7.404,
+      "ttft_sec": 7.076,
+      "prefill_tps": 1130.51,
+      "decode_tps": 33.62,
+      "tokens_generated": 11,
+      "prompt_tokens_reported": 8021,
+      "peak_ram_mb": 25505.92,
+      "peak_vram_mb": 6195
+    }
+  }
+}

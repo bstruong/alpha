@@ -1,0 +1,71 @@
+{
+  "model": "glm47-reap",
+  "run_id": 3,
+  "saber": {
+    "model": "glm47-reap",
+    "repo": "saber",
+    "reminder_llm": {
+      "wall_sec": 6.78,
+      "ttft_sec": 0.743,
+      "decode_tps": 36.01,
+      "tokens": 218
+    },
+    "interaction_llm": {
+      "wall_sec": 10.24,
+      "ttft_sec": 0.86,
+      "decode_tps": 34.88,
+      "tokens": 328
+    },
+    "rspec": {
+      "exit_code": 0,
+      "examples": 138,
+      "failures": 0,
+      "pending": 1,
+      "passed": 137,
+      "raw_summary": "138 examples, 0 failures, 1 pending"
+    },
+    "pass": true
+  },
+  "caster": {
+    "model": "glm47-reap",
+    "repo": "caster",
+    "turn_1": {
+      "wall_sec": 22.45,
+      "ttft_sec": 0.908,
+      "decode_tps": 35.21,
+      "tokens": 759,
+      "rspec": {
+        "exit_code": 1,
+        "examples": 72,
+        "failures": 33,
+        "pending": 0,
+        "passed": 39,
+        "raw_summary": "Failed examples:"
+      }
+    },
+    "turn_2": {
+      "wall_sec": 22.57,
+      "ttft_sec": 0.941,
+      "decode_tps": 35.06,
+      "tokens": 759,
+      "rspec": {
+        "exit_code": 1,
+        "examples": 72,
+        "failures": 33,
+        "pending": 0,
+        "passed": 39,
+        "raw_summary": "Failed examples:"
+      }
+    },
+    "final_rspec": {
+      "exit_code": 1,
+      "examples": 72,
+      "failures": 33,
+      "pending": 0,
+      "passed": 39,
+      "raw_summary": "Failed examples:"
+    },
+    "pass": false
+  },
+  "both_passed": false
+}

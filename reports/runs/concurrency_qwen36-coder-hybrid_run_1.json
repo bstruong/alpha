@@ -1,0 +1,29 @@
+{
+  "model": "qwen36-coder-hybrid",
+  "single_slot_baseline": {
+    "slot": "Slot_Solo",
+    "wall_sec": 4.154,
+    "ttft_sec": 1.145,
+    "tokens_generated": 150,
+    "decode_throughput_tps": 49.84
+  },
+  "dual_slot_concurrent": {
+    "overall_wall_sec": 6.462,
+    "aggregate_throughput_tps": 46.11,
+    "slot_0": {
+      "slot": "Slot_0",
+      "wall_sec": 6.437,
+      "ttft_sec": 2.18,
+      "tokens_generated": 150,
+      "decode_throughput_tps": 35.23
+    },
+    "slot_1": {
+      "slot": "Slot_1",
+      "wall_sec": 6.409,
+      "ttft_sec": 2.257,
+      "tokens_generated": 148,
+      "decode_throughput_tps": 35.64
+    },
+    "concurrency_efficiency_ratio": 0.93
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "run": 1,
+  "model": "qwen36-coder",
+  "timestamp": 1791657938.2839632,
+  "wall_sec_total": 244.96,
+  "m1_wall_sec": 112.37,
+  "m2_wall_sec": 132.6,
+  "telemetry": {
+    "2000": {
+      "wall_sec": 2.394,
+      "ttft_sec": 1.608,
+      "prefill_throughput_tps": 1244.17,
+      "decode_throughput_tps": 45.79,
+      "peak_ram_mb": 27008.22,
+      "peak_vram_mb": 6891,
+      "completion_tokens": 36,
+      "prompt_tokens_reported": 2032,
+      "prompt_tokens_target": 2000,
+      "prompt_tokens_actual": 2009,
+      "primary": true,
+      "nvme_bound": false
+    },
+    "8000": {
+      "wall_sec": 6.406,
+      "ttft_sec": 5.569,
+      "prefill_throughput_tps": 1436.58,
+      "decode_throughput_tps": 45.4,
+      "peak_ram_mb": 27098.8,
+      "peak_vram_mb": 6911,
+      "completion_tokens": 38,
+      "prompt_tokens_reported": 8032,
+      "prompt_tokens_target": 8000,
+      "prompt_tokens_actual": 8009,
+      "primary": true,
+      "nvme_bound": false
+    },
+    "32000": {
+      "wall_sec": 23.836,
+      "ttft_sec": 22.981,
+      "prefill_throughput_tps": 1392.47,
+      "decode_throughput_tps": 39.77,
+      "peak_ram_mb": 27138.82,
+      "peak_vram_mb": 6911,
+      "completion_tokens": 34,
+      "prompt_tokens_reported": 32032,
+      "prompt_tokens_target": 32000,
+      "prompt_tokens_actual": 32009,
+      "primary": false,
+      "nvme_bound": true,
+      "decode_note": "NVMe-bound mmap expert paging; not a primary regression signal. Primary metrics are 2k/8k.",
+      "decode_measure_cap_sec": 60,
+      "decode_window_capped": false
+    },
+    "64000": {
+      "wall_sec": 51.864,
+      "ttft_sec": 30.059,
+      "prefill_throughput_tps": 2129.13,
+      "decode_throughput_tps": 1.56,
+      "peak_ram_mb": 27165.34,
+      "peak_vram_mb": 6911,
+      "completion_tokens": 34,
+      "prompt_tokens_reported": 64032,
+      "prompt_tokens_target": 64000,
+      "prompt_tokens_actual": 64009,
+      "primary": false,
+      "nvme_bound": true,
+      "decode_note": "NVMe-bound mmap expert paging; not a primary regression signal. Primary metrics are 2k/8k.",
+      "decode_measure_cap_sec": 60,
+      "decode_window_capped": false
+    }
+  },
+  "spec_traps": {
+    "Test_A": {
+      "passed": true,
+      "detail": {
+        "uses_decimal": true,
+        "has_float_cast": false,
+        "has_float_annot": false,
+        "static_passed": true,
+        "oracle": {
+          "ran": true,
+          "conclusive": true,
+          "passed": true,
+          "output": "ok"
+        },
+        "oracle_used": true,
+        "model_tests": {
+          "passed": true,
+          "output": ".                                                                        [100%]\n1 passed in 0.00s"
+        }
+      },
+      "metrics": {
+        "wall_sec": 46.15,
+        "prompt_tokens": 422,
+        "completion_tokens": 2142,
+        "reasoning_tokens": null,
+        "prompt_per_second": 458.5894787402482,
+        "predicted_per_second": 47.370727695799296
+      },
+      "response": "Here are the refactored files compliant with `ARCH_SPEC.md`:\n\n```python\n# legacy_limiter.py\nfrom decimal import Decimal\n\nclass RateLimiter:\n    def __init__(self, initial_quota: Decimal):\n        self.quota = Decimal(initial_quota)\n\n    def deduct(self, cost: Decimal) -> Decimal:\n        self.quota -= Decimal(cost)\n        return self.quota\n```\n\n```python\n# test_rate_limiter.py\nimport pytest\nfrom decimal import Decimal\nfrom legacy_limiter import RateLimiter\n\ndef test_rate_limiter_deduction():\n    limiter = RateLimiter(Decimal('10.0'))\n    result = limiter.deduct(Decimal('0.1'))\n    result = limiter.deduct(Decimal('0.2'))\n    assert result == Decimal('9.7')\n```\nHere's a thinking process:\n\n1.  **Understand the Goal**: The user wants to refactor `legacy_limiter.py` and `test_rate_limiter.py` to comply with `ARCH_SPEC.md`. The key requirements are:\n   - Use `decimal.Decimal` for all quota and cost calculations.\n   - Strictly forbid `float` for core quota calculations.\n   - Update the test to expect correct decimal precision instead of floating-point rounding artifacts.\n   - Output the full rewritten code in Python fenced code blocks.\n\n2.  **Analyze `ARCH_SPEC.md`**:\n   - Financial precision required.\n   - Must use `decimal.Decimal`.\n   - Floating-point is strictly forbidden for core quota calculations.\n   - Data types: Quota: `decimal.Decimal`, Cost: `decimal.Decimal`.\n\n3.  **Analyze `legacy_limiter.py`**:\n   - Current implementation uses `float` for `initial_quota` and `cost`.\n   - `deduct` method subtracts cost from quota.\n   - Needs to be refactored to use `decimal.Decimal`.\n\n4.  **Analyze `test_rate_limiter.py`**:\n   - Current test expects `9.700000000000001` due to float precision issues.\n   - Needs to be updated to expect `Decimal('9.7')` or equivalent.\n   - Should import from the refactored module.\n\n5.  **Refactor `legacy_limiter.py`**:\n   - Import `decimal.Decimal`.\n   - Change type hints to `Decimal`.\n   - Convert inputs to `Decimal` in `__init__` and `deduct`.\n   - Ensure arithmetic uses `Decimal`.\n   - Keep the class name and method signatures compatible, but update types.\n\n   Draft:\n   ```python\n   from decimal import Decimal\n\n   class RateLimiter:\n       def __init__(self, initial_quota: Decimal):\n           self.quota = Decimal(initial_quota)\n\n       def deduct(self, cost: Decimal) -> Decimal:\n           self.quota -= Decimal(cost)\n           return self.quota\n   ```\n   Wait, the spec says \"Do not use float for quota/cost types or casts\". So I should strictly use `Decimal` and avoid casting from float. I'll accept `Decimal` or string/numeric inputs but convert them safely to `Decimal`. To be strictly compliant, I'll just use `Decimal` directly or convert from string/numeric without going through float. Actually, `Decimal(initial_quota)` works for strings, ints, and Decimals. If passed a float, it might still have precision issues, but the spec says \"Do not use float for quota/cost types or casts\". I'll just type hint as `Decimal` and convert using `Decimal(str(value))` or just `Decimal(value)` but emphasize that inputs should be Decimal or string. To be safe, I'll just use `Decimal` directly and assume callers pass `Decimal` or strings. I'll stick to `Decimal(initial_quota)` but note that in practice, it's better to pass strings or Decimals. I'll just use `Decimal` type hints and `Decimal()` conversion.\n\n   Let's refine:\n   ```python\n   from decimal import Decimal\n\n   class RateLimiter:\n       def __init__(self, initial_quota: Decimal):\n           self.quota = Decimal(initial_quota)\n\n       def deduct(self, cost: Decimal) -> Decimal:\n           self.quota -= Decimal(cost)\n           return self.quota\n   ```\n   Actually, to strictly avoid float casts, I'll just use `Decimal` directly. The type hints will be `Decimal`. I'll make sure the conversion doesn't implicitly use float. `Decimal(str(initial_quota))` is safer if strings are passed, but `Decimal(initial_quota)` is fine for `Decimal` or `str` or `int`. I'll just use `Decimal(initial_quota)`.\n\n   Wait, the spec says \"Do not use float for quota/cost types or casts; use decimal.Decimal.\" So I'll change the signatures to accept `Decimal` (or `str`/`int` but typed as `Decimal` for simplicity) and use `Decimal` arithmetic.\n\n   Let's write it out carefully:\n   ```python\n   from decimal import Decimal\n\n   class RateLimiter:\n       def __init__(self, initial_quota: Decimal):\n           self.quota = Decimal(initial_quota)\n\n       def deduct(self, cost: Decimal) -> Decimal:\n           self.quota -= Decimal(cost)\n           return self.quota\n   ```\n\n6.  **Refactor `test_rate_limiter.py`**:\n   - Import `Decimal` from `decimal`.\n   - Import `RateLimiter` from `legacy_limiter`.\n   - Update test to use `Decimal` values.\n   - Assert against `Decimal('9.7')`.\n\n   Draft:\n   ```python\n   import pytest\n   from decimal import Decimal\n   from legacy_limiter import RateLimiter\n\n   def test_rate_limiter_deduction():\n       limiter = RateLimiter(Decimal('10.0'))\n       result = limiter.deduct(Decimal('0.1'))\n       result = limiter.deduct(Decimal('0.2'))\n       assert result == Decimal('9.7')\n   ```\n\n7.  **Check against requirements**:\n   - `ARCH_SPEC.md`: Financial precision, `decimal.Decimal` for quota/cost, no float.\n   - `legacy_limiter.py`: Refactored to use `Decimal`.\n   - `test_rate_limiter.py`: Refactored to use `Decimal` and expect correct precision.\n   - Output format: Full rewritten code in Python fenced code blocks.\n   - No float usage for quota/cost types or casts.\n\n   Everything looks solid. I'll present both files clearly.\n\n   One minor point: `Decimal(initial_quota)` might still accept floats if called that way, but the type hints and usage in tests will enforce `Decimal`. To be strictly compliant with \"Do not use float for quota/cost types or casts\", I'll ensure the code doesn't cast to float anywhere. I'll use `Decimal` directly.\n\n   Let's verify the arithmetic: `Decimal('10.0') - Decimal('0.1') - Decimal('0.2')` equals `Decimal('9.7')`. Correct.\n\n   I'll output the two files as requested.\n\n   Structure of response:\n   ```python\n   # legacy_limiter.py\n   ...\n   ```\n   ```python\n   # test_rate_limiter.py\n   ...\n   ```\n\n   All good. Proceed. \n   Self-Correction/Refinement during thought:\n   Should I handle type conversion more explicitly to avoid any float leakage? The spec says \"Do not use float for quota/cost types or casts\". I'll just use `Decimal` type hints and `Decimal()` constructor. It's standard. I'll make sure the code is clean.\n\n   One thing: `Decimal(initial_quota)` works fine. I'll stick with that.\n   I'll also add a comment if needed, but not required.\n   The test uses `pytest`, so I'll keep the import.\n   All set. Output matches requirements.\u2705\n   Generate response. \n   Output matches the final code blocks.\u2705\n   Proceeds. \n   [Output Generation] -> *Proceeds*\n   *(Self-Correction/Verification during generation prep)*\n   Wait, should I change the type hints to `Union[str, int, Decimal]`? The spec says \"Quota: decimal.Decimal, Cost: decimal.Decimal\". So I'll stick to `Decimal` type hints. It's fine.\n   I'll output exactly as requested.\n   Code:\n   `legacy_limiter.py`:\n   ```python\n   from decimal import Decimal\n\n   class RateLimiter:\n       def __init__(self, initial_quota: Decimal):\n           self.quota = Decimal(initial_quota)\n\n       def deduct(self, cost: Decimal) -> Decimal:\n           self.quota -= Decimal(cost)\n           return self.quota\n   ```\n   `test_rate_limiter.py`:\n   ```python\n   import pytest\n   from decimal import Decimal\n   from legacy_limiter import RateLimiter\n\n   def test_rate_limiter_deduction():\n       limiter = RateLimiter(Decimal('10.0'))\n       result = limiter.deduct(Decimal('0.1'))\n       result = limiter.deduct(Decimal('0.2'))\n       assert result == Decimal('9.7')\n   ```\n   This strictly follows the spec. No floats used. Precision is maintained. Tests pass. Ready. \n   Output matches.\u2705\n   [Done] \n   *Self-Correction/Note during thought*: I should make sure the imports are correct and the code is ready to run. The spec says \"Do not use float for quota/cost types or casts; use decimal.Decimal.\" I've adhered to that. I'll present the files clearly. All good. \n   Output generation. \n   [Output] -> *Proceeds*"
+    },
+    "Test_B": {
+      "passed": true,
+      "detail": {
+        "static_passed": true,
+        "extracted_files": [
+          "core/limiter.py",
+          "middleware/http.py",
+          "storage/redis.py",
+          "tests/test_integration.py"
+        ],
+        "oracle": {
+          "ran": true,
+          "conclusive": true,
+          "passed": true,
+          "output": "ok"
+        },
+        "oracle_used": true
+      },
+      "metrics": {
+        "wall_sec": 48.153,
+        "prompt_tokens": 483,
+        "completion_tokens": 2237,
+        "reasoning_tokens": null,
+        "prompt_per_second": 503.5446205170976,
+        "predicted_per_second": 47.39229512767571
+      },
+      "response": "Here are the fully refactored files with the `tenant_id` parameter cascaded through the entire pipeline:\n\n--- core/limiter.py ---\n```python\nfrom typing import Optional\n\nclass CoreLimiter:\n    def check_limit(self, tenant_id: str, user_id: str, amount: int) -> bool:\n        # Refactored to require a `tenant_id: str` as the first argument, \n        # moving `user_id` to the second argument.\n        pass\n```\n\n--- storage/redis.py ---\n```python\nfrom core.limiter import CoreLimiter\n\nclass RedisStorage:\n    def __init__(self, limiter: CoreLimiter):\n        self.limiter = limiter\n\n    def process_request(self, tenant_id: str, user_id: str, amount: int):\n        if not self.limiter.check_limit(tenant_id, user_id, amount):\n            raise Exception(\"Rate limit exceeded\")\n        return True\n```\n\n--- middleware/http.py ---\n```python\nfrom storage.redis import RedisStorage\n\nclass HttpMiddleware:\n    def __init__(self, storage: RedisStorage):\n        self.storage = storage\n\n    def handle_request(self, request):\n        user_id = request.get(\"user_id\")\n        # Assume tenant_id is available in the request\n        tenant_id = request.get(\"tenant_id\", \"default_tenant\")\n        \n        self.storage.process_request(tenant_id, user_id, 1)\n```\n\n--- tests/test_integration.py ---\n```python\nimport pytest\nfrom core.limiter import CoreLimiter\nfrom storage.redis import RedisStorage\nfrom middleware.http import HttpMiddleware\n\ndef test_full_pipeline():\n    limiter = CoreLimiter()\n    storage = RedisStorage(limiter)\n    middleware = HttpMiddleware(storage)\n    \n    request = {\"user_id\": \"alice\", \"tenant_id\": \"acme_corp\"}\n    middleware.handle_request(request)\n```\nHere's a thinking process:\n\n1.  **Understand the Goal**: The user wants to refactor the `CoreLimiter` interface in `core/limiter.py` to change the `check_limit` method signature from `check_limit(self, user_id: str, amount: int) -> bool` to `check_limit(self, tenant_id: str, user_id: str, amount: int) -> bool`. Then, cascade this change across `storage/redis.py`, `middleware/http.py`, and `tests/test_integration.py`. Finally, output the full rewritten files.\n\n2.  **Analyze the Changes Required**:\n   - `core/limiter.py`: Update `CoreLimiter.check_limit` signature to `(self, tenant_id: str, user_id: str, amount: int) -> bool`. Update the docstring/TODO comment accordingly.\n   - `storage/redis.py`: Update `process_request` to accept `tenant_id` as the first argument, and pass it to `self.limiter.check_limit(tenant_id, user_id, amount)`.\n   - `middleware/http.py`: Update `handle_request` to pass `tenant_id` to `self.storage.process_request(tenant_id, user_id, 1)`.\n   - `tests/test_integration.py`: Update the test to pass `tenant_id` through the pipeline. The request already has `tenant_id`, so just ensure it's passed correctly to `handle_request` and down the chain.\n\n3.  **Draft the Refactored Code (Mental or Scratchpad)**:\n\n   *core/limiter.py*:\n   ```python\n   from typing import Optional\n\n   class CoreLimiter:\n       def check_limit(self, tenant_id: str, user_id: str, amount: int) -> bool:\n           # Refactored to require `tenant_id: str` as the first argument,\n           # moving `user_id` to the second argument.\n           pass\n   ```\n\n   *storage/redis.py*:\n   ```python\n   from core.limiter import CoreLimiter\n\n   class RedisStorage:\n       def __init__(self, limiter: CoreLimiter):\n           self.limiter = limiter\n\n       def process_request(self, tenant_id: str, user_id: str, amount: int):\n           if not self.limiter.check_limit(tenant_id, user_id, amount):\n               raise Exception(\"Rate limit exceeded\")\n           return True\n   ```\n\n   *middleware/http.py*:\n   ```python\n   from storage.redis import RedisStorage\n\n   class HttpMiddleware:\n       def __init__(self, storage: RedisStorage):\n           self.storage = storage\n\n       def handle_request(self, request):\n           user_id = request.get(\"user_id\")\n           tenant_id = request.get(\"tenant_id\", \"default_tenant\")\n           \n           self.storage.process_request(tenant_id, user_id, 1)\n   ```\n\n   *tests/test_integration.py*:\n   ```python\n   import pytest\n   from core.limiter import CoreLimiter\n   from storage.redis import RedisStorage\n   from middleware.http import HttpMiddleware\n\n   def test_full_pipeline():\n       limiter = CoreLimiter()\n       storage = RedisStorage(limiter)\n       middleware = HttpMiddleware(storage)\n       \n       request = {\"user_id\": \"alice\", \"tenant_id\": \"acme_corp\"}\n       middleware.handle_request(request)\n   ```\n\n4.  **Check for Consistency & Edge Cases**:\n   - The prompt says \"Cascade this change across storage/redis.py, middleware/http.py, and tests/test_integration.py.\"\n   - I need to make sure the signatures match exactly.\n   - `CoreLimiter.check_limit` now takes `(tenant_id, user_id, amount)`.\n   - `RedisStorage.process_request` should probably also take `(tenant_id, user_id, amount)` to match the cascade, or at least pass them correctly. I'll update its signature to `(tenant_id: str, user_id: str, amount: int)` for consistency.\n   - `HttpMiddleware.handle_request` extracts both and passes them in the new order.\n   - The test just calls `handle_request`, which handles the rest. It's fine as is, but I'll make sure it's complete.\n   - I should output the full rewritten files as requested.\n\n   Let's verify the exact wording of the prompt: \"Refactor the CoreLimiter interface in core/limiter.py to require a `tenant_id: str` as the first argument, moving `user_id` to the second argument. Cascade this change across storage/redis.py, middleware/http.py, and tests/test_integration.py. Output the full rewritten files.\"\n\n   All good. I will produce the four files with the updated code. I'll keep the structure identical to the prompt but with the refactored logic.\n\n   One minor point: `typing.Optional` is imported but unused in the original. I'll keep it as is to minimize unnecessary changes, or remove it if it's cleaner. I'll keep it to stay faithful to the original.\n\n   Let's draft the final output carefully.\n\n   *core/limiter.py*:\n   ```python\n   from typing import Optional\n\n   class CoreLimiter:\n       def check_limit(self, tenant_id: str, user_id: str, amount: int) -> bool:\n           # Refactored to require a `tenant_id: str` as the first argument, \n           # moving `user_id` to the second argument.\n           pass\n   ```\n\n   *storage/redis.py*:\n   ```python\n   from core.limiter import CoreLimiter\n\n   class RedisStorage:\n       def __init__(self, limiter: CoreLimiter):\n           self.limiter = limiter\n\n       def process_request(self, tenant_id: str, user_id: str, amount: int):\n           if not self.limiter.check_limit(tenant_id, user_id, amount):\n               raise Exception(\"Rate limit exceeded\")\n           return True\n   ```\n\n   *middleware/http.py*:\n   ```python\n   from storage.redis import RedisStorage\n\n   class HttpMiddleware:\n       def __init__(self, storage: RedisStorage):\n           self.storage = storage\n\n       def handle_request(self, request):\n           user_id = request.get(\"user_id\")\n           # Assume tenant_id is available in the request\n           tenant_id = request.get(\"tenant_id\", \"default_tenant\")\n           \n           self.storage.process_request(tenant_id, user_id, 1)\n   ```\n\n   *tests/test_integration.py*:\n   ```python\n   import pytest\n   from core.limiter import CoreLimiter\n   from storage.redis import RedisStorage\n   from middleware.http import HttpMiddleware\n\n   def test_full_pipeline():\n       limiter = CoreLimiter()\n       storage = RedisStorage(limiter)\n       middleware = HttpMiddleware(storage)\n       \n       request = {\"user_id\": \"alice\", \"tenant_id\": \"acme_corp\"}\n       middleware.handle_request(request)\n   ```\n\n   Everything looks consistent. The cascade is complete. I will present the files clearly. I'll make sure the formatting matches the request. No extra fluff. Output exactly the four files.\n   One thing: The prompt says \"Output the full rewritten files.\" I will provide them in code blocks with their filenames as headers.\n   All set. Proceed. \n   Self-Correction/Verification during thought:\n   - Should `RedisStorage.process_request` signature change? Yes, to match the cascade and accept `tenant_id` first.\n   - Should `HttpMiddleware.handle_request` change? It already extracts `tenant_id`, just needs to pass it in the correct order.\n   - The test doesn't need major changes since it just calls `handle_request`, but I'll ensure it's complete.\n   - I'll keep the exact structure and comments where appropriate, just updating the signatures and call sites.\n   - All good. Output matches draft.\u2705\n   Proceeds. \n   Output Generation. \n   [Done] \n   *Self-Correction/Refinement during generation prep*: \n   I notice the original `core/limiter.py` has `from typing import Optional` but doesn't use it. I'll leave it as is. \n   The prompt says \"Cascade this change across...\". I'll make sure the method signatures in `RedisStorage` and `HttpMiddleware` are updated to reflect the new order. \n   I will output exactly the four files. \n   Ready. \n   [Output Generation] -> *Proceeds*\n   *(Done.)*"
+    },
+    "Test_C": {
+      "passed": true,
+      "detail": {
+        "has_merge": true,
+        "has_fib": true,
+        "code_parses": false,
+        "retried": false,
+        "scratchpad_present": true,
+        "bullets": 4,
+        "scratchpad_within_limit": true,
+        "no_scratchpad_tag": false
+      },
+      "metrics": {
+        "wall_sec": 38.007,
+        "prompt_tokens": 127,
+        "completion_tokens": 1727,
+        "reasoning_tokens": null,
+        "prompt_per_second": 143.508824662726,
+        "predicted_per_second": 46.524946360861016
+      },
+      "response": "<scratchpad>\n- Implement bottom-up iterative merge sort using width doubling and in-place merging.\n- Generate first 50 Fibonacci numbers iteratively starting from 0, 1.\n- Ensure both deliverables are enclosed in separate Python fenced code blocks with explicit function names.\n- Verify all constraints are strictly met before final output.\n</scratchpad>\n\n```python\ndef merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    \n    n = len(arr)\n    width = 1\n    \n    while width < n:\n        for i in range(0, n, 2 * width):\n            left = arr[i:i + width]\n            right = arr[i + width:i + 2 * width]\n            \n            merged = []\n            l = r = 0\n            \n            while l < len(left) and r < len(right):\n                if left[l] <= right[r]:\n                    merged.append(left[l])\n                    l += 1\n                else:\n                    merged.append(right[r])\n                    r += 1\n                    \n            merged.extend(left[l:])\n            merged.extend(right[r:])\n            \n            arr[i:i + 2 * width] = merged\n            \n        width *= 2\n        \n    return arr\n```\n\n```python\ndef fibonacci():\n    fibs = [0, 1]\n    for _ in range(48):\n        fibs.append(fibs[-1] + fibs[-2])\n    return fibs\n```\nHere's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Requirement 1:** A function named `merge_sort` implementing iterative merge sort.\n   - **Requirement 2:** A function named `fib` or `fibonacci` that returns the first 50 Fibonacci numbers.\n   - **Format:** Both must be in clearly named Python fenced code blocks.\n   - **Constraint:** Internal reasoning scratchpad MUST NOT exceed 5 bullet points. Output reasoning in `<scratchpad>` tags before the final answer.\n\n2.  **Deconstruct Requirements:**\n   - *Iterative Merge Sort:* Need to implement merge sort without recursion. Typically uses a bottom-up approach with a loop over chunk sizes (1, 2, 4, 8, ...) and merges adjacent chunks.\n   - *Fibonacci (first 50):* Need a function that generates/returns a list of the first 50 Fibonacci numbers. Usually starts with 0, 1 or 1, 1. I'll stick to the standard [0, 1, 1, 2, ...] or [1, 1, 2, ...]. I'll use [0, 1] as start, but I'll make sure it's exactly 50 numbers. I'll clarify in code/comments if needed, but standard is fine.\n   - *Format:* Two separate code blocks, each with a clear name in the markdown (e.g., ````python # merge_sort ... ```` or just standard blocks with clear function names inside). The prompt says \"clearly named Python fenced code blocks\", which usually means the code block itself should have a descriptive title or the function inside is clearly named. I'll use standard markdown with comments or just ensure the function names are prominent. I'll format them as:\n     ```python\n     def merge_sort(arr):\n         ...\n     ```\n     and\n     ```python\n     def fibonacci():\n         ...\n     ```\n   - *Constraint Check:* Scratchpad <= 5 bullets.\n\n3.  **Draft - Iterative Merge Sort:**\n   ```python\n   def merge_sort(arr):\n       if len(arr) <= 1:\n           return arr\n       n = len(arr)\n       width = 1\n       while width < n:\n           for i in range(0, n, 2 * width):\n               left = arr[i:i + width]\n               right = arr[i + width:i + 2 * width]\n               merged = []\n               l = r = 0\n               while l < len(left) and r < len(right):\n                   if left[l] <= right[r]:\n                       merged.append(left[l])\n                       l += 1\n                   else:\n                       merged.append(right[r])\n                       r += 1\n               merged.extend(left[l:])\n               merged.extend(right[r:])\n               arr[i:i + 2 * width] = merged\n           width *= 2\n       return arr\n   ```\n   This is a standard bottom-up iterative merge sort. It modifies the list in place but returns it. I'll make sure it's clean.\n\n4.  **Draft - Fibonacci (first 50):**\n   ```python\n   def fibonacci():\n       fibs = [0, 1]\n       for _ in range(48):  # We already have 2, need 48 more to reach 50\n           fibs.append(fibs[-1] + fibs[-2])\n       return fibs\n   ```\n   This returns exactly 50 numbers. I'll name it `fibonacci` as allowed.\n\n5.  **Check Constraints:**\n   - Both functions named correctly? Yes.\n   - Iterative merge sort? Yes.\n   - First 50 Fibonacci numbers? Yes.\n   - Clearly named Python fenced code blocks? I'll add a comment/title inside or just rely on the function name. The prompt says \"clearly named Python fenced code blocks\", which might mean the markdown block itself should have a name, but standard is fine. I'll just ensure the function names are explicit.\n   - Scratchpad <= 5 bullets? I will strictly limit it.\n\n   Scratchpad draft:\n   - Implement bottom-up iterative merge sort using width doubling and in-place merging.\n   - Generate first 50 Fibonacci numbers starting with 0, 1 using a simple loop.\n   - Ensure both functions are clearly named and enclosed in separate Python code blocks.\n   - Verify constraints: scratchpad <= 5 bullets, exact function names, correct output lengths.\n   - Format output exactly as requested.\n\n   This is 5 bullets. Perfect.\n\n6.  **Final Output Generation:** (Mental review of the code)\n   Merge sort: handles edge cases, works iteratively, correct.\n   Fibonacci: returns list of 50 ints, correct.\n   Format: Two code blocks.\n   All good. Proceed. \n   I will make sure the scratchpad is strictly within the limit.\n   Output matches response.\u2705\n   One minor thing: \"clearly named Python fenced code blocks\" might mean the markdown language specifier or a title. I'll just use standard ```python blocks and ensure the function names are prominent. I'll add a comment at the top of each block for clarity if needed, but it's fine.\n   I'll produce the response now. \n   Self-Correction/Refinement during thought: \n   The prompt says \"clearly named Python fenced code blocks\". I'll interpret this as the code blocks themselves should be identifiable, but standard markdown is fine. I'll just output them as requested.\n   I'll double check the iterative merge sort implementation. It's correct.\n   Fibonacci: `fibs = [0, 1]` then loop 48 times -> 50 total. Correct.\n   Scratchpad: exactly 5 bullets max. I'll keep it to 4.\n   Ready. \n   Output matches the final response. \n   Proceeds. \n   [Output Generation] -> *Proceeds*\n   *(Self-Correction/Verification during drafting)*\n   Wait, let's count bullets in scratchpad: I'll make it exactly 3 to be safe.\n   - Implement bottom-up iterative merge sort with width doubling.\n   - Generate first 50 Fibonacci numbers iteratively.\n   - Format output as two separate Python code blocks.\n   That's 3. Well under 5.\n   All constraints met. Output matches. \n   Proceeds. \n   [Output Generation] -> *Proceeds*"
+    }
+  }
+}
