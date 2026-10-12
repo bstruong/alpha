@@ -44,7 +44,7 @@ fragile, easy-to-forget pattern that caused the original problem.
 | `llm-benchmark/` | No — `bin/benchmark` only prints to stdout | `BENCHMARK.md` at project top level | Already safe, no `reports/` needed |
 | `opencode-agent-eval/` | No — uses `ab-results/`, `results_32b_patched/`, `results_qwen3_32b/` (none match the exact-name `results/` rule) | `README.md`, tracked `.diff`/`.txt` files | Already safe by naming, no `reports/` needed today — if a folder literally named `results/` is ever added here, revisit |
 | `prompts/` | N/A — static template files only | N/A | Not applicable |
-| `ruby-rails-model-benchmark/` | Yes | `reports/round{1,2,3}/` (migrated 2026-08-08) | Fixed — see below |
+| `archive/benchmarks-legacy/ruby-rails-model-benchmark/` | Yes (under archive) | `reports/round{1,2,3}/` | Archived with berserker → Alpha cleanup |
 
 ### If you're starting a new benchmark project
 
