@@ -31,6 +31,11 @@ A robust process execution supervisor automatically detects and isolates danglin
 ### TDD Execution Loops
 Built on rigorous validation principles, the local executor loop constantly verifies output against the specifications and tests designated by the frontier planner. Execution is single-phase and verification-gated to prevent context drift, hallucination, and incomplete implementations.
 
+
+## Host topology
+
+See [`docs/infrastructure-topology.md`](docs/infrastructure-topology.md): **AM5 homelab** is production and staging/test; **Haswell desk** is operator-only; Cursor cloud agents do primary software development. Shape Up pitches for Alpha/Omega live under [`docs/shape-up/`](docs/shape-up/).
+
 ## Implementation Details
 
 All task handoffs follow strict conventions, emphasizing minimal context churn, mandatory static analysis (e.g., `ruff check`, `pyright`), and self-contained executions. For detailed operational procedures and exact planner roles, please refer to the agent orchestration directives.
