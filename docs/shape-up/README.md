@@ -4,7 +4,7 @@ Sovereign AI pair on the Tailscale mesh. **Where things run:** see [`../infrastr
 
 | System | Role | Origin |
 |--------|------|--------|
-| **Alpha** | Headless evaluation & benchmarking harness | Repurposed `berserker` |
+| **Alpha** | Headless evaluation & benchmarking harness | This repo (renamed from `berserker`; legacy under `archive/`) |
 | **Omega** | Agent control plane & mobile cockpit | Greenfield Rails 8 + Hotwire Native |
 
 | Environment | Role |

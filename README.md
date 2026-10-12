@@ -1,36 +1,51 @@
-# Hybrid AI Orchestration Framework
+# Alpha
 
-## Overview
+Headless evaluation & benchmarking harness for self-hosted open-weights LLMs on the **AM5 homelab**.
 
-The Hybrid AI Orchestration Framework is an advanced architectural pattern designed to seamlessly integrate high-reasoning frontier models with highly efficient local AI engines. By leveraging a "Frontier-to-Local" approach, this system guarantees both scalable, complex planning and robust, zero-cost execution within a highly secure environment. 
+Formerly the `berserker` lab repo. Legacy experiments live under [`archive/`](archive/README.md). Planning docs: [`docs/shape-up/`](docs/shape-up/). Host roles: [`docs/infrastructure-topology.md`](docs/infrastructure-topology.md).
 
-## Frontier-to-Local Architecture
+## Stack (target latest)
 
-The core of the framework lies in the strict separation of concerns:
+| Piece | Version |
+|-------|---------|
+| Ruby | **4.0.7** (`.ruby-version` / `.mise.toml`) |
+| Rails | **8.1.4** (API mode, SQLite for local learning) |
+| Runtime host | AM5 homelab · Fedora Server · RTX 3060 12GB |
 
-- **Frontier Agents (Planners and Architects):** High-capacity frontier models are utilized strictly for strategic planning, architectural design, and generating precise specifications. These models operate primarily by authoring `specs/ARCH_PLAN.md` files and establishing Test-Driven Development (TDD) specifications.
-- **Local Offloaded Models (Executors):** Bounded execution tasks are systematically handed off to local offloaded models (e.g., Qwen 35B MoE). These agents process instructions against the pre-established plans. Execution occurs at zero marginal cost and guarantees 100% data privacy for Personal Identifiable Information (PII-secure processing).
+## Layout
 
-This asymmetric processing architecture enables a robust workflow, scaling inference capabilities while protecting sensitive environments on the **AM5 homelab** (production and staging/test for local inference and Alpha evals). Primary software development is via Cursor cloud agents; the Haswell desk machine is an operator seat only — see [`docs/infrastructure-topology.md`](docs/infrastructure-topology.md).
+```
+app/                  # Rails API — EvalRun / TaskResult / Qualification (boilerplate)
+lib/alpha/            # Harness domain — STUBBED for you to implement
+bin/alpha             # CLI entrypoint — STUBBED commands
+scenarios/qwen36-daily/   # Seed scenario (former benchmarks/qwen36-daily)
+engine/               # llama-server presets (AM5 substrate)
+harness/pi/           # Pi coding-agent wiring
+prompts/              # Prompt presets / batteries
+docs/                 # Topology + Shape Up
+archive/              # Everything not required for Alpha Circuit 1
+results/              # Regenerable run output (gitignored)
+reports/              # Permanent write-ups (tracked when you promote them)
+```
 
-## Key Capabilities & Features
+## Quick start (Haswell desk or cloud agent)
 
-### Engine Lifecycle Management
-The framework dynamically scales and handles hardware constraints automatically:
-- **Auto Spin-up:** Immediate, on-demand readiness of local models when a planner initiates a task specification handoff.
-- **RAM Flush:** Automated VRAM/RAM cleanup processes and memory purging after execution to ensure system stability and optimize the availability of local hardware resources.
+```bash
+# Ruby via mise (recommended)
+mise install          # reads .mise.toml → ruby 4.0.7
+bundle install
+bin/rails db:prepare
 
-### Sidecar Telemetry Logging
-Provides comprehensive visibility into the execution pipeline:
-- Tracks execution metrics across local runtimes.
-- Delivers real-time, asynchronous logging via isolated sidecar instances without blocking the main orchestration or agent execution threads.
+bin/alpha help        # CLI stubs
+bin/rails test        # model tests (mostly empty)
+bin/rails s           # optional API — GET /up, /eval_runs
+```
 
-### Unclosed-Pipe Hang Prevention
-A robust process execution supervisor automatically detects and isolates dangling background processes, ensuring test scripts and execution loops cleanly terminate. Persistent pipes are forcefully detached to prevent orchestration locks and hang states.
+**Implement next (suggested order):** `Alpha::Task.load` → `Sandbox` → `Grader::MinitestFile` → `Executor::PiRpc` → `Runner` → fill in `bin/alpha run`.
 
-### TDD Execution Loops
-Built on rigorous validation principles, the local executor loop constantly verifies output against the specifications and tests designated by the frontier planner. Execution is single-phase and verification-gated to prevent context drift, hallucination, and incomplete implementations.
+Critical paths intentionally raise `NotImplementedError` — that is the curriculum, not a bug.
 
-## Implementation Details
+## What Alpha is / isn’t
 
-All task handoffs follow strict conventions, emphasizing minimal context churn, mandatory static analysis (e.g., `ruff check`, `pyright`), and self-contained executions. For detailed operational procedures and exact planner roles, please refer to the agent orchestration directives.
+- **Is:** deterministic scenario runner + graders + `alpha.report.v1` artifacts that qualify models for Omega.
+- **Isn’t:** interactive cockpit (that’s Omega), or a place to keep one-off experiments (`archive/`).

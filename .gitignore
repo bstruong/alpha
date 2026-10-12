@@ -1,35 +1,47 @@
+# Alpha / Rails
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+/public/assets
+.byebug_history
+/config/master.key
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Regenerable Alpha run output (permanent write-ups live in reports/ — see CONVENTIONS.md)
+/results/*
+!/results/.gitkeep
 results/
-benchmarks/qwen36-daily/library/config/master.key
-benchmarks/qwen36-daily/library/storage/*.sqlite3
-benchmarks/qwen36-daily/library/tmp/
-benchmarks/qwen36-daily/library/log/*.log
-bench_*.txt
 *.log
+bench_*.txt
 __pycache__/
+.pytest_cache/
 .aider*.history*
 aider-test/
 
-# llm-benchmark generated fixtures (keep the dir, ignore contents)
-llm-benchmark/fixtures/*
-!llm-benchmark/fixtures/.gitkeep
+# Scenario library local state (seed scenario under scenarios/qwen36-daily)
+scenarios/qwen36-daily/library/config/master.key
+scenarios/qwen36-daily/library/storage/*.sqlite3
+scenarios/qwen36-daily/library/tmp/
+scenarios/qwen36-daily/library/log/*.log
 
-# Convention: disposable/regenerable working output lives in results/ (or a
-# similarly-named per-project dir, e.g. ab-results/) and stays ignored above.
-# Permanent deliverables -- final reports, appendices, anything meant to be
-# read later rather than regenerated -- live in each project's reports/
-# folder instead, which no rule here ever covers. See CONVENTIONS.md.
-
-# Local LLM model weights and test cache
+# Local LLM weights / engine runtime
 *.gguf
-experiments/models/
-.pytest_cache/
-
-experiments/ai-evals-rails/
-
-# Flash eval / local engine noise
-experiments/hyperbolic-time-chamber/
-experiments/llama.cpp-qwen4exp/
 engine/run/*.pid
 engine/run/slots/
-scripts/__pycache__/
-tests/**/__pycache__/
+
+# Archived trees may still contain regenerable noise
+archive/**/__pycache__/
+archive/**/results/
+archive/benchmarks-legacy/experiments/models/
+archive/benchmarks-legacy/experiments/llama.cpp-qwen4exp/
+archive/benchmarks-legacy/experiments/hyperbolic-time-chamber/
+archive/benchmarks-legacy/experiments/ai-evals-rails/
+archive/benchmarks-legacy/llm-benchmark/fixtures/*
+!archive/benchmarks-legacy/llm-benchmark/fixtures/.gitkeep
