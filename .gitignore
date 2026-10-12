@@ -33,3 +33,19 @@ engine/run/*.pid
 engine/run/slots/
 archive/**/__pycache__/
 scripts/__pycache__/
+
+# Rails
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+/public/assets
+.byebug_history
+/config/master.key
+/db/*.sqlite3
+/db/*.sqlite3-*
