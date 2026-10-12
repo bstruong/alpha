@@ -1,17 +1,19 @@
-# Workstation Local AI Engine (`engine/`)
+# AM5 Homelab Local AI Engine (`engine/`)
 
-This directory contains the core engine runtime configurations, startup tooling, and system tuning for running large MoE coding models on the **Workstation** workstation.
+This directory contains the core engine runtime configurations, startup tooling, and system tuning for running large MoE coding models on the **AM5 homelab** node (often called “Workstation” in older notes).
+
+**Topology:** This host is **production and staging/test** for Alpha evals and local inference. It is **not** the Haswell desk machine. Primary software development happens via Cursor cloud agents. See [`docs/infrastructure-topology.md`](../docs/infrastructure-topology.md).
 
 ---
 
-## 1. Workstation Hardware Profile
+## 1. AM5 Homelab Hardware Profile
 
 * **CPU:** AMD Ryzen 7 9700X (8 Cores, 16 Threads, Single CCD, 32 MiB L3 Cache)
 * **System RAM:** 32 GB DDR5-6000 CL36 (2 × 16 GB dual-channel, ~60–65 GB/s Infinity Fabric read ceiling)
 * **Discrete GPU:** NVIDIA GeForce RTX 3060 12 GB GDDR6 (headless, dedicated compute on PCIe 4.0 x16)
-* **Display Output:** AMD Ryzen RDNA2 iGPU (`/dev/dri/card1`, DP-2)
+* **Display Output:** AMD Ryzen RDNA2 iGPU (`/dev/dri/card1`, DP-2) when a display is attached; Fedora Server deployments are typically headless
 * **Storage & Swap:** Samsung 990 Pro NVMe (Btrfs, zstd:3) with a dedicated 33 GB NVMe swap partition
-* **Software Stack:** Arch Linux LTS (Kernel `6.18.53-1-lts`), NVIDIA Driver `615.71.09`, CUDA `13.4`, `llama.cpp-cuda` b10631 (`/usr/bin/llama-server`)
+* **Software Stack (target):** **Fedora Server**, NVIDIA proprietary driver + CUDA, `llama-server` (llama.cpp CUDA build). Older lab notes may cite Arch Linux LTS kernel/driver pins — treat those as historical; retune memlock/systemd paths for Fedora.
 
 ---
 
@@ -40,12 +42,12 @@ engine/
 
 ## 3. Flag Rationale & Technical Deep-Dive
 
-All presets in `models.ini` inherit from global section `[*]`. Each non-obvious flag addresses specific hardware and algorithmic constraints of Workstation:
+All presets in `models.ini` inherit from global section `[*]`. Each non-obvious flag addresses specific hardware and algorithmic constraints of the AM5 homelab:
 
 ### Threads (`threads = 7`, `threads-batch = 7`)
 The Ryzen 7 9700X is a single-CCD 8-core CPU. CPU MoE expert matrix multiplications are strictly memory-bandwidth bound. On dual-channel DDR5-6000, read bandwidth caps at ~60–65 GB/s. Active expert weights take ~0.6 GB per token:
 $$\text{Theoretical decode ceiling} \approx \frac{60\text{ GB/s}}{0.6\text{ GB/token}} \approx 100\text{ tok/s}$$
-In practice, 7 physical threads saturate the Infinity Fabric memory interface (~50–65 tok/s). SMT siblings add cache contention without increasing memory bandwidth. Allocating 7 threads on 7 physical cores reserves 1 full core and all SMT threads for Wayland compositor rendering, CUDA driver submission, and HTTP worker threads.
+In practice, 7 physical threads saturate the Infinity Fabric memory interface (~50–65 tok/s). SMT siblings add cache contention without increasing memory bandwidth. Allocating 7 threads on 7 physical cores reserves 1 full core and all SMT threads for OS services, CUDA driver submission, and HTTP worker threads.
 
 ### Load Mode (`load-mode = mlock`)
 llama.cpp b10631 deprecates `--no-mmap` and `--mlock` in favor of `--load-mode {auto,none,mmap,mlock,mmap+mlock,dio}`. Setting `load-mode = mlock` reads the weights into DDR5 RAM and locks them (`mlock(2)`). This prevents Linux kernel page reclamation from pushing expert layers to NVMe swap during background tasks.
@@ -119,7 +121,7 @@ If TurboQuant KV is required for larger dense models or full-attention 512k cont
 ## 6. System Limit Configurations (mlock, Swappiness, Ollama)
 
 ### 1. Memory Locking (RLIMIT_MEMLOCK)
-Workstation's current default limit is `ulimit -l = 8192 KB` (8 MiB). When `llama-server --load-mode mlock` runs under this limit, the `mlock()` syscall fails with `ENOMEM`, printing a warning and leaving `VmLck: 0 kB`.
+The AM5 host’s default limit is often `ulimit -l = 8192 KB` (8 MiB) until raised. When `llama-server --load-mode mlock` runs under this limit, the `mlock()` syscall fails with `ENOMEM`, printing a warning and leaving `VmLck: 0 kB`.
 
 To configure unlimited memory locking:
 Run the diagnostic and installer helper:
@@ -138,7 +140,7 @@ Files provided:
 * `engine/system/user@.service.d/memlock.conf` -> `/etc/systemd/system/user@.service.d/memlock.conf`
 
 ### 2. Swappiness Tuning (`vm.swappiness = 10`)
-Workstation has a 33 GB NVMe swap partition with `vm.swappiness = 60`. Under memory pressure, the kernel aggressively pages out inactive anonymous memory even when NVMe read bandwidth is high. To reduce swap thrashing:
+The AM5 homelab has a 33 GB NVMe swap partition; with a default-like `vm.swappiness = 60`, the kernel aggressively pages out inactive anonymous memory even when NVMe read bandwidth is high. To reduce swap thrashing:
 ```bash
 sudo sysctl vm.swappiness=10
 echo "vm.swappiness = 10" | sudo tee /etc/sysctl.d/99-hybrid-ai-harness-swap.conf
