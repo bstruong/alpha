@@ -1,0 +1,71 @@
+{
+  "model": "qwen36-coder-hybrid",
+  "run_id": 2,
+  "saber": {
+    "model": "qwen36-coder-hybrid",
+    "repo": "saber",
+    "reminder_llm": {
+      "wall_sec": 5.6,
+      "ttft_sec": 0.982,
+      "decode_tps": 49.86,
+      "tokens": 231
+    },
+    "interaction_llm": {
+      "wall_sec": 8.18,
+      "ttft_sec": 1.144,
+      "decode_tps": 49.04,
+      "tokens": 343
+    },
+    "rspec": {
+      "exit_code": 0,
+      "examples": 138,
+      "failures": 0,
+      "pending": 1,
+      "passed": 137,
+      "raw_summary": "138 examples, 0 failures, 1 pending"
+    },
+    "pass": true
+  },
+  "caster": {
+    "model": "qwen36-coder-hybrid",
+    "repo": "caster",
+    "turn_1": {
+      "wall_sec": 15.26,
+      "ttft_sec": 1.162,
+      "decode_tps": 51.24,
+      "tokens": 723,
+      "rspec": {
+        "exit_code": 1,
+        "examples": 72,
+        "failures": 33,
+        "pending": 0,
+        "passed": 39,
+        "raw_summary": "Failed examples:"
+      }
+    },
+    "turn_2": {
+      "wall_sec": 15.39,
+      "ttft_sec": 1.236,
+      "decode_tps": 51.92,
+      "tokens": 734,
+      "rspec": {
+        "exit_code": 0,
+        "examples": 72,
+        "failures": 0,
+        "pending": 0,
+        "passed": 72,
+        "raw_summary": "72 examples, 0 failures"
+      }
+    },
+    "final_rspec": {
+      "exit_code": 0,
+      "examples": 72,
+      "failures": 0,
+      "pending": 0,
+      "passed": 72,
+      "raw_summary": "72 examples, 0 failures"
+    },
+    "pass": true
+  },
+  "both_passed": true
+}

@@ -1,0 +1,196 @@
+{
+  "glm47-reap": {
+    "model": "glm47-reap",
+    "concurrency_solo_decode_tps": {
+      "mean": 35.21,
+      "std_dev": 0.15,
+      "min": 35.04,
+      "max": 35.34,
+      "values": [
+        35.04,
+        35.24,
+        35.34
+      ]
+    },
+    "concurrency_solo_ttft_sec": {
+      "mean": 0.96,
+      "std_dev": 0.03,
+      "min": 0.92,
+      "max": 0.98,
+      "values": [
+        0.98,
+        0.98,
+        0.92
+      ]
+    },
+    "concurrency_dual_aggregate_tps": {
+      "mean": 35.77,
+      "std_dev": 1.73,
+      "min": 34.66,
+      "max": 37.76,
+      "values": [
+        34.66,
+        37.76,
+        34.89
+      ]
+    },
+    "niah_16k_ttft_sec": {
+      "mean": 19.73,
+      "std_dev": 0.03,
+      "min": 19.71,
+      "max": 19.77,
+      "values": [
+        19.77,
+        19.71,
+        19.71
+      ]
+    },
+    "niah_16k_prefill_tps": {
+      "mean": 815.0,
+      "std_dev": 1.37,
+      "min": 813.41,
+      "max": 815.82,
+      "values": [
+        813.41,
+        815.76,
+        815.82
+      ]
+    },
+    "niah_32k_ttft_sec": {
+      "mean": 60.88,
+      "std_dev": 0.0,
+      "min": 60.88,
+      "max": 60.88,
+      "values": [
+        60.88,
+        60.88,
+        60.88
+      ]
+    },
+    "niah_32k_prefill_tps": {
+      "mean": 526.94,
+      "std_dev": 0.01,
+      "min": 526.93,
+      "max": 526.95,
+      "values": [
+        526.95,
+        526.93,
+        526.94
+      ]
+    },
+    "saber_all_runs_passed": true,
+    "saber_scores": [
+      137,
+      137,
+      137
+    ],
+    "caster_turn1_scores": [
+      39,
+      39,
+      39
+    ],
+    "caster_turn2_scores": [
+      39,
+      39,
+      39
+    ],
+    "caster_all_runs_resolved": false
+  },
+  "qwen36-coder-hybrid": {
+    "model": "qwen36-coder-hybrid",
+    "concurrency_solo_decode_tps": {
+      "mean": 51.29,
+      "std_dev": 1.37,
+      "min": 49.84,
+      "max": 52.56,
+      "values": [
+        49.84,
+        51.46,
+        52.56
+      ]
+    },
+    "concurrency_solo_ttft_sec": {
+      "mean": 1.12,
+      "std_dev": 0.05,
+      "min": 1.07,
+      "max": 1.16,
+      "values": [
+        1.15,
+        1.16,
+        1.07
+      ]
+    },
+    "concurrency_dual_aggregate_tps": {
+      "mean": 50.35,
+      "std_dev": 3.77,
+      "min": 46.11,
+      "max": 53.34,
+      "values": [
+        46.11,
+        51.6,
+        53.34
+      ]
+    },
+    "niah_16k_ttft_sec": {
+      "mean": 10.68,
+      "std_dev": 0.03,
+      "min": 10.66,
+      "max": 10.72,
+      "values": [
+        10.67,
+        10.72,
+        10.66
+      ]
+    },
+    "niah_16k_prefill_tps": {
+      "mean": 1506.56,
+      "std_dev": 4.28,
+      "min": 1501.83,
+      "max": 1510.17,
+      "values": [
+        1507.68,
+        1501.83,
+        1510.17
+      ]
+    },
+    "niah_32k_ttft_sec": {
+      "mean": 22.07,
+      "std_dev": 0.06,
+      "min": 22.03,
+      "max": 22.13,
+      "values": [
+        22.05,
+        22.13,
+        22.03
+      ]
+    },
+    "niah_32k_prefill_tps": {
+      "mean": 1454.31,
+      "std_dev": 3.73,
+      "min": 1450.07,
+      "max": 1457.08,
+      "values": [
+        1455.77,
+        1450.07,
+        1457.08
+      ]
+    },
+    "saber_all_runs_passed": true,
+    "saber_scores": [
+      137,
+      137,
+      137
+    ],
+    "caster_turn1_scores": [
+      39,
+      39,
+      39
+    ],
+    "caster_turn2_scores": [
+      72,
+      72,
+      72
+    ],
+    "caster_all_runs_resolved": true
+  }
+}
