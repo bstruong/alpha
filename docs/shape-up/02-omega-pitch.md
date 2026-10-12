@@ -2,9 +2,11 @@
 
 **Codename:** Omega  
 **Appetite:** 2 weeks (small batch)  
-**Target:** iOS Hotwire Native cockpit over Tailscale, supervising one headless Pi coding-agent session at a time  
-**Problem:** Running Pi on the workstation is SSH/terminal-bound. Phone-side operators cannot safely launch, steer, interrupt, or reattach to long agent runs across Wi-Fi drops without orphan processes, lost token streams, or deadlocked pipes.  
+**Target:** iOS Hotwire Native cockpit over Tailscale, supervising one headless Pi coding-agent session at a time on the **AM5 homelab**  
+**Problem:** Running Pi on the AM5 homelab is SSH/terminal-bound. Phone-side operators cannot safely launch, steer, interrupt, or reattach to long agent runs across Wi-Fi drops without orphan processes, lost token streams, or deadlocked pipes.  
 **Solution:** A Rails 8 control plane that owns process lifecycle + append-only event log in Postgres, and a single-screen Hotwire Native shell with a dual-action sticky console.
+
+**Hosts:** Pi + inference run on AM5 (prod/staging). Operators may sit on the Haswell desk or iPhone; Cursor cloud agents develop Omega. See [`../infrastructure-topology.md`](../infrastructure-topology.md).
 
 ---
 
@@ -67,7 +69,7 @@ Ship **one** healthy path: auth → create session with prompt → watch tools/t
 
 ```
 User                 # single-operator ok (Devise or Rails 8 auth generator)
-Node                 # hostname, tailscale_ip, role (workstation|lab)
+Node                 # hostname, tailscale_ip, role (am5-homelab|lab); not the Haswell desk
 AgentRuntime         # path to pi, default model preset, cwd roots allowlist
 Session              # node, runtime, status (idle|starting|running|stopping|stopped|failed),
                      # prompt, pid, pgid, model_id, prompt_preset, repo_path,

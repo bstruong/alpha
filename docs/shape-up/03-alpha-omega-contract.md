@@ -69,7 +69,7 @@ Frontier Flash scenarios qualify a **planner** preset separately (`role: planner
   "report_uri": "file://…/reports/20261012T022600Z-….md",
   "qualified_at": "2026-10-12T02:30:00Z",
   "expires_at": "2026-11-12T02:30:00Z",
-  "node_class": "workstation-32g-3060"
+  "node_class": "am5-homelab-32g-3060"
 }
 ```
 
@@ -198,4 +198,4 @@ Operator          Omega                     Alpha
 | Qualification truth | Alpha produces; Omega consumes |
 | Failure truth | Omega produces; Alpha consumes after human grader |
 
-Engine binaries and GGUF weights remain node-local; neither contract ships weights.
+Engine binaries and GGUF weights remain on the **AM5 homelab**; neither contract ships weights. The Haswell desk is not an `InferenceTarget`. See [`../infrastructure-topology.md`](../infrastructure-topology.md).

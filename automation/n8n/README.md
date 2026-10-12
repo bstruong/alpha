@@ -1,6 +1,6 @@
 # Phase 3: On-Demand Automation Harness (n8n Integration)
 
-This directory provides the containerized orchestration harness for **Phase 3** of the Hybrid-AI-Harness project, integrating [n8n](https://n8n.io/) with the local OpenAI-compatible inference engine (`llama-server`) running on the host workstation.
+This directory provides the containerized orchestration harness for **Phase 3** of the Hybrid-AI-Harness project, integrating [n8n](https://n8n.io/) with the local OpenAI-compatible inference engine (`llama-server`) on the **AM5 homelab** (Fedora Server — prod/staging). Not the Haswell desk. See `docs/infrastructure-topology.md`.
 
 ---
 
@@ -8,7 +8,7 @@ This directory provides the containerized orchestration harness for **Phase 3** 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ Host Workstation (Linux / CachyOS)                                      │
+│ AM5 Homelab (Fedora Server) — prod + staging/test                       │
 │                                                                         │
 │   llama-server (:8080)                                                 │
 │   ├─ Model: Qwen3.6-35B-A3B-UD-Q4_K_M (alias: qwen36-coder)            │

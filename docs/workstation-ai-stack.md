@@ -1,11 +1,14 @@
-# Workstation AI Stack Architecture
+# AM5 Homelab AI Stack Architecture
 
 ## Overview
-This document outlines the architecture for the `hybrid-ai-harness` repository's local AI stack, designed to run entirely on the "Workstation" workstation (Ryzen 7 9700X, RTX 3060 12GB VRAM, 32GB DDR5). 
 
-The stack is designed around a **Frontier-to-Local Handoff Workflow**:
-1. Frontier models (e.g., Gemini, Claude) generate stage-gated architectural plans (`ARCH_PLAN.md`).
-2. Local harnesses execute the code completely offline, keeping PII secure and avoiding massive token costs.
+Local AI stack for the **AM5 homelab** (Ryzen 7 9700X, RTX 3060 12GB VRAM, 32GB DDR5, **Fedora Server**). That node is **production and staging/test** for inference, Alpha benchmarks, and Omega-supervised Pi. It is not the Haswell desk machine. Primary software development is via Cursor cloud agents. Full topology: [`infrastructure-topology.md`](infrastructure-topology.md).
+
+Older text called this host “Workstation”; keep that alias in mind when reading historical reports.
+
+The stack uses a **Frontier-to-Local Handoff Workflow**:
+1. Frontier / cloud agents generate stage-gated architectural plans (`ARCH_PLAN.md`) and develop harness code.
+2. The AM5 homelab executes offline against local models, keeping PII on-mesh.
 
 ---
 
@@ -13,14 +16,18 @@ The stack is designed around a **Frontier-to-Local Handoff Workflow**:
 
 ```mermaid
 flowchart TD
-    subgraph Cloud [Cloud / Frontier]
-        A[Frontier Model / Antigravity] -->|Writes| B(specs/ARCH_PLAN.md)
+    subgraph Cloud [Cloud / Cursor]
+        A[Frontier / Cloud Agents] -->|Writes code & specs| B(specs/ARCH_PLAN.md)
     end
     
-    subgraph Local [Workstation Workstation]
+    subgraph Operator [Haswell desk — not eval host]
+        O[Operator / Tailscale client]
+    end
+    
+    subgraph AM5 [AM5 Homelab — prod + staging/test]
         B --> C{Orchestration Harness}
         
-        C -->|Command Line / CLI| D[Pi Coding Agent]
+        C -->|CLI / headless| D[Pi Coding Agent]
         C -->|Background Batch| E[n8n Docker Container]
         
         D -->|OpenAI API| F[llama-server Engine]
@@ -28,6 +35,7 @@ flowchart TD
         
         F --> G[qwen36-coder MoE]
         F --> H[glm47-reap Fallback]
+        O -.->|Tailscale| C
     end
     
     subgraph Guardrails [Context Boundaries]
@@ -39,7 +47,7 @@ flowchart TD
 ---
 
 ## 1. The Execution Engine (`engine/`)
-The bedrock of the stack is the `llama.cpp` server optimized for the RTX 3060.
+The bedrock of the stack is the `llama.cpp` server optimized for the RTX 3060 on Fedora Server.
 * **API:** Exposes a standard OpenAI-compatible endpoint at `http://127.0.0.1:8080/v1`.
 * **Hardware Profile:** Uses a `-cpu-moe` strategy. The massive 35B model parameters are pinned into system DDR5 RAM via `mlock` (requiring `ulimit -l` modifications), leaving the 12GB VRAM entirely free for ultra-fast attention caching and context limits.
 * **Presets:** Managed via `engine/models.ini` (e.g., `[qwen36-coder]`, `[glm47-reap]`).
@@ -51,12 +59,12 @@ Local models easily degrade into infinite reasoning loops (e.g., generating 40,0
 
 ## 3. Background Automation Harness (`automation/n8n/`)
 For background, cron-based tasks like PII stripping or email triage.
-* **Deployment:** Containerized in Docker using `network_mode: host` to achieve zero-overhead connectivity to the local engine.
+* **Deployment:** Containerized in Docker using `network_mode: host` to achieve zero-overhead connectivity to the local engine **on AM5**.
 * **Workflows:** Utilizes zero-credential HTTP nodes or `n8n-nodes-base.openAi` nodes mapped strictly to `localhost:8080/v1`, enforcing strict JSON parsing (e.g., `email_triage_workflow.json`).
 
 ## 4. Local Coding Harness (`harness/pi/`)
-The interactive terminal agent used by the developer to execute the `ARCH_PLAN.md`.
+The interactive / headless agent used to execute `ARCH_PLAN.md` or Omega sessions **on AM5**.
 * **Framework:** Powered by the [Pi coding agent](https://pi.dev) via Node.js/npm.
 * **Integration:** Connects natively to `llama-server` using `pi-llama-cpp`.
-* **Context Engineering:** `SYSTEM.md` and `AGENTS.md` are configured in the repository root to automatically inject the local guardrails and instruct Pi to read the `ARCH_PLAN.md` before executing file edits.
+* **Context Engineering:** `SYSTEM.md` and `AGENTS.md` inject local guardrails and instruct Pi to read `ARCH_PLAN.md` before file edits.
 * **Optimization:** Because Pi sends context deltas instead of full histories, prompt prefill speeds hit ~1,000 tokens/second by reusing the engine's chunk cache.

@@ -11,7 +11,7 @@ The core of the framework lies in the strict separation of concerns:
 - **Frontier Agents (Planners and Architects):** High-capacity frontier models are utilized strictly for strategic planning, architectural design, and generating precise specifications. These models operate primarily by authoring `specs/ARCH_PLAN.md` files and establishing Test-Driven Development (TDD) specifications.
 - **Local Offloaded Models (Executors):** Bounded execution tasks are systematically handed off to local offloaded models (e.g., Qwen 35B MoE). These agents process instructions against the pre-established plans. Execution occurs at zero marginal cost and guarantees 100% data privacy for Personal Identifiable Information (PII-secure processing).
 
-This asymmetric processing architecture enables a robust workflow, scaling inference capabilities while protecting sensitive environments deployed on the Workstation or within the Home Lab.
+This asymmetric processing architecture enables a robust workflow, scaling inference capabilities while protecting sensitive environments on the **AM5 homelab** (production and staging/test for local inference and Alpha evals). Primary software development is via Cursor cloud agents; the Haswell desk machine is an operator seat only — see [`docs/infrastructure-topology.md`](docs/infrastructure-topology.md).
 
 ## Key Capabilities & Features
 

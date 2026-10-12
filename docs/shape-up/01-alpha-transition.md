@@ -4,6 +4,8 @@
 **Problem:** `berserker` is a capable but sprawling hybrid lab — engine presets, Pi harness, daily Ruby tasks, frontier Flash modules, archived polyglot validation, n8n sidecars — without a single domain language for “run a graded scenario against a local model and publish a comparable score.”  
 **Solution:** rename/reshape around five core abstractions, quarantine legacy batteries, and ship one vertical slice: clone sandbox → run agent → grade → emit canonical JSON/MD report.
 
+**Runtime host:** Alpha executes on the **AM5 homelab** (Fedora Server) — that node is both production and staging/test for evals. Software for Alpha is developed primarily via **Cursor cloud agents**; the **Haswell desk** machine is not an eval host. See [`../infrastructure-topology.md`](../infrastructure-topology.md).
+
 ---
 
 ## 1. Audit map (what exists today)
@@ -111,7 +113,7 @@ end
 
 **Inference isolation**
 
-- Alpha never starts Flash and Tier-1 concurrently on 32GB without an explicit router profile.
+- Alpha never starts Flash and Tier-1 concurrently on the AM5 box’s 32GB without an explicit router profile.
 - Between trials: erase llama-server slots (`POST /slots/{id}?action=erase`) when the target supports it; never reuse prompt cache across models (`cache_prompt: false`, fixed `seed`).
 
 **Container option (deferred)**
