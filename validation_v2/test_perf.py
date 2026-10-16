@@ -1,6 +1,7 @@
 """Unit tests for validation_v2/perf.py streaming TTFT metrics."""
 
 import json
+import os
 import sys
 import threading
 import time
@@ -8,7 +9,8 @@ import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from perf import measure_streaming_ttft
+from perf import get_default_completions_url, measure_streaming_ttft
+
 
 
 class MockSSEServer(BaseHTTPRequestHandler):
@@ -80,23 +82,26 @@ def test_streaming_ttft_vs_total_time():
 
 
 def test_live_server_if_available():
-    """Verify against live llama-server if running on localhost:8080."""
+    """Verify against live llama-server if running on localhost:8080 or Watchtower."""
+    health_url = os.getenv("ALPHA_HEALTH_URL") or (os.getenv("LLAMA_SERVER_URL", "http://127.0.0.1:8080").rstrip("/") + "/health")
     try:
-        with urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=1) as resp:
+        with urllib.request.urlopen(health_url, timeout=2) as resp:
             if resp.status != 200:
                 return
     except (urllib.error.URLError, TimeoutError, OSError):
-        print("[skip] live llama-server not reachable, skipping live test.")
+        print(f"[skip] live llama-server not reachable at {health_url}, skipping live test.")
         return
 
+    url = get_default_completions_url()
     result = measure_streaming_ttft(
         prompt="Reply with the single word 'READY'.",
-        url="http://127.0.0.1:8080/v1/chat/completions",
+        url=url,
     )
     assert result["token_count"] > 0, "No tokens received from live server"
     assert result["ttft_s"] > 0, "TTFT must be > 0"
     assert result["toks_per_s"] > 0, "Throughput must be > 0"
     print(f"test_live_server passed: TTFT={result['ttft_s']:.3f}s, Throughput={result['toks_per_s']:.1f} tok/s")
+
 
 
 if __name__ == "__main__":

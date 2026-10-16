@@ -17,8 +17,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from perf import measure_streaming_ttft
+from perf import get_default_completions_url, measure_streaming_ttft
 from soak import calculate_drift
+
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -261,8 +262,9 @@ def build_parser() -> argparse.ArgumentParser:
     # -- perf --
     perf_p = subparsers.add_parser("perf", help="Streaming TTFT benchmark")
     perf_p.add_argument("--prompt", default="Say hello.", help="Prompt to send")
-    perf_p.add_argument("--url", default="http://127.0.0.1:8080/v1/chat/completions",
+    perf_p.add_argument("--url", default=get_default_completions_url(),
                         help="LLM endpoint URL")
+
     perf_p.add_argument("--system", default="", help="System prompt")
     perf_p.add_argument("--dry-run", action="store_true", default=False,
                         help="Skip actual server call")
@@ -285,8 +287,9 @@ def build_parser() -> argparse.ArgumentParser:
     all_p = subparsers.add_parser("all",
                                   help="Run perf, soak, and quality in sequence")
     all_p.add_argument("--prompt", default="Say hello.", help="Prompt to send")
-    all_p.add_argument("--url", default="http://127.0.0.1:8080/v1/chat/completions",
+    all_p.add_argument("--url", default=get_default_completions_url(),
                        help="LLM endpoint URL")
+
     all_p.add_argument("--system", default="", help="System prompt")
     all_p.add_argument("--duration", type=float, default=30,
                        help="Soak duration in seconds")
