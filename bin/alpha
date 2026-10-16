@@ -32,7 +32,9 @@ def parse_run_options(argv)
     trials: 1,
     keep_sandbox: false,
     dry_run: false,
-    no_gate_halt: false
+    no_gate_halt: false,
+    autowake: true,
+    autostop: false
   }
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: bin/alpha run [options]"
@@ -45,8 +47,21 @@ def parse_run_options(argv)
     opts.on("--keep-sandbox", "Do not remove the temporary sandbox directory") { options[:keep_sandbox] = true }
     opts.on("--dry-run", "Verify prompt and sandbox preparation without executing model") { options[:dry_run] = true }
     opts.on("--no-gate-halt", "Continue running subsequent tasks even if a gate fails") { options[:no_gate_halt] = true }
+    opts.on("--[no-]autowake", "Automatically wake inference engine if unreachable (default: true)") { |v| options[:autowake] = v }
+    opts.on("--autostop", "Scale engine back to 0 replicas upon completion") { options[:autostop] = true }
   end
   parser.parse!(argv)
+  options
+end
+
+def parse_doctor_options(argv)
+  options = { preset: "qwen36-coder-hybrid", autowake: false }
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: bin/alpha doctor [preset] [options]"
+    opts.on("--autowake", "Automatically wake inference engine if unreachable") { options[:autowake] = true }
+  end
+  parser.parse!(argv)
+  options[:preset] = argv.shift if argv.any? && !argv[0].start_with?("-")
   options
 end
 
@@ -64,6 +79,33 @@ end
 command = ARGV.shift
 
 case command
+when "engine"
+  subcommand = ARGV.shift
+  case subcommand
+  when "up"
+    preset = ARGV.shift
+    ok = Alpha::InferenceTarget.engine_up(preset: preset)
+    exit(ok ? 0 : 1)
+  when "down", "stop"
+    ok = Alpha::InferenceTarget.engine_down!
+    exit(ok ? 0 : 1)
+  when "status"
+    preset = ARGV.shift
+    target = Alpha::InferenceTarget.from_engine(preset || "qwen36-coder-hybrid")
+    status = Alpha::InferenceTarget.engine_status(target: target)
+    exit(status[:healthy] ? 0 : 1)
+  else
+    puts <<~ENGINE_HELP
+      Usage: bin/alpha engine [command]
+
+      Commands:
+        up [preset]   Scale deployment to 1 replica and wait for /health (default: qwen36-coder-hybrid)
+        down          Scale deployment to 0 replicas (frees RAM and VRAM)
+        status        Check current engine deployment and health status
+    ENGINE_HELP
+    exit 1
+  end
+
 when "oracle"
   options = parse_oracle_options(ARGV)
   scenario = Alpha::Scenario.load(options[:scenario], only_task: options[:task])
@@ -78,15 +120,25 @@ when "run"
   target_preset = options[:preset] || target_model
 
   inference_target = Alpha::InferenceTarget.from_engine(target_preset)
+  if options[:autowake] && !options[:dry_run]
+    inference_target.ensure_awake!
+  end
+
   runner = Alpha::Runner.new(scenario: scenario, inference_target: inference_target)
 
-  result = runner.call(
-    trials: options[:trials],
-    keep_sandbox: options[:keep_sandbox],
-    dry_run: options[:dry_run],
-    no_gate_halt: options[:no_gate_halt]
-  )
-  exit(result[:ok] ? 0 : 1)
+  begin
+    result = runner.call(
+      trials: options[:trials],
+      keep_sandbox: options[:keep_sandbox],
+      dry_run: options[:dry_run],
+      no_gate_halt: options[:no_gate_halt]
+    )
+    exit(result[:ok] ? 0 : 1)
+  ensure
+    if options[:autostop]
+      Alpha::InferenceTarget.engine_down!
+    end
+  end
 
 when "qualify"
   options = parse_qualify_options(ARGV)
@@ -156,16 +208,23 @@ when "qualify"
   end
 
 when "doctor"
+  options = parse_doctor_options(ARGV)
   puts "=== Alpha Doctor: Environment & Topology Preflight ==="
   puts "Ruby: #{RUBY_VERSION} (target 4.0.7)"
   puts "Rails: #{Rails.version} (target 8.1.4)"
-  target = Alpha::InferenceTarget.from_engine(ARGV[0] || "qwen36-coder-hybrid")
+  target = Alpha::InferenceTarget.from_engine(options[:preset])
   puts "Inference Base URL: #{target.base_url}"
   print "Checking engine connectivity ... "
+  if options[:autowake] && !target.healthy?
+    puts "unreachable. Auto-waking..."
+    target.ensure_awake!
+    print "Re-checking engine connectivity ... "
+  end
   if target.healthy?
     puts "✓ OK (model #{target.model_id} responsive)"
   else
     puts "⚠ UNREACHABLE or model not loaded (expected at #{target.base_url})"
+    puts "  Tip: run 'bin/alpha engine up' or use '--autowake'"
   end
 
   pi_bin = File.expand_path("../harness/pi/node_modules/.bin/pi", __dir__)
@@ -183,10 +242,11 @@ when nil, "help", "-h", "--help"
     Alpha — headless evaluation harness
 
     Commands:
+      engine    Manage inference engine lifecycle (bin/alpha engine up [preset] | bin/alpha engine down | status)
       oracle    Zero-model task & grader verification (e.g. bin/alpha oracle --task gate-hello)
-      run       Run an evaluation scenario against an inference target
+      run       Run an evaluation scenario against an inference target (--autowake, --autostop)
       qualify   Promote an evaluation run to an omega.qualification.v1 artifact
-      doctor    Check environment, inference target health, and agent binaries
+      doctor    Check environment, inference target health, and agent binaries (--autowake)
       version   Print Ruby and Rails versions
 
     Runtime host: AM5 homelab (watchtower). See docs/infrastructure-topology.md

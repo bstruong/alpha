@@ -75,4 +75,29 @@ class AlphaHarnessTest < ActiveSupport::TestCase
     assert sections.key?("glm47-reap")
     assert_equal "262144", sections["qwen36-coder"]["ctx-size"]
   end
+
+  test "InferenceTarget generates expected preset_args" do
+    qwen_args = Alpha::InferenceTarget.preset_args("qwen36-coder-hybrid")
+    assert_includes qwen_args, "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf"
+    assert_includes qwen_args, "qwen36-coder-hybrid,qwen36-coder"
+    assert_includes qwen_args, "262144"
+
+    glm_args = Alpha::InferenceTarget.preset_args("glm47-reap")
+    assert_includes glm_args, "/models/GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf"
+    assert_includes glm_args, "glm47-reap"
+    assert_includes glm_args, "131072"
+    assert_includes glm_args, "--cpu-moe"
+  end
+
+  test "InferenceTarget responds to lifecycle methods" do
+    assert_respond_to Alpha::InferenceTarget, :engine_up
+    assert_respond_to Alpha::InferenceTarget, :engine_down!
+    assert_respond_to Alpha::InferenceTarget, :engine_status
+    assert_respond_to Alpha::InferenceTarget, :local_kubectl?
+
+    target = Alpha::InferenceTarget.from_engine("qwen36-coder-hybrid")
+    assert_respond_to target, :ping_health
+    assert_respond_to target, :ensure_awake!
+    assert_respond_to target, :server_root_url
+  end
 end

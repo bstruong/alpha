@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Project Alpha idle inference watcher every 10 minutes
+Documentation=https://github.com/bstruong/alpha
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

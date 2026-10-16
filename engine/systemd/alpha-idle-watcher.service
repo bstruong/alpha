@@ -1,0 +1,10 @@
+[Unit]
+Description=Project Alpha idle inference engine shutdown watcher
+Documentation=https://github.com/bstruong/alpha
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/btruong/projects/alpha/engine/bin/idle-watcher.sh
+StandardOutput=journal
+StandardError=journal
