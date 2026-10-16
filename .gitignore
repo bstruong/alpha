@@ -33,3 +33,6 @@ engine/run/*.pid
 engine/run/slots/
 archive/**/__pycache__/
 scripts/__pycache__/
+tests/**/__pycache__/
+.env
+!.env.example
