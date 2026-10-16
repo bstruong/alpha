@@ -1,6 +1,6 @@
 {
   "defaultProvider": "openai-compatible",
-  "defaultModel": "qwen36-coder",
+  "defaultModel": "qwen36-coder-hybrid",
   "defaultThinkingLevel": "low",
   "defaultProjectTrust": "always",
   "extensions": [
@@ -9,11 +9,12 @@
   "llamaSettings": {
     "servers": [
       {
-        "url": "http://127.0.0.1:8080",
-        "id": "local",
-        "name": "Local Server"
+        "url": "http://192.168.1.92:8080",
+        "id": "watchtower",
+        "name": "Watchtower AM5"
       }
     ]
   },
   "lastChangelogVersion": "1.0.3"
 }
+

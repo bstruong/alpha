@@ -1,0 +1,20 @@
+[Unit]
+Description=Project Alpha local AI engine (llama-server)
+Documentation=https://github.com/bstruong/alpha
+After=network.target
+
+[Service]
+Type=exec
+WorkingDirectory=/home/brian/Projects/alpha
+EnvironmentFile=-/home/brian/Projects/alpha/engine/workstation.env
+ExecStart=/home/brian/Projects/alpha/engine/bin/llama-up.sh single ${DEFAULT_PRESET} --foreground
+Restart=on-failure
+RestartSec=5s
+LimitMEMLOCK=infinity
+KillMode=process
+TimeoutStopSec=30s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
