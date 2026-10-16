@@ -75,7 +75,9 @@ module Alpha
       return false unless response.is_a?(Net::HTTPSuccess)
 
       payload = JSON.parse(response.body) rescue {}
-      models = Array(payload["data"]).filter_map { |m| m["id"] }
+      models = Array(payload["data"]).flat_map do |m|
+        [m["id"], *m["aliases"]]
+      end.compact
       models.empty? || models.include?(model_id)
     rescue StandardError
       false

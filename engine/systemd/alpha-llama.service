@@ -5,9 +5,10 @@ After=network.target
 
 [Service]
 Type=exec
-WorkingDirectory=/home/brian/Projects/alpha
-EnvironmentFile=-/home/brian/Projects/alpha/engine/workstation.env
-ExecStart=/home/brian/Projects/alpha/engine/bin/llama-up.sh single ${DEFAULT_PRESET} --foreground
+WorkingDirectory=/home/btruong/projects/alpha
+EnvironmentFile=-/home/btruong/projects/alpha/engine/workstation.env
+Environment="LD_LIBRARY_PATH=/home/btruong/projects/alpha/experiments/llama.cpp-qwen4exp/build/bin:/usr/local/cuda-13.4/lib64"
+ExecStart=/home/btruong/projects/alpha/engine/bin/llama-up.sh single ${DEFAULT_PRESET} --foreground
 Restart=on-failure
 RestartSec=5s
 LimitMEMLOCK=infinity

@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative "../config/boot"
+
 require "optparse"
 require "json"
 require "fileutils"
