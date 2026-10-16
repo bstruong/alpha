@@ -1,19 +1,16 @@
 # frozen_string_literal: true
 
-# Thin API surface for listing past runs. The real work is bin/alpha + lib/alpha.
+# Thin API surface for listing and inspecting past evaluation runs.
 class EvalRunsController < ApplicationController
   def index
-    # TODO(you): EvalRun.order(created_at: :desc).limit(...)
-    render json: { eval_runs: [], note: "stub — implement index" }
+    runs = EvalRun.order(created_at: :desc).limit(50)
+    render json: { eval_runs: runs.as_json(include: :task_results) }
   end
 
   def show
-    # TODO(you): find by run_id, include task_results
-    render json: { error: "stub — implement show" }, status: :not_implemented
-  end
-
-  def create
-    # Optional: enqueue a run via ActiveJob. Prefer bin/alpha for Circuit 1.
-    render json: { error: "stub — prefer bin/alpha run" }, status: :not_implemented
+    run = EvalRun.find_by!(run_id: params[:run_id])
+    render json: { eval_run: run.as_json(include: :task_results) }
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Run not found" }, status: :not_found
   end
 end

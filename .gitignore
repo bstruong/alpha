@@ -21,6 +21,8 @@ archive/benchmarks-legacy/llm-benchmark/fixtures/*
 
 # Local LLM model weights and test cache
 *.gguf
+/experiments/
+/validation_v2/
 archive/benchmarks-legacy/experiments/models/
 .pytest_cache/
 

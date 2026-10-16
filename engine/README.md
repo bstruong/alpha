@@ -31,10 +31,10 @@ engine/
 │   └── setup-memlock.sh        # Diagnostic and installation helper for RLIMIT_MEMLOCK
 ├── run/                        # Runtime state (PID files, logs) - gitignored
 ├── system/
-│   ├── 90-hybrid-ai-harness-memlock.conf      # PAM limits configuration (/etc/security/limits.d/)
+│   ├── 90-alpha-memlock.conf                  # PAM limits configuration (/etc/security/limits.d/)
 │   └── user@.service.d/memlock.conf   # Systemd user manager drop-in
 ├── systemd/
-│   └── hybrid-ai-harness-llama.service        # User unit for systemd management
+│   └── alpha-llama.service                    # User unit for systemd management
 └── README.md                   # This specification and operations manual
 ```
 
@@ -136,7 +136,7 @@ sudo engine/bin/setup-memlock.sh --install
 systemctl --user daemon-reexec
 ```
 Files provided:
-* `engine/system/90-hybrid-ai-harness-memlock.conf` -> `/etc/security/limits.d/90-hybrid-ai-harness-memlock.conf`
+* `engine/system/90-alpha-memlock.conf` -> `/etc/security/limits.d/90-alpha-memlock.conf`
 * `engine/system/user@.service.d/memlock.conf` -> `/etc/systemd/system/user@.service.d/memlock.conf`
 
 ### 2. Swappiness Tuning (`vm.swappiness = 10`)
@@ -192,10 +192,10 @@ To migrate from the old configuration (PID 337100: 3 threads, repeat-penalty 1.1
    * **Option B: Systemd user service:**
      ```bash
      mkdir -p ~/.config/systemd/user/
-     cp engine/systemd/hybrid-ai-harness-llama.service ~/.config/systemd/user/
+     cp engine/systemd/alpha-llama.service ~/.config/systemd/user/
      systemctl --user daemon-reload
-     systemctl --user enable --now hybrid-ai-harness-llama.service
-     systemctl --user status hybrid-ai-harness-llama.service
+     systemctl --user enable --now alpha-llama.service
+     systemctl --user status alpha-llama.service
      ```
 
 ### Stopping the Engine
@@ -204,7 +204,7 @@ engine/bin/llama-down.sh
 ```
 Or if running as a systemd user unit:
 ```bash
-systemctl --user stop hybrid-ai-harness-llama.service
+systemctl --user stop alpha-llama.service
 ```
 
 ### Checking Status & Health

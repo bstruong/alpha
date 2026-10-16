@@ -1,22 +1,169 @@
 # frozen_string_literal: true
 
-module Alpha
-  # Ephemeral worktree or directory copy for one task trial.
-  class Sandbox
-    attr_reader :path
+require "fileutils"
+require "open3"
+require "rbconfig"
+require "tmpdir"
 
-    def self.provision(_task)
-      # TODO(you): git worktree add --detach (preferred) or copy scenario library
-      raise NotImplementedError, "#{name}.#{__method__}"
+module Alpha
+  # Isolated directory-copy sandbox for one task trial.
+  # Deliberately avoids git worktrees so the agent cannot inspect parent repo history
+  # or read tasks/*/solution.patch and verification_test.rb.
+  class Sandbox
+    SKIP_DIRS = %w[tmp log storage].freeze
+
+    attr_reader :path, :work_dir, :seeded_path, :library_dir
+
+    def self.provision(task, library_dir: nil, work_dir: nil)
+      resolved_library = library_dir || File.expand_path("../../library", task.dir)
+      raise ArgumentError, "Base library directory not found: #{resolved_library}" unless File.directory?(resolved_library)
+
+      resolved_work = work_dir || Dir.mktmpdir("alpha-#{task.name}-")
+      app_dir = File.join(resolved_work, "app")
+      seeded_dir = File.join(resolved_work, "seeded")
+
+      copy_tree(resolved_library, app_dir)
+
+      sandbox = new(
+        path: app_dir,
+        work_dir: resolved_work,
+        seeded_path: seeded_dir,
+        library_dir: resolved_library
+      )
+
+      prepared, prepare_out = sandbox.prepare_db!
+      raise "db:prepare failed for #{task.name}:\n#{prepare_out}" unless prepared
+
+      unless sandbox.apply_patch!(task.environment_patch)
+        raise "environment.patch failed to apply for #{task.name}"
+      end
+
+      sandbox.snapshot_seeded!
+      sandbox
     end
 
-    def initialize(path:)
+    def self.copy_tree(source, dest)
+      FileUtils.rm_rf(dest)
+      FileUtils.mkdir_p(dest)
+      Dir.each_child(source) do |name|
+        next if SKIP_DIRS.include?(name)
+
+        FileUtils.cp_r(File.join(source, name), dest, preserve: true)
+      end
+      SKIP_DIRS.each { |name| FileUtils.mkdir_p(File.join(dest, name)) }
+    end
+
+    def initialize(path:, work_dir: nil, seeded_path: nil, library_dir: nil)
       @path = path
+      @work_dir = work_dir || File.dirname(path)
+      @seeded_path = seeded_path || File.join(@work_dir, "seeded")
+      @library_dir = library_dir || path
+    end
+
+    def child_env
+      bindir = File.dirname(RbConfig.ruby)
+      {
+        "PATH" => "#{bindir}#{File::PATH_SEPARATOR}#{ENV.fetch("PATH", "")}",
+        "RAILS_ENV" => "test",
+        "BUNDLE_GEMFILE" => File.join(path, "Gemfile"),
+        "BUNDLE_APP_CONFIG" => File.join(path, ".bundle"),
+        "RUBYOPT" => ""
+      }
+    end
+
+    def run_in_clean_env(&block)
+      if defined?(Bundler) && Bundler.respond_to?(:with_unbundled_env)
+        Bundler.with_unbundled_env(&block)
+      else
+        yield
+      end
+    end
+
+    def prepare_db!
+      run_in_clean_env do
+        out, status = Open3.capture2e(child_env, "bin/rails", "db:prepare", chdir: path)
+        [ status.success?, out ]
+      end
+    end
+
+    def apply_patch!(patch_path)
+      return true unless patch_path
+
+      _out, status = Open3.capture2(
+        "patch", "-p1", "--forward", "--batch", "-d", path, "-i", patch_path
+      )
+      status.success?
+    end
+
+    def snapshot_seeded!
+      self.class.copy_tree(path, seeded_path)
+    end
+
+    def restore_protected!(task)
+      return unless File.directory?(seeded_path)
+
+      task.restore_except.each do |rel|
+        src = File.join(path, rel)
+        next unless File.file?(src)
+
+        kept = File.join(path, "tmp", "kept", rel)
+        FileUtils.mkdir_p(File.dirname(kept))
+        FileUtils.cp(src, kept)
+      end
+
+      task.restore.each do |rel|
+        src = File.join(seeded_path, rel)
+        dest = File.join(path, rel)
+        next unless File.exist?(src)
+
+        FileUtils.rm_rf(dest)
+        FileUtils.cp_r(src, dest, preserve: true)
+      end
+
+      task.restore_except.each do |rel|
+        edited = File.join(path, "tmp", "kept", rel)
+        next unless File.file?(edited)
+
+        dest = File.join(path, rel)
+        FileUtils.mkdir_p(File.dirname(dest))
+        FileUtils.cp(edited, dest)
+      end
+    end
+
+    def diff_from_seeded(dest_file = nil)
+      return "" unless File.directory?(seeded_path)
+
+      out, status = Open3.capture2("diff", "-ru", seeded_path, path)
+      raise "diff failed" unless status.success? || status.exitstatus == 1
+
+      body = out.lines.reject { |line| line.include?("/tmp/") && line.start_with?("diff ") }.join
+      body = body.gsub("#{seeded_path}/", "a/").gsub("#{path}/", "b/")
+      File.write(dest_file, body) if dest_file
+      body
+    end
+
+    def drifted_files(except = [])
+      return [] unless File.directory?(seeded_path)
+
+      failures = []
+      Dir.glob(File.join(seeded_path, "**/*"), File::FNM_DOTMATCH).each do |src|
+        next unless File.file?(src)
+
+        rel = src.delete_prefix("#{seeded_path}/")
+        next if rel.start_with?(".") && !rel.include?("/")
+        next if except.any? { |allowed| rel == allowed }
+
+        dest = File.join(path, rel)
+        next if File.file?(dest) && FileUtils.compare_file(src, dest)
+
+        failures << rel
+      end
+      failures
     end
 
     def teardown!
-      # TODO(you): git worktree remove --force or FileUtils.rm_rf
-      raise NotImplementedError, "#{self.class}##{__method__}"
+      target = work_dir && File.directory?(work_dir) ? work_dir : path
+      FileUtils.rm_rf(target) if target && File.exist?(target)
     end
   end
 end
