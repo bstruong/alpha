@@ -4,6 +4,13 @@
 class Qualification < ApplicationRecord
   validates :model_id, :prompt_preset, :scenario_id, presence: true
 
-  # TODO(you): #current? / #expired? based on expires_at
-  # TODO(you): uniqueness on [model_id, prompt_preset, role] if that matches your contract
+  scope :recent, -> { order(created_at: :desc) }
+
+  def current?
+    expires_at.nil? || expires_at > Time.now.utc
+  end
+
+  def expired?
+    !current?
+  end
 end

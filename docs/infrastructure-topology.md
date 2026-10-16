@@ -50,7 +50,7 @@ The Haswell desk machine must not appear as an Alpha `InferenceTarget` or Omega 
 - [`engine/README.md`](../engine/README.md) — AM5 engine profile and Fedora Server target
 - [`docs/workstation-ai-stack.md`](workstation-ai-stack.md) — stack diagram (AM5 = local execution)
 - [`docs/shape-up/`](shape-up/) — Alpha / Omega Shape Up pitches
-- [`docs/LEARNING_RUBY.md`](LEARNING_RUBY.md) — Ruby 4.0.7 / Rails 8.1.4 relearning path inside this repo
+- `hyperbolic-time-chamber/ruby-rails/` — Parallel Ruby 4.0.7 / Rails 8.1.4 hand-coding drill lane (migrated out of Alpha)
 
 ## Alpha software pins
 

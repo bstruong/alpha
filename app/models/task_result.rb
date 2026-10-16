@@ -5,5 +5,10 @@ class TaskResult < ApplicationRecord
 
   validates :task_name, presence: true
 
-  # TODO(you): helpers like #passed? if you store pass as boolean/nil
+  scope :passed, -> { where(pass: true) }
+  scope :failed, -> { where(pass: false) }
+
+  def passed?
+    pass == true
+  end
 end

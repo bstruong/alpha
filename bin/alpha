@@ -1,36 +1,190 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Alpha CLI entrypoint.
-# Usage (once implemented):
-#   bin/alpha run --scenario qwen36-daily --model qwen36-coder-hybrid --profile shipping
-#   bin/alpha qualify --run <run_id>
+require "optparse"
+require "json"
+require "fileutils"
+require "time"
 
 require_relative "../config/environment"
+
+def parse_oracle_options(argv)
+  options = { scenario: "qwen36-daily", task: nil, keep_sandbox: false }
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: bin/alpha oracle [options]"
+    opts.on("-s", "--scenario ID", "Scenario ID (default: qwen36-daily)") { |v| options[:scenario] = v }
+    opts.on("-t", "--task NAME", "Run only a specific task") { |v| options[:task] = v }
+    opts.on("--keep-sandbox", "Do not remove the temporary sandbox directory") { options[:keep_sandbox] = true }
+  end
+  parser.parse!(argv)
+  options
+end
+
+def parse_run_options(argv)
+  options = {
+    scenario: "qwen36-daily",
+    model: nil,
+    preset: nil,
+    profile: "shipping",
+    task: nil,
+    trials: 1,
+    keep_sandbox: false,
+    dry_run: false
+  }
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: bin/alpha run [options]"
+    opts.on("-s", "--scenario ID", "Scenario ID (default: qwen36-daily)") { |v| options[:scenario] = v }
+    opts.on("-m", "--model ID", "Model ID / alias") { |v| options[:model] = v }
+    opts.on("-p", "--preset NAME", "Engine preset name in engine/models.ini") { |v| options[:preset] = v }
+    opts.on("--profile NAME", "Prompt/execution profile: shipping or measurement (default: shipping)") { |v| options[:profile] = v }
+    opts.on("-t", "--task NAME", "Run only a specific task") { |v| options[:task] = v }
+    opts.on("--trials N", Integer, "Number of trials per task (default: 1)") { |v| options[:trials] = v }
+    opts.on("--keep-sandbox", "Do not remove the temporary sandbox directory") { options[:keep_sandbox] = true }
+    opts.on("--dry-run", "Verify prompt and sandbox preparation without executing model") { options[:dry_run] = true }
+  end
+  parser.parse!(argv)
+  options
+end
+
+def parse_qualify_options(argv)
+  options = { run_id: nil, promote: false }
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: bin/alpha qualify --run RUN_ID [options]"
+    opts.on("-r", "--run ID", "Alpha run ID to qualify") { |v| options[:run_id] = v }
+    opts.on("--promote", "Save qualification artifact for Omega") { options[:promote] = true }
+  end
+  parser.parse!(argv)
+  options
+end
 
 command = ARGV.shift
 
 case command
+when "oracle"
+  options = parse_oracle_options(ARGV)
+  scenario = Alpha::Scenario.load(options[:scenario], only_task: options[:task])
+  runner = Alpha::Runner.new(scenario: scenario)
+  success = runner.oracle(only_task: options[:task], keep_sandbox: options[:keep_sandbox])
+  exit(success ? 0 : 1)
+
 when "run"
-  # TODO(you): parse --scenario/--model/--profile, build Runner, call it
-  warn "bin/alpha run is stubbed — implement Alpha::Runner (see lib/alpha/runner.rb)"
-  exit 1
+  options = parse_run_options(ARGV)
+  scenario = Alpha::Scenario.load(options[:scenario], profile: options[:profile], only_task: options[:task])
+  target_model = options[:model] || scenario.default_model
+  target_preset = options[:preset] || target_model
+
+  inference_target = Alpha::InferenceTarget.from_engine(target_preset)
+  runner = Alpha::Runner.new(scenario: scenario, inference_target: inference_target)
+
+  result = runner.call(
+    trials: options[:trials],
+    keep_sandbox: options[:keep_sandbox],
+    dry_run: options[:dry_run]
+  )
+  exit(result[:ok] ? 0 : 1)
+
 when "qualify"
-  # TODO(you): read results/<run_id>/summary.json, emit omega.qualification.v1
-  warn "bin/alpha qualify is stubbed — see docs/shape-up/03-alpha-omega-contract.md"
-  exit 1
+  options = parse_qualify_options(ARGV)
+  abort "Error: --run RUN_ID is required" unless options[:run_id]
+
+  results_dir = File.expand_path("../results/runs/#{options[:run_id]}", __dir__)
+  summary_file = File.join(results_dir, "summary.json")
+  unless File.file?(summary_file)
+    summary_file = File.expand_path("../results/#{options[:run_id]}/summary.json", __dir__)
+  end
+  abort "Error: summary.json not found for run #{options[:run_id]}" unless File.file?(summary_file)
+
+  summary = JSON.parse(File.read(summary_file))
+  pass_at_1 = summary.dig("aggregate", "pass_at_1").to_f
+
+  gates_passed = summary["tasks"].select { |t| t["kind"] == "gate" }.all? { |t| t["pass"] }
+  qualified = gates_passed && pass_at_1 >= 0.70
+
+  report_md = File.expand_path("../reports/#{options[:run_id]}.md", __dir__)
+  report_uri = File.file?(report_md) ? "file://#{report_md}" : "file://#{summary_file}"
+
+  qual_data = {
+    "schema" => "omega.qualification.v1",
+    "model_id" => summary["model_id"],
+    "engine_preset" => summary.dig("inference", "preset") || summary["model_id"],
+    "prompt_preset" => summary["prompt_preset"],
+    "role" => "coder",
+    "alpha_run_id" => summary["run_id"],
+    "scenario_id" => summary["scenario"],
+    "pass_at_1" => pass_at_1,
+    "report_uri" => report_uri,
+    "qualified_at" => Time.now.utc.iso8601,
+    "expires_at" => (Time.now.utc + (30 * 86_400)).iso8601,
+    "node_class" => "am5-homelab-32g-3060"
+  }
+
+  qual_dir = File.expand_path("../qualifications", __dir__)
+  FileUtils.mkdir_p(qual_dir)
+  qual_path = File.join(qual_dir, "#{qual_data["model_id"]}__#{qual_data["prompt_preset"]}.json")
+  File.write(qual_path, JSON.pretty_generate(qual_data))
+
+  if defined?(Qualification) && Qualification.respond_to?(:table_exists?) && Qualification.table_exists?
+    q = Qualification.find_or_initialize_by(
+      model_id: qual_data["model_id"],
+      prompt_preset: qual_data["prompt_preset"],
+      scenario_id: qual_data["scenario_id"]
+    )
+    q.engine_preset = qual_data["engine_preset"]
+    q.role = qual_data["role"]
+    q.alpha_run_id = qual_data["alpha_run_id"]
+    q.pass_at_1 = qual_data["pass_at_1"]
+    q.report_uri = qual_data["report_uri"]
+    q.qualified_at = Time.parse(qual_data["qualified_at"])
+    q.expires_at = Time.parse(qual_data["expires_at"])
+    q.node_class = qual_data["node_class"]
+    q.save!
+  end
+
+  if qualified
+    puts "✅ QUALIFIED: #{qual_data["model_id"]} (#{qual_data["prompt_preset"]}) Pass@1: #{pass_at_1}"
+    puts "Artifact written to: #{qual_path}"
+    exit 0
+  else
+    puts "❌ NOT QUALIFIED: Pass@1 #{pass_at_1} < 0.70 or gate failure"
+    puts "Artifact written to: #{qual_path}"
+    exit 1
+  end
+
+when "doctor"
+  puts "=== Alpha Doctor: Environment & Topology Preflight ==="
+  puts "Ruby: #{RUBY_VERSION} (target 4.0.7)"
+  puts "Rails: #{Rails.version} (target 8.1.4)"
+  target = Alpha::InferenceTarget.from_engine(ARGV[0] || "qwen36-coder-hybrid")
+  puts "Inference Base URL: #{target.base_url}"
+  print "Checking engine connectivity ... "
+  if target.healthy?
+    puts "✓ OK (model #{target.model_id} responsive)"
+  else
+    puts "⚠ UNREACHABLE or model not loaded (expected at #{target.base_url})"
+  end
+
+  pi_bin = File.expand_path("../harness/pi/node_modules/.bin/pi", __dir__)
+  if File.file?(pi_bin) && File.executable?(pi_bin)
+    puts "Pi Agent binary: ✓ OK (#{pi_bin})"
+  else
+    puts "Pi Agent binary: ⚠ Not found at #{pi_bin} (run npm install in harness/pi)"
+  end
+
 when "version", "-v", "--version"
   puts "alpha (Rails #{Rails.version} / Ruby #{RUBY_VERSION})"
+
 when nil, "help", "-h", "--help"
   puts <<~HELP
     Alpha — headless evaluation harness
 
     Commands:
-      run       Run a scenario (STUB — implement Alpha::Runner)
-      qualify   Promote a run to a qualification artifact (STUB)
-      version   Print Ruby/Rails versions
+      oracle    Zero-model task & grader verification (e.g. bin/alpha oracle --task gate-hello)
+      run       Run an evaluation scenario against an inference target
+      qualify   Promote an evaluation run to an omega.qualification.v1 artifact
+      doctor    Check environment, inference target health, and agent binaries
+      version   Print Ruby and Rails versions
 
-    Runtime host: AM5 homelab (Fedora Server). See docs/infrastructure-topology.md
+    Runtime host: AM5 homelab (watchtower). See docs/infrastructure-topology.md
   HELP
 else
   warn "Unknown command: #{command.inspect} (try bin/alpha help)"
