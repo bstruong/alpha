@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Alpha CLI entrypoint.
+# Usage (once implemented):
+#   bin/alpha run --scenario qwen36-daily --model qwen36-coder-hybrid --profile shipping
+#   bin/alpha qualify --run <run_id>
+
+require_relative "../config/environment"
+
+command = ARGV.shift
+
+case command
+when "run"
+  # TODO(you): parse --scenario/--model/--profile, build Runner, call it
+  warn "bin/alpha run is stubbed — implement Alpha::Runner (see lib/alpha/runner.rb)"
+  exit 1
+when "qualify"
+  # TODO(you): read results/<run_id>/summary.json, emit omega.qualification.v1
+  warn "bin/alpha qualify is stubbed — see docs/shape-up/03-alpha-omega-contract.md"
+  exit 1
+when "version", "-v", "--version"
+  puts "alpha (Rails #{Rails.version} / Ruby #{RUBY_VERSION})"
+when nil, "help", "-h", "--help"
+  puts <<~HELP
+    Alpha — headless evaluation harness
+
+    Commands:
+      run       Run a scenario (STUB — implement Alpha::Runner)
+      qualify   Promote a run to a qualification artifact (STUB)
+      version   Print Ruby/Rails versions
+
+    Runtime host: AM5 homelab (Fedora Server). See docs/infrastructure-topology.md
+  HELP
+else
+  warn "Unknown command: #{command.inspect} (try bin/alpha help)"
+  exit 1
+end
