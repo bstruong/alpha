@@ -31,7 +31,8 @@ def parse_run_options(argv)
     task: nil,
     trials: 1,
     keep_sandbox: false,
-    dry_run: false
+    dry_run: false,
+    no_gate_halt: false
   }
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: bin/alpha run [options]"
@@ -43,6 +44,7 @@ def parse_run_options(argv)
     opts.on("--trials N", Integer, "Number of trials per task (default: 1)") { |v| options[:trials] = v }
     opts.on("--keep-sandbox", "Do not remove the temporary sandbox directory") { options[:keep_sandbox] = true }
     opts.on("--dry-run", "Verify prompt and sandbox preparation without executing model") { options[:dry_run] = true }
+    opts.on("--no-gate-halt", "Continue running subsequent tasks even if a gate fails") { options[:no_gate_halt] = true }
   end
   parser.parse!(argv)
   options
@@ -81,7 +83,8 @@ when "run"
   result = runner.call(
     trials: options[:trials],
     keep_sandbox: options[:keep_sandbox],
-    dry_run: options[:dry_run]
+    dry_run: options[:dry_run],
+    no_gate_halt: options[:no_gate_halt]
   )
   exit(result[:ok] ? 0 : 1)
 

@@ -15,7 +15,7 @@ module Alpha
       @grader = grader
     end
 
-    def call(trials: 1, keep_sandbox: false, dry_run: false)
+    def call(trials: 1, keep_sandbox: false, dry_run: false, no_gate_halt: false)
       run_id = "#{Time.now.utc.strftime("%Y%m%dT%H%M%SZ")}-#{scenario.id}"
       puts "=== Alpha Run: #{run_id} ==="
       puts "Scenario: #{scenario.id} | Model: #{inference_target&.model_id} | Profile: #{scenario.profile.name}"
@@ -29,7 +29,7 @@ module Alpha
         task_num = idx + 1
         total_tasks = scenario.tasks.size
 
-        if task.gate? && !gates_ok
+        if task.gate? && !gates_ok && !no_gate_halt
           puts "[#{task_num}/#{total_tasks}] #{task.name} (gate): SKIPPED (prior gate failed)"
           next
         end
@@ -65,7 +65,7 @@ module Alpha
           gates_ok = false if task.gate? && !passed
         end
 
-        break if task.gate? && !gates_ok
+        break if task.gate? && !gates_ok && !no_gate_halt
       end
 
       report_res = Report.build(
