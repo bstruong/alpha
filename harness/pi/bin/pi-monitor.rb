@@ -148,11 +148,15 @@ def extract_action(line)
   nil
 end
 
-def monitor(cmd, log_path, passthrough: false)
+def monitor(cmd, log_path, telemetry_path: nil, passthrough: false)
   FileUtils.mkdir_p(File.dirname(log_path))
   last = nil
   buffer = +""
   in_block = false
+  tool_calls = 0
+  prompt_tokens = 0
+  completion_tokens = 0
+
   Open3.popen2e(*cmd) do |stdin, out, wait|
     # Pi reads piped stdin to EOF before the first model call. Leaving this
     # open deadlocks: the agent waits for stdin, and we wait for its stdout.
@@ -168,6 +172,13 @@ def monitor(cmd, log_path, passthrough: false)
 
         clean = raw.gsub(ANSI, "").strip
         next if clean.empty?
+
+        if (tok_match = clean.match(/(?:prompt_tokens|promptTokens)["']?\s*:\s*(\d+)/i))
+          prompt_tokens += tok_match[1].to_i
+        end
+        if (tok_match = clean.match(/(?:completion_tokens|completionTokens)["']?\s*:\s*(\d+)/i))
+          completion_tokens += tok_match[1].to_i
+        end
 
         if clean.include?("<tool_call>")
           in_block = true
@@ -187,12 +198,24 @@ def monitor(cmd, log_path, passthrough: false)
         action = extract_action(in_block ? buffer : clean)
         next unless action && action != last
 
+        tool_calls += 1
         puts action
         $stdout.flush
         last = action
       end
     end
-    wait.value.exitstatus || 1
+    exit_status = wait.value.exitstatus || 1
+
+    if telemetry_path
+      FileUtils.mkdir_p(File.dirname(telemetry_path))
+      File.write(telemetry_path, JSON.pretty_generate({
+        "tool_calls" => tool_calls,
+        "prompt_tokens" => prompt_tokens,
+        "completion_tokens" => completion_tokens
+      }))
+    end
+
+    exit_status
   end
 end
 
@@ -228,6 +251,7 @@ end
 
 def main(argv)
   log_path = ENV.fetch("PI_LOG_FILE", DEFAULT_LOG)
+  telemetry_path = ENV["PI_TELEMETRY_FILE"]
   pi_bin = ENV.fetch("PI_BIN", DEFAULT_PI)
   custom = ENV["PI_MONITOR_CMD"]
   dummy_mode = false
@@ -241,6 +265,9 @@ def main(argv)
       index += 1
     when "--log-file"
       log_path = argv.fetch(index + 1)
+      index += 2
+    when "--telemetry-file"
+      telemetry_path = argv.fetch(index + 1)
       index += 2
     when "--pi-bin"
       pi_bin = argv.fetch(index + 1)
@@ -267,7 +294,7 @@ def main(argv)
     [ pi_bin, *forwarded ]
   end
   info = forwarded.intersect?(%w[--help -h --version -v --list-models])
-  exit monitor(cmd, log_path, passthrough: info)
+  exit monitor(cmd, log_path, telemetry_path: telemetry_path, passthrough: info)
 end
 
 main(ARGV)
