@@ -33,7 +33,6 @@ engine/run/*.pid
 engine/run/slots/
 archive/**/__pycache__/
 scripts/__pycache__/
-
 # Rails
 /.bundle
 /log/*
@@ -49,3 +48,7 @@ scripts/__pycache__/
 /config/master.key
 /db/*.sqlite3
 /db/*.sqlite3-*
+
+tests/**/__pycache__/
+.env
+!.env.example
