@@ -98,7 +98,9 @@ is_llama_active() {
 
     # 3. Check systemd unit
     if command -v systemctl >/dev/null 2>&1; then
-        if systemctl --user is-active --quiet berserker-llama-server 2>/dev/null || \
+        if systemctl --user is-active --quiet alpha-llama-server 2>/dev/null || \
+           systemctl --user is-active --quiet alpha-llama.service 2>/dev/null || \
+           systemctl --user is-active --quiet berserker-llama-server 2>/dev/null || \
            systemctl --user is-active --quiet berserker-llama.service 2>/dev/null; then
             return 0
         fi
