@@ -197,8 +197,8 @@ echo "Launching llama-server (mode: ${MODE}, preset: ${PRESET}, port: ${PORT})..
 echo "Command log: ${LOG_FILE}"
 
 if command -v systemd-run >/dev/null 2>&1 && systemctl --user is-active basic.target >/dev/null 2>&1; then
-    systemctl --user reset-failed berserker-llama-server 2>/dev/null || true
-    systemd-run --user --unit=berserker-llama-server --collect \
+    systemctl --user reset-failed alpha-llama-server 2>/dev/null || true
+    systemd-run --user --unit=alpha-llama-server --collect \
         -p "WorkingDirectory=${REPO_DIR}" \
         -p "LimitMEMLOCK=infinity" \
         -p "StandardOutput=file:${LOG_FILE}" \
@@ -207,7 +207,7 @@ if command -v systemd-run >/dev/null 2>&1 && systemctl --user is-active basic.ta
 
     SERVER_PID=""
     for _ in $(seq 1 20); do
-        SERVER_PID=$(systemctl --user show --property=MainPID berserker-llama-server 2>/dev/null | cut -d'=' -f2 || true)
+        SERVER_PID=$(systemctl --user show --property=MainPID alpha-llama-server 2>/dev/null | cut -d'=' -f2 || true)
         if [[ -n "${SERVER_PID}" && "${SERVER_PID}" =~ ^[0-9]+$ && "${SERVER_PID}" -gt 0 ]]; then
             break
         fi

@@ -1,12 +1,12 @@
 # Jules GitHub App Configuration
-# Repository: Berserker (bstruong/berserker)
+# Repository: Alpha (bstruong/alpha)
 # Strict deterministic schema for Jules GitHub App CI integrations
 
 version: 1
 
 # Global system instructions injected into Jules agent sessions
 system_instructions: |
-  You are the Cloud Verification and Review Agent for the Berserker repository.
+  You are the Cloud Verification and Review Agent for the Alpha repository.
   You must enforce all architectural invariants, hang-prevention protocols, and anti-greenwashing rules across all PR reviews, code generation, and triage actions.
 
   Mandatory Context:
