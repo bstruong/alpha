@@ -14,10 +14,13 @@ fi
 # Bootstrapper for the Pi Local Harness
 export PI_CODING_AGENT_DIR="${HARNESS_DIR}"
 
-# Local inference engine URLs
+# Inference engine URLs (Watchtower AM5)
 export LLAMA_SERVER_URL="${LLAMA_SERVER_URL:-http://127.0.0.1:8080}"
 export LLAMA_BASE_URL="${LLAMA_BASE_URL:-http://127.0.0.1:8080}"
-export OPENAI_API_BASE="${OPENAI_API_BASE:-http://127.0.0.1:8080/v1}"
+export OPENAI_BASE_URL="${OPENAI_BASE_URL:-http://127.0.0.1:8080/v1}"
+export OPENAI_API_BASE="${OPENAI_API_BASE:-${OPENAI_BASE_URL}}"
+export OPENAI_API_KEY="${OPENAI_API_KEY:-ignored}"
+
 
 # Route through the Ruby heartbeat monitor. The Python monitor remains beside it.
 export PI_BIN="${PI_BIN}"

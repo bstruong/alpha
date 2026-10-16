@@ -52,7 +52,10 @@ cleanup() {
     # Unarm traps to avoid re-entrant calls
     trap - EXIT INT TERM HUP
 
-    if [[ "${BERSERKER_PERSIST_ENGINE:-0}" == "1" || "${PERSIST_ENGINE:-0}" == "1" ]]; then
+    # Remote inference (Watchtower) or explicit persist flag: do not shut down remote engine
+    if [[ "${LLAMA_SERVER_URL}" != *"127.0.0.1"* && "${LLAMA_SERVER_URL}" != *"localhost"* ]]; then
+        : # Remote server, keep running on host
+    elif [[ "${ALPHA_PERSIST_ENGINE:-0}" == "1" || "${BERSERKER_PERSIST_ENGINE:-0}" == "1" || "${PERSIST_ENGINE:-0}" == "1" ]]; then
         echo "[pi-monitored] PERSIST_ENGINE is enabled; skipping engine shutdown."
     else
         echo "[pi-monitored] Gracefully flushing engine weights from system RAM..."
@@ -62,6 +65,7 @@ cleanup() {
     fi
     exit "${exit_code}"
 }
+
 
 on_signal() {
     local sig="$1"
@@ -98,7 +102,9 @@ is_llama_active() {
 
     # 3. Check systemd unit
     if command -v systemctl >/dev/null 2>&1; then
-        if systemctl --user is-active --quiet berserker-llama-server 2>/dev/null || \
+        if systemctl --user is-active --quiet alpha-llama-server 2>/dev/null || \
+           systemctl --user is-active --quiet alpha-llama.service 2>/dev/null || \
+           systemctl --user is-active --quiet berserker-llama-server 2>/dev/null || \
            systemctl --user is-active --quiet berserker-llama.service 2>/dev/null; then
             return 0
         fi
@@ -131,6 +137,11 @@ ensure_engine_ready() {
             fi
         fi
     else
+        if [[ "${LLAMA_SERVER_URL}" != *"127.0.0.1"* && "${LLAMA_SERVER_URL}" != *"localhost"* ]]; then
+            echo "[pi-monitored] Error: Remote llama-server is not reachable at ${LLAMA_SERVER_URL}." >&2
+            echo "[pi-monitored] Please verify service status on Watchtower: 'ssh watchtower systemctl --user status alpha-llama.service'" >&2
+            exit 1
+        fi
         local model_preset
         model_preset=$(extract_model_preset "$@")
         echo "[pi-monitored] llama-server is not running. Spinning up ${model_preset}..."
@@ -142,9 +153,10 @@ ensure_engine_ready() {
     fi
 }
 
-if [[ "${BERSERKER_SKIP_ENGINE:-0}" != "1" && "${SKIP_ENGINE:-0}" != "1" ]]; then
+if [[ "${ALPHA_SKIP_ENGINE:-0}" != "1" && "${BERSERKER_SKIP_ENGINE:-0}" != "1" && "${SKIP_ENGINE:-0}" != "1" ]]; then
     ensure_engine_ready "$@"
 fi
+
 
 # -----------------------------------------------------------------------------
 # Execute Monitored Harness
