@@ -184,16 +184,18 @@ Overall Pipeline Status: **{'✅ HEALTHY' if pipeline.get('worker_success') else
 
 
 def require_server() -> None:
+    import os
     import requests
 
+    health_url = os.getenv("ALPHA_HEALTH_URL") or (os.getenv("LLAMA_SERVER_URL", "http://192.168.1.92:8080").rstrip("/") + "/health")
     try:
-        r = requests.get("http://127.0.0.1:8080/health", timeout=3)
+        r = requests.get(health_url, timeout=3)
         if r.status_code != 200:
             raise RuntimeError(f"/health -> {r.status_code}")
     except Exception as e:
         raise SystemExit(
-            f"llama-server not healthy on :8080 ({e}).\n"
-            "Start router first:\n"
-            "  engine/bin/llama-up.sh router qwen3.8-flash --force\n"
-            "(Module 3 requires router mode for Flash→35B swap.)"
+            f"llama-server not healthy at {health_url} ({e}).\n"
+            "Please verify Watchtower service status:\n"
+            "  ssh watchtower systemctl --user status alpha-llama.service\n"
         ) from e
+
