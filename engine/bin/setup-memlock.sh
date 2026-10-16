@@ -9,8 +9,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENGINE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SYSTEM_DIR="${ENGINE_DIR}/system"
 
-PAM_SRC="${SYSTEM_DIR}/90-berserker-memlock.conf"
-PAM_DST="/etc/security/limits.d/90-berserker-memlock.conf"
+PAM_SRC="${SYSTEM_DIR}/90-alpha-memlock.conf"
+PAM_DST="/etc/security/limits.d/90-alpha-memlock.conf"
 
 SYSTEMD_DROPIN_DIR="/etc/systemd/system/user@.service.d"
 SYSTEMD_SRC="${SYSTEM_DIR}/user@.service.d/memlock.conf"
@@ -78,7 +78,7 @@ To configure unlimited memlock on Workstation, run the following commands with s
   systemctl --user daemon-reexec
 
 Note: PAM limits in limits.d take effect on new login sessions (SSH, VT, or desktop re-login).
-For user systemd services (e.g. berserker-llama.service), 'LimitMEMLOCK=infinity' is also
+For user systemd services (e.g. alpha-llama.service), 'LimitMEMLOCK=infinity' is also
 set directly in the unit file so it takes effect immediately when run under systemd.
 EOF
 }
