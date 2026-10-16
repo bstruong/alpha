@@ -103,6 +103,7 @@ module Alpha
             "LLAMA_BASE_URL" => server_url,
             "OPENAI_BASE_URL" => openai_base,
             "OPENAI_API_BASE" => openai_base,
+            "OPENAI_API_KEY" => ENV["OPENAI_API_KEY"] || "ignored",
             "PI_BIN" => File.join(harness_dir, "node_modules", ".bin", "pi")
           )
 
