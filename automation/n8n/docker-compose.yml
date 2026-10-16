@@ -1,7 +1,7 @@
 services:
   n8n:
     image: docker.n8n.io/n8nio/n8n:latest
-    container_name: berserker-n8n
+    container_name: alpha-n8n
     restart: unless-stopped
 
     # ---------------------------------------------------------------------------
