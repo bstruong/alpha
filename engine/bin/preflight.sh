@@ -190,7 +190,7 @@ else
         if [[ ${MEMLOCK_KB} -lt ${MODEL_SIZE_KB} ]]; then
             log_warn "RLIMIT_MEMLOCK is ${MEMLOCK_KB} KB (< ${MODEL_SIZE_KB} KB needed for ${PRESET})."
             echo "         --load-mode mlock will fail silently; pages will not be locked into RAM (VmLck=0)."
-            echo "         To fix: run 'engine/bin/setup-memlock.sh' or install 'engine/system/90-berserker-memlock.conf'."
+            echo "         To fix: run 'engine/bin/setup-memlock.sh' or install 'engine/system/90-alpha-memlock.conf'."
         else
             log_ok "RLIMIT_MEMLOCK is sufficient: ${MEMLOCK_KB} KB"
         fi
