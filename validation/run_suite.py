@@ -19,7 +19,9 @@ from datetime import datetime, timezone
 # ---------------------------------------------------------------------------
 
 RESULTS_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
-SERVER_URL = "http://127.0.0.1:8080/v1/chat/completions"
+_base_url = (os.getenv("ALPHA_SERVER_URL") or os.getenv("OPENAI_BASE_URL") or "http://192.168.1.92:8080/v1").rstrip("/")
+SERVER_URL = _base_url if _base_url.endswith("/chat/completions") else f"{_base_url}/chat/completions"
+
 
 
 # ---------------------------------------------------------------------------
