@@ -1,8 +1,8 @@
 results/
-benchmarks/qwen36-daily/library/config/master.key
-benchmarks/qwen36-daily/library/storage/*.sqlite3
-benchmarks/qwen36-daily/library/tmp/
-benchmarks/qwen36-daily/library/log/*.log
+scenarios/qwen36-daily/library/config/master.key
+scenarios/qwen36-daily/library/storage/*.sqlite3
+scenarios/qwen36-daily/library/tmp/
+scenarios/qwen36-daily/library/log/*.log
 bench_*.txt
 *.log
 __pycache__/
@@ -10,8 +10,8 @@ __pycache__/
 aider-test/
 
 # llm-benchmark generated fixtures (keep the dir, ignore contents)
-llm-benchmark/fixtures/*
-!llm-benchmark/fixtures/.gitkeep
+archive/benchmarks-legacy/llm-benchmark/fixtures/*
+!archive/benchmarks-legacy/llm-benchmark/fixtures/.gitkeep
 
 # Convention: disposable/regenerable working output lives in results/ (or a
 # similarly-named per-project dir, e.g. ab-results/) and stays ignored above.
@@ -21,17 +21,34 @@ llm-benchmark/fixtures/*
 
 # Local LLM model weights and test cache
 *.gguf
-experiments/models/
+archive/benchmarks-legacy/experiments/models/
 .pytest_cache/
 
-experiments/ai-evals-rails/
+archive/benchmarks-legacy/experiments/ai-evals-rails/
 
 # Flash eval / local engine noise
-experiments/hyperbolic-time-chamber/
-experiments/llama.cpp-qwen4exp/
+archive/benchmarks-legacy/experiments/hyperbolic-time-chamber/
+archive/benchmarks-legacy/experiments/llama.cpp-qwen4exp/
 engine/run/*.pid
 engine/run/slots/
+archive/**/__pycache__/
 scripts/__pycache__/
+# Rails
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+/public/assets
+.byebug_history
+/config/master.key
+/db/*.sqlite3
+/db/*.sqlite3-*
+
 tests/**/__pycache__/
 .env
 !.env.example
