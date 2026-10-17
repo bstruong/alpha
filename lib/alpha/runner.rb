@@ -15,10 +15,11 @@ module Alpha
       @grader = grader
     end
 
-    def call(trials: 1, keep_sandbox: false, dry_run: false, no_gate_halt: false)
+    def call(trials: 1, keep_sandbox: false, dry_run: false, no_gate_halt: false, max_turns: 1, thinking: "low")
       run_id = "#{Time.now.utc.strftime("%Y%m%dT%H%M%SZ")}-#{scenario.id}"
       puts "=== Alpha Run: #{run_id} ==="
       puts "Scenario: #{scenario.id} | Model: #{inference_target&.model_id} | Profile: #{scenario.profile.name}"
+      puts "Thinking: #{thinking} | Max Turns: #{max_turns} #{'(Self-Repair Enabled)' if max_turns > 1}"
       puts "Tasks: #{scenario.tasks.map(&:name).join(", ")}"
       puts ""
 
@@ -47,6 +48,9 @@ module Alpha
               trial: trial_num,
               pass: true,
               pass_at_1: true,
+              repaired: false,
+              turns: 1,
+              thinking_level: thinking,
               tool_calls: 0,
               prompt_tokens: 0,
               completion_tokens: 0,
@@ -56,10 +60,22 @@ module Alpha
             next
           end
 
-          trial_record = execute_trial(task, trial_num, run_id, keep_sandbox: keep_sandbox)
+          trial_record = execute_trial(
+            task, trial_num, run_id,
+            keep_sandbox: keep_sandbox,
+            max_turns: max_turns,
+            thinking: thinking
+          )
           passed = trial_record[:pass]
-          status_str = passed ? "✓ PASS" : "✗ FAIL"
-          puts "#{status_str} in #{(trial_record[:wall_ms] / 1000.0).round(1)}s (tools: #{trial_record[:tool_calls]})"
+          repaired = trial_record[:repaired]
+          status_str = if repaired
+            "✓ REPAIRED (Turn 2)"
+          elsif passed
+            "✓ PASS"
+          else
+            "✗ FAIL"
+          end
+          puts "#{status_str} in #{(trial_record[:wall_ms] / 1000.0).round(1)}s (tools: #{trial_record[:tool_calls]}, turns: #{trial_record[:turns]})"
 
           task_records << trial_record
           gates_ok = false if task.gate? && !passed
@@ -105,37 +121,101 @@ module Alpha
       all_passed
     end
 
-    private
-      def execute_trial(task, trial_num, run_id, keep_sandbox: false)
+      def execute_trial(task, trial_num, run_id, keep_sandbox: false, max_turns: 1, thinking: "low")
         inference_target&.erase_slots!
 
-        sandbox = Sandbox.provision(task, library_dir: scenario.base_app_dir)
-        exec_res = executor.call(
-          task: task,
+        active_task = thinking ? task.with_thinking(thinking) : task
+        sandbox = Sandbox.provision(active_task, library_dir: scenario.base_app_dir)
+        total_tool_calls = 0
+        total_prompt_tokens = 0
+        total_completion_tokens = 0
+        total_wall_ms = 0
+        turn_history = []
+        current_turn = 1
+
+        active_executor = resolve_executor(active_task)
+        active_grader = resolve_grader(active_task)
+
+        exec_res = active_executor.call(
+          task: active_task,
           sandbox: sandbox,
           inference_target: inference_target,
           profile: scenario.profile,
           timeout_s: scenario.budget[:wall_seconds]
         )
 
-        sandbox.restore_protected!(task)
+        total_tool_calls += exec_res.tool_calls
+        total_prompt_tokens += exec_res.prompt_tokens
+        total_completion_tokens += exec_res.completion_tokens
+        total_wall_ms += exec_res.wall_ms
+
+        sandbox.restore_protected!(active_task)
         patch_path = File.join(sandbox.work_dir, "agent.patch")
         sandbox.diff_from_seeded(patch_path)
 
-        grader_res = grader.call(sandbox: sandbox, task: task, check_stability: true)
+        grader_res = active_grader.call(sandbox: sandbox, task: active_task, check_stability: true)
+
+        turn_history << {
+          turn: 1,
+          pass: grader_res.pass,
+          tool_calls: exec_res.tool_calls,
+          wall_ms: exec_res.wall_ms,
+          detail: grader_res.detail
+        }
+
+        # Multi-Turn Self-Repair (Turn 2)
+        if !grader_res.pass && max_turns > 1 && !exec_res.timed_out
+          current_turn = 2
+          failure_feedback = extract_failure_summary(grader_res.detail)
+          repair_task = active_task.with_repair_feedback(failure_feedback)
+
+          exec_res_2 = active_executor.call(
+            task: repair_task,
+            sandbox: sandbox,
+            inference_target: inference_target,
+            profile: scenario.profile,
+            timeout_s: scenario.budget[:wall_seconds]
+          )
+
+          total_tool_calls += exec_res_2.tool_calls
+          total_prompt_tokens += exec_res_2.prompt_tokens
+          total_completion_tokens += exec_res_2.completion_tokens
+          total_wall_ms += exec_res_2.wall_ms
+
+          sandbox.restore_protected!(active_task)
+          sandbox.diff_from_seeded(patch_path)
+
+          grader_res = active_grader.call(sandbox: sandbox, task: active_task, check_stability: true)
+
+          turn_history << {
+            turn: 2,
+            pass: grader_res.pass,
+            tool_calls: exec_res_2.tool_calls,
+            wall_ms: exec_res_2.wall_ms,
+            detail: grader_res.detail
+          }
+        end
+
+        pass_at_1 = turn_history.first[:pass]
+        final_pass = grader_res.pass
+        repaired = !pass_at_1 && final_pass
 
         record = {
           task_name: task.name,
           kind: task.kind,
           trial: trial_num,
-          pass: grader_res.pass,
-          pass_at_1: grader_res.pass,
-          tool_calls: exec_res.tool_calls,
-          prompt_tokens: exec_res.prompt_tokens,
-          completion_tokens: exec_res.completion_tokens,
-          wall_ms: exec_res.wall_ms,
+          pass: final_pass,
+          pass_at_1: pass_at_1,
+          repaired: repaired,
+          turns: current_turn,
+          thinking_level: thinking,
+          tool_calls: total_tool_calls,
+          prompt_tokens: total_prompt_tokens,
+          completion_tokens: total_completion_tokens,
+          wall_ms: total_wall_ms,
           timed_out: exec_res.timed_out,
           exit_reason: exec_res.exit_reason,
+          turn_history: turn_history,
           graders: [ { name: grader_res.name, pass: grader_res.pass, detail: grader_res.detail } ]
         }
 
@@ -151,21 +231,66 @@ module Alpha
           trial: trial_num,
           pass: false,
           pass_at_1: false,
+          repaired: false,
+          turns: 1,
+          thinking_level: thinking,
           tool_calls: 0,
           prompt_tokens: 0,
           completion_tokens: 0,
           wall_ms: 0,
           timed_out: false,
           exit_reason: "error: #{e.message}",
+          turn_history: [],
           graders: [ { name: "MinitestFile", pass: false, detail: { error: e.message } } ]
         }
       end
 
+      def extract_failure_summary(detail)
+        return "" unless detail.is_a?(Hash)
+
+        sections = []
+        if detail[:rails_output] && !detail[:rails_test]
+          lines = detail[:rails_output].to_s.lines
+          sections << "=== Rails test output ===\n#{lines.last(30).join}"
+        end
+        if detail[:verifier_output] && detail[:verifier_ok] == false
+          lines = detail[:verifier_output].to_s.lines
+          sections << "=== Verification test output ===\n#{lines.last(30).join}"
+        end
+        if detail[:drifted] && Array(detail[:drifted]).any?
+          sections << "=== Modified protected/forbidden files ===\n#{detail[:drifted].join(', ')}"
+        end
+        sections.empty? ? detail.to_s : sections.join("\n\n")
+      end
+
+      def resolve_executor(task)
+        type = task.executor_type || (scenario.respond_to?(:executor_type) && scenario.executor_type)
+        case type.to_s
+        when "openai_chat_completions", "openai", "stateless"
+          Executor::OpenAIChatCompletions.new
+        else
+          @executor || Executor::PiRpc.new
+        end
+      end
+
+      def resolve_grader(task)
+        type = task.grader_type || (scenario.respond_to?(:grader_type) && scenario.grader_type)
+        case type.to_s
+        when "pattern_deny", "pii", "regex"
+          Grader::PatternDeny.new
+        when "json_schema", "schema", "ocr"
+          Grader::JsonSchema.new
+        else
+          @grader || Grader::MinitestFile.new
+        end
+      end
+
       def check_task_oracle(task, keep_sandbox: false)
+        active_grader = resolve_grader(task)
         sandbox = Sandbox.provision(task, library_dir: scenario.base_app_dir)
 
         # 1. Seed check: should reproduce expected_seed (0 for graded, 1 for gate-boot)
-        seed_grade = grader.call(sandbox: sandbox, task: task)
+        seed_grade = active_grader.call(sandbox: sandbox, task: task)
         seed_reward = seed_grade.pass ? 1 : 0
         if seed_reward != task.expected_seed
           sandbox.teardown! unless keep_sandbox
@@ -180,7 +305,7 @@ module Alpha
           return [ false, "solution.patch did not apply" ]
         end
 
-        sol_grade = grader.call(sandbox: sandbox, task: task, check_stability: true)
+        sol_grade = active_grader.call(sandbox: sandbox, task: task, check_stability: true)
         unless sol_grade.pass
           sandbox.teardown! unless keep_sandbox
           return [ false, "solution failed verification" ]

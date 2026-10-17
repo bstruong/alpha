@@ -1,0 +1,8 @@
+name: scrub-ssn-email
+kind: graded
+expected_seed: 0
+executor: openai_chat_completions
+grader: pattern_deny
+required_markers:
+  - "[SSN_REDACTED]"
+  - "[EMAIL_REDACTED]"
