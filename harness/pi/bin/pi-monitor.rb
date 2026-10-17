@@ -11,6 +11,7 @@ require "shellwords"
 
 SCRIPT_DIR = __dir__
 HARNESS_DIR = File.expand_path("..", SCRIPT_DIR)
+ENV["PI_CODING_AGENT_DIR"] ||= HARNESS_DIR
 SESSIONS_DIR = File.join(HARNESS_DIR, "sessions")
 DEFAULT_LOG = File.join(SESSIONS_DIR, "current_run.log")
 DEFAULT_PI = File.join(HARNESS_DIR, "node_modules", ".bin", "pi")
