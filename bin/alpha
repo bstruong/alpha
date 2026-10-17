@@ -129,9 +129,9 @@ when "engine"
     exit(st[:running] && st[:healthy] ? 0 : 1)
 
   when "up"
-    preset = ARGV[0]
+    preset = ARGV[0] == "--preset" ? ARGV[1] : ARGV[0]
     puts "Scaling engine up (preset: #{preset || "current"})..."
-    manager.up(preset: preset, wait: true, timeout: 60)
+    manager.up(preset: preset, wait: true, timeout: 120)
     puts "✓ Engine is healthy and ready!"
     exit 0
 
