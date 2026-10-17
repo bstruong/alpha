@@ -31,7 +31,7 @@ class EngineManagerTest < ActiveSupport::TestCase
 
     q14 = mgr.preset_args("qwen25-coder-14b")
     assert_includes q14, "/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf"
-    assert_includes q14, "32768"
+    assert_includes q14, "16384"
     assert_not_includes q14, "--cpu-moe"
     assert_not_includes q14, "--n-cpu-moe"
 
