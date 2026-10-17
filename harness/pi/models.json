@@ -29,6 +29,22 @@
           "input": ["text"],
           "contextWindow": 131072,
           "maxTokens": 4096
+        },
+        {
+          "id": "qwen25-coder-14b",
+          "name": "Qwen 2.5 Coder 14B (Watchtower)",
+          "reasoning": false,
+          "input": ["text"],
+          "contextWindow": 16384,
+          "maxTokens": 4096
+        },
+        {
+          "id": "qwen2.5-coder-14b",
+          "name": "Qwen 2.5 Coder 14B Alias (Watchtower)",
+          "reasoning": false,
+          "input": ["text"],
+          "contextWindow": 16384,
+          "maxTokens": 4096
         }
       ]
     }
