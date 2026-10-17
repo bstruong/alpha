@@ -1,0 +1,5 @@
+--- /dev/null
++++ b/output.txt
+@@ -0,0 +1,2 @@
++Patient John Doe (SSN: [SSN_REDACTED]) visited on 2026-10-12.
++Contact email: [EMAIL_REDACTED] for follow-up billing.

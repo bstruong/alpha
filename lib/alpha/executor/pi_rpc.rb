@@ -112,15 +112,17 @@ module Alpha
 
           if profile_name == "shipping"
             system_prompt = File.join(harness_dir, "SYSTEM.md")
+            thinking_level = task.respond_to?(:thinking) && task.thinking ? task.thinking : "low"
             cmd = [
               RbConfig.ruby, monitor_script,
               "--log-file", log_path,
               "--telemetry-file", telemetry_path,
               "--",
-              "--print",
+              "--mode", "json",
+              "-p",
               "--provider", "openai-compatible",
               "--model", inference_target.model_id,
-              "--thinking", "low",
+              "--thinking", thinking_level,
               "--approve",
               "--no-session",
               "--append-system-prompt", system_prompt,

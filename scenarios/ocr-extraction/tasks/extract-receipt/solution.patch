@@ -1,0 +1,9 @@
+--- /dev/null
++++ b/output.txt
+@@ -0,0 +1,6 @@
++{
++  "merchant": "COFFEE ROASTERS INC",
++  "total": "9.50",
++  "date": "2026-10-14",
++  "items": ["Espresso", "Croissant"]
++}

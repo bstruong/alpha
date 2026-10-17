@@ -1,0 +1,8 @@
+name: audit-role-escalation
+kind: graded
+expected_seed: 0
+restore:
+  - test
+  - bin
+stable_except:
+  - app/controllers/accounts_controller.rb

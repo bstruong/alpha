@@ -1,0 +1,8 @@
+name: audit-book-destroy
+kind: graded
+expected_seed: 0
+restore:
+  - test
+  - bin
+stable_except:
+  - app/controllers/books_controller.rb

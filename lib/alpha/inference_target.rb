@@ -3,6 +3,7 @@
 require "json"
 require "net/http"
 require "uri"
+require_relative "engine/manager"
 
 module Alpha
   # Points at the AM5 homelab (watchtower) OpenAI-compatible endpoint.
@@ -99,6 +100,36 @@ module Alpha
       true
     rescue StandardError
       false
+    end
+
+    def manager
+      @manager ||= Alpha::Engine::Manager.new(base_url: base_url)
+    end
+
+    def wake!(wait: true, timeout: 60)
+      manager.up(preset: engine_preset, wait: wait, timeout: timeout)
+    end
+
+    def sleep!
+      manager.down
+    end
+
+    def metrics
+      uri = URI.parse("#{server_root_url}/metrics")
+      res = http_get(uri)
+      return {} unless res.is_a?(Net::HTTPSuccess)
+
+      data = {}
+      res.body.each_line do |line|
+        line = line.strip
+        next if line.empty? || line.start_with?("#")
+
+        parts = line.split(/\s+/)
+        data[parts[0]] = parts[1].to_f if parts.size >= 2
+      end
+      data
+    rescue StandardError
+      {}
     end
 
     private
