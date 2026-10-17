@@ -26,6 +26,26 @@ class EngineManagerTest < ActiveSupport::TestCase
     end
   end
 
+  test "preset_args returns tailored args for each architecture" do
+    mgr = Alpha::Engine::Manager.new
+
+    q14 = mgr.preset_args("qwen25-coder-14b")
+    assert_includes q14, "/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf"
+    assert_includes q14, "32768"
+    assert_not_includes q14, "--cpu-moe"
+    assert_not_includes q14, "--n-cpu-moe"
+
+    glm = mgr.preset_args("glm47-reap")
+    assert_includes glm, "/models/GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf"
+    assert_includes glm, "131072"
+    assert_includes glm, "--cpu-moe"
+
+    q36 = mgr.preset_args("qwen36-coder-hybrid")
+    assert_includes q36, "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf"
+    assert_includes q36, "262144"
+    assert_includes q36, "--n-cpu-moe"
+  end
+
   test "InferenceTarget provides wake! and sleep! methods" do
     target = Alpha::InferenceTarget.new(
       base_url: "http://127.0.0.1:8080/v1",
