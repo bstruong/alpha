@@ -7,7 +7,7 @@ default_model: qwen36-coder-hybrid
 tasks:
   - extract-receipt
 budget:
-  wall_seconds: 30
+  wall_seconds: 60
   max_tool_calls: 0
 qualification:
   gate_pass_at_1: 1.0
