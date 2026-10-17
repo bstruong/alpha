@@ -23,7 +23,7 @@ module Alpha
         system_msg = if task.respond_to?(:system_prompt) && task.system_prompt
           task.system_prompt
         else
-          "You are a precise, deterministic data processing assistant."
+          "You are a precise, deterministic data processing assistant. Output the requested data directly without deliberation, thinking tags, or markdown fences."
         end
 
         messages = [
@@ -35,7 +35,9 @@ module Alpha
           "model" => inference_target.model_id,
           "messages" => messages,
           "temperature" => 0.0,
-          "seed" => 12345
+          "seed" => 12345,
+          "reasoning_budget" => 0,
+          "chat_template_kwargs" => { "thinking" => false }
         }
 
         if task.respond_to?(:json_mode?) && task.json_mode?
