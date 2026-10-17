@@ -95,7 +95,8 @@ module Alpha
           healthy: healthy?,
           active_preset: active_preset,
           model_path: model_arg,
-          alias: alias_arg
+          alias: alias_arg,
+          current_args: args
         }
       end
 
@@ -103,7 +104,7 @@ module Alpha
         current = status
         raise "Deployment #{deployment} not found in namespace #{namespace}: #{current[:error]}" unless current[:deployment_found]
 
-        if preset && preset.to_s != current[:active_preset]
+        if preset && (preset.to_s != current[:active_preset] || current[:current_args] != preset_args(preset.to_s))
           patch_preset!(preset.to_s)
         end
 
@@ -126,7 +127,7 @@ module Alpha
 
       def ensure_running!(preset: nil, timeout: 60)
         st = status
-        if st[:running] && st[:healthy] && (preset.nil? || preset.to_s == st[:active_preset])
+        if st[:running] && st[:healthy] && (preset.nil? || (preset.to_s == st[:active_preset] && st[:current_args] == preset_args(preset.to_s)))
           return true
         end
 
