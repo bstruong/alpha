@@ -133,30 +133,80 @@ module Alpha
         up(preset: preset, wait: true, timeout: timeout)
       end
 
-      def patch_preset!(preset_name)
-        model_file, model_alias = resolve_model_and_alias(preset_name)
-        args_json_out, _err, status = run_cmd("kubectl -n #{namespace} get deployment #{deployment} -o jsonpath='{.spec.template.spec.containers[0].args}'")
-        raise "Failed to fetch container args: #{_err}" unless status.success?
-
-        args = JSON.parse(args_json_out) rescue []
-        new_args = []
-        skip_next = false
-        args.each_with_index do |arg, idx|
-          if skip_next
-            skip_next = false
-            next
-          end
-
-          if arg == "--model"
-            new_args << "--model" << model_file
-            skip_next = true
-          elsif arg == "--alias"
-            new_args << "--alias" << model_alias
-            skip_next = true
-          else
-            new_args << arg
-          end
+      def preset_args(preset_name)
+        case preset_name.to_s
+        when "qwen25-coder-14b", "qwen25-14b", "14b"
+          [
+            "--model", "/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf",
+            "--alias", "qwen25-coder-14b,qwen2.5-coder-14b",
+            "--host", "0.0.0.0",
+            "--port", "8080",
+            "--ctx-size", "32768",
+            "--n-gpu-layers", "all",
+            "--threads", "7",
+            "--threads-batch", "7",
+            "--parallel", "2",
+            "--batch-size", "2048",
+            "--ubatch-size", "2048",
+            "--flash-attn", "on",
+            "--load-mode", "mlock",
+            "--cache-type-k", "q8_0",
+            "--cache-type-v", "q8_0",
+            "--jinja",
+            "--metrics",
+            "--slots"
+          ]
+        when "glm47-reap", "glm47"
+          [
+            "--model", "/models/GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf",
+            "--alias", "glm47-reap,glm-4.7-flash",
+            "--host", "0.0.0.0",
+            "--port", "8080",
+            "--ctx-size", "131072",
+            "--n-gpu-layers", "all",
+            "--cpu-moe",
+            "--threads", "7",
+            "--threads-batch", "7",
+            "--parallel", "2",
+            "--batch-size", "2048",
+            "--ubatch-size", "2048",
+            "--flash-attn", "on",
+            "--load-mode", "mlock",
+            "--cache-type-k", "q8_0",
+            "--cache-type-v", "q8_0",
+            "--jinja",
+            "--metrics",
+            "--slots"
+          ]
+        when "qwen36-coder-hybrid", "qwen36-coder", "qwen"
+          [
+            "--model", "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf",
+            "--alias", "qwen36-coder-hybrid,qwen36-coder",
+            "--host", "0.0.0.0",
+            "--port", "8080",
+            "--ctx-size", "262144",
+            "--n-gpu-layers", "all",
+            "--n-cpu-moe", "32",
+            "--threads", "7",
+            "--threads-batch", "7",
+            "--parallel", "2",
+            "--batch-size", "2048",
+            "--ubatch-size", "2048",
+            "--flash-attn", "on",
+            "--load-mode", "mlock",
+            "--cache-type-k", "q8_0",
+            "--cache-type-v", "q8_0",
+            "--jinja",
+            "--metrics",
+            "--slots"
+          ]
+        else
+          raise ArgumentError, "Unknown preset #{preset_name.inspect}; valid presets are qwen25-coder-14b, qwen36-coder-hybrid, glm47-reap"
         end
+      end
+
+      def patch_preset!(preset_name)
+        new_args = preset_args(preset_name)
 
         patch_payload = [
           {
