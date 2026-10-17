@@ -24,7 +24,8 @@ module Alpha
       end
     end
 
-    attr_reader :id, :dir, :tasks, :profile, :seed, :budget, :qualification, :base_app_dir, :default_model
+    attr_reader :id, :dir, :tasks, :profile, :seed, :budget, :qualification, :base_app_dir,
+                :default_model, :executor_type, :grader_type, :role
 
     def self.scenarios_root
       File.expand_path("../../scenarios", __dir__)
@@ -56,6 +57,7 @@ module Alpha
 
       profile_obj = Profile.fetch(profile, manifest.fetch("profiles", {}))
       base_app = manifest.fetch("base_app", "library")
+      base_app_dir = File.expand_path(base_app, scenario_dir)
       budget = {
         wall_seconds: manifest.dig("budget", "wall_seconds") || 720,
         max_tool_calls: manifest.dig("budget", "max_tool_calls") || 40
@@ -73,13 +75,17 @@ module Alpha
         seed: manifest.fetch("seed", 12_345),
         budget: budget,
         qualification: qualification,
-        base_app_dir: File.join(scenario_dir, base_app),
-        default_model: manifest.fetch("default_model", "qwen36-coder-hybrid")
+        base_app_dir: base_app_dir,
+        default_model: manifest.fetch("default_model", "qwen36-coder-hybrid"),
+        executor_type: manifest["executor"],
+        grader_type: manifest["grader"],
+        role: manifest.fetch("role", "coder")
       )
     end
 
     def initialize(id:, tasks:, profile: "shipping", dir: nil, seed: 12_345,
-                   budget: {}, qualification: {}, base_app_dir: nil, default_model: "qwen36-coder-hybrid")
+                   budget: {}, qualification: {}, base_app_dir: nil, default_model: "qwen36-coder-hybrid",
+                   executor_type: nil, grader_type: nil, role: "coder")
       @id = id
       @dir = dir
       @tasks = tasks
@@ -89,6 +95,9 @@ module Alpha
       @qualification = qualification
       @base_app_dir = base_app_dir
       @default_model = default_model
+      @executor_type = executor_type
+      @grader_type = grader_type
+      @role = role
     end
   end
 end

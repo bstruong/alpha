@@ -1,0 +1,8 @@
+name: audit-sql-like-escape
+kind: graded
+expected_seed: 0
+restore:
+  - test
+  - bin
+stable_except:
+  - app/models/book_search.rb

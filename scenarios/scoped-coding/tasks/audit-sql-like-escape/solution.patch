@@ -1,0 +1,10 @@
+--- a/app/models/book_search.rb
++++ b/app/models/book_search.rb
+@@ -1,5 +1,6 @@
+ class BookSearch
+   def self.call(account, term)
+-    Book.where(id: account.visible_books.select(:id)).where("title LIKE ?", "%#{term}%")
++    escaped = ActiveRecord::Base.sanitize_sql_like(term.to_s)
++    Book.where(id: account.visible_books.select(:id)).where("title LIKE ? ESCAPE '\\'", "%#{escaped}%")
+   end
+ end
