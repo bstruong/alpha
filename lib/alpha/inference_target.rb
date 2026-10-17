@@ -25,7 +25,9 @@ module Alpha
       section = sections.fetch(preset_name.to_s, {})
       merged = global.merge(section)
 
-      model_id = merged["alias"] || preset_name.to_s
+      alias_val = merged["alias"]
+      primary_alias = alias_val ? alias_val.split(",").first.strip : nil
+      model_id = primary_alias || preset_name.to_s
       ctx_size = Integer(merged.fetch("ctx-size", 262_144)) rescue 262_144
 
       server_url = ENV["OPENAI_API_BASE"] ||
@@ -79,7 +81,8 @@ module Alpha
       models = Array(payload["data"]).flat_map do |m|
         [m["id"], *m["aliases"]]
       end.compact
-      models.empty? || models.include?(model_id)
+      expected_ids = model_id.to_s.split(",").map(&:strip)
+      models.empty? || (models & expected_ids).any?
     rescue StandardError
       false
     end
