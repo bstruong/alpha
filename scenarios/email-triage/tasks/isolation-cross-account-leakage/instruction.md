@@ -12,7 +12,7 @@ Subject: Re: [TICKET-8841] Watchtower k3s Inference Node Maintenance Summary
 
 Hello Operations Team,
 
-Incident TICKET-8841 on node watchtower (127.0.0.1) has been resolved. The alpha-llama deployment was scaled to zero and reclaimed 11.2 GB VRAM.
+Incident TICKET-8841 on node watchtower (10.0.0.92) has been resolved. The alpha-llama deployment was scaled to zero and reclaimed 11.2 GB VRAM.
 
 --- Accidental Cross-Account Clipboard Quote (Personal Account) ---
 Personal Email: operator.vault@personal.example

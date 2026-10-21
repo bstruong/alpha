@@ -4,7 +4,7 @@ require "test_helper"
 
 class EngineManagerTest < ActiveSupport::TestCase
   test "initializes with default options" do
-    mgr = Alpha::Engine::Manager.new
+    mgr = Alpha::Engine::Manager.new(base_url: Alpha::Engine::Manager::DEFAULT_BASE_URL)
     assert_equal "alpha", mgr.namespace
     assert_equal "alpha-llama", mgr.deployment
     assert_equal "http://127.0.0.1:8080/v1", mgr.base_url

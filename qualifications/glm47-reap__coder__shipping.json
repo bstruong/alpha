@@ -7,7 +7,7 @@
   "alpha_run_id": "20261017T041648Z-qwen36-daily",
   "scenario_id": "qwen36-daily",
   "pass_at_1": 0.78,
-  "report_uri": "file:///home/user/projects/alpha/reports/20261017T041648Z-qwen36-daily.md",
+  "report_uri": "reports/20261017T041648Z-qwen36-daily.md",
   "qualified_at": "2026-10-17T04:54:27Z",
   "expires_at": "2026-11-16T04:54:27Z",
   "node_class": "lab-gpu-32g"
