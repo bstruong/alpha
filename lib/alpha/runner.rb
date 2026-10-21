@@ -50,7 +50,7 @@ module Alpha
               pass_at_1: true,
               repaired: false,
               turns: 1,
-              thinking_level: thinking,
+              thinking_level: task.thinking || thinking,
               tool_calls: 0,
               prompt_tokens: 0,
               completion_tokens: 0,
@@ -64,7 +64,7 @@ module Alpha
             task, trial_num, run_id,
             keep_sandbox: keep_sandbox,
             max_turns: max_turns,
-            thinking: thinking
+            thinking: task.thinking || thinking
           )
           passed = trial_record[:pass]
           repaired = trial_record[:repaired]

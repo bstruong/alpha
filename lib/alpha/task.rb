@@ -9,6 +9,7 @@ module Alpha
     attr_reader :name, :kind, :dir, :expected_seed, :anchor,
                 :restore, :restore_except, :stable_except,
                 :denied_patterns, :required_markers, :required_json_keys,
+                :expected_json_values, :required_json_markers, :denied_json_patterns, :nested_json_keys,
                 :executor_type, :grader_type, :system_prompt
     attr_accessor :thinking, :repair_feedback
 
@@ -30,10 +31,14 @@ module Alpha
         restore: Array(data["restore"]),
         restore_except: Array(data["restore_except"]),
         stable_except: Array(data["stable_except"]),
-        thinking: data["thinking"],
+        thinking: data["thinking"] || data["thinking_level"],
         denied_patterns: data["denied_patterns"] || {},
         required_markers: Array(data["required_markers"]),
         required_json_keys: Array(data["required_json_keys"]),
+        expected_json_values: data["expected_json_values"] || {},
+        required_json_markers: Array(data["required_json_markers"]),
+        denied_json_patterns: data["denied_json_patterns"] || {},
+        nested_json_keys: data["nested_json_keys"] || {},
         executor_type: data["executor"],
         grader_type: data["grader"],
         system_prompt: data["system_prompt"],
@@ -44,6 +49,7 @@ module Alpha
     def initialize(name:, kind:, dir:, expected_seed: 0, anchor: nil,
                    restore: [], restore_except: [], stable_except: [], thinking: nil, repair_feedback: nil,
                    denied_patterns: {}, required_markers: [], required_json_keys: [],
+                   expected_json_values: {}, required_json_markers: [], denied_json_patterns: {}, nested_json_keys: {},
                    executor_type: nil, grader_type: nil, system_prompt: nil, json_mode: false)
       @name = name
       @kind = kind
@@ -58,6 +64,10 @@ module Alpha
       @denied_patterns = denied_patterns
       @required_markers = required_markers
       @required_json_keys = required_json_keys
+      @expected_json_values = expected_json_values
+      @required_json_markers = required_json_markers
+      @denied_json_patterns = denied_json_patterns
+      @nested_json_keys = nested_json_keys
       @executor_type = executor_type
       @grader_type = grader_type
       @system_prompt = system_prompt
@@ -114,10 +124,12 @@ module Alpha
 
       parts = [ instruction.strip ]
       parts << invariant.strip if use_invariant && invariant
-      parts << <<~NOTE.strip
-        The Rails application in the current directory is the code to change.
-        Leave bin/rails test green.
-      NOTE
+      unless executor_type.to_s == "openai_chat_completions"
+        parts << <<~NOTE.strip
+          The Rails application in the current directory is the code to change.
+          Leave bin/rails test green.
+        NOTE
+      end
 
       if repair_feedback && !repair_feedback.strip.empty?
         parts << <<~REPAIR.strip

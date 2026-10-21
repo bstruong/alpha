@@ -1,0 +1,31 @@
+name: triage-classify-priority
+kind: graded
+expected_seed: 0
+executor: openai_chat_completions
+grader: json_schema
+thinking_level: "none"
+json_mode: true
+required_json_keys:
+  - account
+  - category
+  - urgency
+  - action_required
+  - summary
+  - tags
+expected_json_values:
+  account:
+    - "homelab-alerts@watchtower.local"
+    - "homelab"
+    - "homelab/alerts"
+  category:
+    - "production_alert"
+    - "infrastructure_alert"
+    - "system_alert"
+  urgency: "P1"
+  action_required: true
+required_json_markers:
+  - "watchtower"
+  - "nvme|disk|gpu|k3s"
+denied_json_patterns:
+  low_urgency_selected: '"urgency"\s*:\s*"P[234]"'
+  no_action_required: '"action_required"\s*:\s*false'

@@ -43,19 +43,28 @@ module Alpha
         base_url.sub(%r{/v1\z}, "")
       end
 
-      def healthy?
+      def healthy?(expected_preset: nil)
         uri = URI.parse("#{server_root_url}/health")
         res = Net::HTTP.start(uri.host, uri.port, open_timeout: 2, read_timeout: 3) do |http|
           http.request(Net::HTTP::Get.new(uri))
         end
-        return true if res.is_a?(Net::HTTPSuccess)
+        return false unless res.is_a?(Net::HTTPSuccess)
 
-        # Fallback to /v1/models
         models_uri = URI.parse("#{base_url}/models")
         res2 = Net::HTTP.start(models_uri.host, models_uri.port, open_timeout: 2, read_timeout: 3) do |http|
           http.request(Net::HTTP::Get.new(models_uri))
         end
-        res2.is_a?(Net::HTTPSuccess)
+        return false unless res2.is_a?(Net::HTTPSuccess)
+
+        if expected_preset
+          body = JSON.parse(res2.body) rescue {}
+          loaded_ids = Array(body["data"]).flat_map { |m| [ m["id"], *Array(m["aliases"]) ] }.compact
+          _model_path, expected_aliases = resolve_model_and_alias(expected_preset)
+          expected_list = expected_aliases.split(",").map(&:strip)
+          return false unless (loaded_ids & expected_list).any?
+        end
+
+        true
       rescue StandardError
         false
       end
@@ -115,7 +124,7 @@ module Alpha
 
         return true unless wait
 
-        wait_until_healthy(timeout: timeout)
+        wait_until_healthy(timeout: timeout, expected_preset: preset)
       end
 
       def down
@@ -201,8 +210,72 @@ module Alpha
             "--metrics",
             "--slots"
           ]
+        when "gemma4-4b", "gemma-4-e4b", "gemma4:4b", "gemma4", "gemma"
+          [
+            "--model", "/models/gemma-4-e4b-it-q4_k_m.gguf",
+            "--alias", "gemma4-4b,gemma-4-e4b,gemma-4-4b",
+            "--host", "0.0.0.0",
+            "--port", "8080",
+            "--ctx-size", "16384",
+            "--n-gpu-layers", "all",
+            "--threads", "7",
+            "--threads-batch", "7",
+            "--parallel", "1",
+            "--batch-size", "2048",
+            "--ubatch-size", "2048",
+            "--flash-attn", "on",
+            "--load-mode", "mlock",
+            "--cache-type-k", "q8_0",
+            "--cache-type-v", "q8_0",
+            "--jinja",
+            "--metrics",
+            "--slots"
+          ]
+        when "gemma4-12b", "gemma-4-12b", "gemma4:12b", "gemma-12b"
+          [
+            "--model", "/models/gemma-4-12b-it-q4_k_m.gguf",
+            "--alias", "gemma4-12b,gemma-4-12b,gemma-12b",
+            "--host", "0.0.0.0",
+            "--port", "8080",
+            "--ctx-size", "16384",
+            "--n-gpu-layers", "all",
+            "--threads", "7",
+            "--threads-batch", "7",
+            "--parallel", "1",
+            "--batch-size", "2048",
+            "--ubatch-size", "2048",
+            "--flash-attn", "on",
+            "--load-mode", "mlock",
+            "--cache-type-k", "q8_0",
+            "--cache-type-v", "q8_0",
+            "--jinja",
+            "--metrics",
+            "--slots"
+          ]
+        when "gemma4-27b", "gemma-4-27b", "gemma4:27b", "gemma-27b", "gemma-4-26b-a4b", "gemma4-26b"
+          [
+            "--model", "/models/gemma-4-26b-a4b-it-q4_k_m.gguf",
+            "--alias", "gemma4-27b,gemma-4-27b,gemma-4-26b-a4b,gemma4-26b",
+            "--host", "0.0.0.0",
+            "--port", "8080",
+            "--ctx-size", "32768",
+            "--n-gpu-layers", "all",
+            "--cpu-moe",
+            "--threads", "7",
+            "--threads-batch", "7",
+            "--parallel", "1",
+            "--batch-size", "2048",
+            "--ubatch-size", "2048",
+            "--flash-attn", "on",
+            "--load-mode", "mlock",
+            "--cache-type-k", "q8_0",
+            "--cache-type-v", "q8_0",
+            "--jinja",
+            "--metrics",
+            "--slots"
+          ]
         else
-          raise ArgumentError, "Unknown preset #{preset_name.inspect}; valid presets are qwen25-coder-14b, qwen36-coder-hybrid, glm47-reap"
+          raise ArgumentError, "Unknown preset #{preset_name.inspect}; valid presets are qwen25-coder-14b, qwen36-coder-hybrid, glm47-reap, gemma4-4b, gemma4-12b, gemma4-27b"
         end
       end
 
@@ -235,10 +308,10 @@ module Alpha
           Open3.capture3(full_cmd)
         end
 
-        def wait_until_healthy(timeout: 60)
+        def wait_until_healthy(timeout: 60, expected_preset: nil)
           deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
           while Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
-            return true if healthy?
+            return true if healthy?(expected_preset: expected_preset)
 
             sleep 1
           end
@@ -249,6 +322,9 @@ module Alpha
           return "qwen25-coder-14b" if model_arg&.include?("14B") || model_arg&.include?("14b") || alias_arg&.include?("14b")
           return "qwen36-coder-hybrid" if model_arg&.include?("Qwen3.6") || alias_arg&.include?("qwen36-coder")
           return "glm47-reap" if model_arg&.include?("GLM-4.7") || alias_arg&.include?("glm47")
+          return "gemma4-27b" if model_arg&.include?("gemma-4-26b") || model_arg&.include?("gemma-4-27b") || alias_arg&.include?("gemma4-27b") || alias_arg&.include?("gemma-27b")
+          return "gemma4-12b" if model_arg&.include?("gemma-4-12b") || alias_arg&.include?("gemma4-12b") || alias_arg&.include?("gemma-12b")
+          return "gemma4-4b" if model_arg&.include?("gemma-4-e4b") || alias_arg&.include?("gemma4-4b") || alias_arg&.include?("gemma-4b")
 
           "unknown"
         end
@@ -261,8 +337,14 @@ module Alpha
             [ "/models/GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf", "glm47-reap,glm-4.7-flash" ]
           when "qwen36-coder-hybrid", "qwen36-coder", "qwen"
             [ "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf", "qwen36-coder-hybrid,qwen36-coder" ]
+          when "gemma4-4b", "gemma-4-e4b", "gemma4:4b", "gemma4", "gemma"
+            [ "/models/gemma-4-e4b-it-q4_k_m.gguf", "gemma4-4b,gemma-4-e4b,gemma-4-4b" ]
+          when "gemma4-12b", "gemma-4-12b", "gemma4:12b", "gemma-12b"
+            [ "/models/gemma-4-12b-it-q4_k_m.gguf", "gemma4-12b,gemma-4-12b,gemma-12b" ]
+          when "gemma4-27b", "gemma-4-27b", "gemma4:27b", "gemma-27b", "gemma-4-26b-a4b", "gemma4-26b"
+            [ "/models/gemma-4-26b-a4b-it-q4_k_m.gguf", "gemma4-27b,gemma-4-27b,gemma-4-26b-a4b,gemma4-26b" ]
           else
-            raise ArgumentError, "Unknown preset #{preset_name.inspect}; valid presets are qwen25-coder-14b, qwen36-coder-hybrid, glm47-reap"
+            raise ArgumentError, "Unknown preset #{preset_name.inspect}; valid presets are qwen25-coder-14b, qwen36-coder-hybrid, glm47-reap, gemma4-4b, gemma4-12b, gemma4-27b"
           end
         end
     end
