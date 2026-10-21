@@ -9,7 +9,7 @@ Older docs may say “Workstation” — that name means the **AM5 homelab node*
 
 | Name | Hardware (summary) | OS (target) | Role |
 |------|--------------------|-------------|------|
-| **AM5 homelab** | AMD Ryzen 7 9700X, RTX 3060 12 GB, 32 GB DDR5-6000, Samsung 990 Pro NVMe | **Fedora Server** | **Production and staging/test.** Local inference (`llama-server` / vLLM / Ollama), Alpha graded benchmarks, Omega-supervised Pi sessions. On the Tailscale mesh. |
+| **AM5 homelab** | AMD Ryzen 7 9700X, RTX 3060 12 GB, 32 GB DDR5-6000, Samsung 990 Pro NVMe | **Fedora Server** | **Production and staging/test.** **JARVIS** (k3s `jarvis`/`jarvis`) owns GPU inference; Alpha/Omega/others are HTTP clients. Alpha graded benchmarks, Omega-supervised Pi sessions. On the Tailscale mesh. |
 | **Haswell workstation** | Intel Haswell-era desk machine (operator seat) | Operator’s local OS | **Not** an Alpha/Omega eval or staging host. Used for browsing, Tailscale access, and light operator tasks. Does not run model benchmarks or staging deployments. |
 | **Cursor cloud agents** | Managed cloud VMs | Cursor environment | **Primary software development** for Alpha/Omega (design, implementation, PRs). Do not treat cloud agent disks as the model test bed. |
 
@@ -29,7 +29,7 @@ Cursor cloud agents          Haswell desk              AM5 homelab (Fedora Serve
 
 1. **Develop** harness and cockpit code with Cursor cloud agents (and frontier planners for specs).
 2. **Deploy / pull** to the AM5 homelab over Tailscale.
-3. **Stage and produce** on AM5: start inference → run Alpha scenarios → publish qualifications → Omega only defaults to Alpha-qualified presets.
+3. **Stage and produce** on AM5: wake JARVIS → run Alpha scenarios → publish qualifications → Omega only defaults to Alpha-qualified presets.
 4. **Haswell** is never the `InferenceTarget` and never the Alpha sandbox host.
 
 ---
@@ -47,7 +47,8 @@ The Haswell desk machine must not appear as an Alpha `InferenceTarget` or Omega 
 
 ## Related docs
 
-- [`engine/README.md`](../engine/README.md) — AM5 engine profile and Fedora Server target
+- [`engine/README.md`](../engine/README.md) — Alpha as JARVIS client; local lab mirror
+- homelab-k3s `docs/jarvis.md` — production inference SoT (presets, wake, leases)
 - [`docs/workstation-ai-stack.md`](workstation-ai-stack.md) — stack diagram (AM5 = local execution)
 - [`docs/shape-up/`](shape-up/) — Alpha / Omega Shape Up pitches
 - `hyperbolic-time-chamber/ruby-rails/` — Parallel Ruby 4.0.7 / Rails 8.1.4 hand-coding drill lane (migrated out of Alpha)

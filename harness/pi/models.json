@@ -45,6 +45,22 @@
           "input": ["text"],
           "contextWindow": 16384,
           "maxTokens": 4096
+        },
+        {
+          "id": "qwen38-27b",
+          "name": "Qwen 3.8 27B ISTA IQ2 (Watchtower)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 16384,
+          "maxTokens": 4096
+        },
+        {
+          "id": "qwen38-27b-ista-3b",
+          "name": "Qwen 3.8 27B ISTA IQ3 (Watchtower)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 8192,
+          "maxTokens": 4096
         }
       ]
     }
