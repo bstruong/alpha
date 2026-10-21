@@ -1,8 +1,16 @@
 # AM5 Homelab Local AI Engine (`engine/`)
 
-This directory contains the core engine runtime configurations, startup tooling, and system tuning for running large MoE coding models on the **AM5 homelab** node (often called “Workstation” in older notes).
+Alpha is a **client of JARVIS**, the shared Watchtower inference engine in
+[`homelab-k3s`](https://github.com/bstruong/homelab-k3s) (`manifests/watchtower/jarvis/`).
+Production presets live in ConfigMap `jarvis-models` — see
+[docs/jarvis.md](https://github.com/bstruong/homelab-k3s/blob/main/docs/jarvis.md).
+This directory is lab tooling and a local `models.ini` **mirror**, not the
+substrate owner.
 
-**Topology:** This host is **production and staging/test** for Alpha evals and local inference. It is **not** the Haswell desk machine. Primary software development happens via Cursor cloud agents. See [`docs/infrastructure-topology.md`](../docs/infrastructure-topology.md).
+**Topology:** Graded evals run on the **AM5 homelab** against JARVIS
+(`OPENAI_BASE_URL`, `Alpha::Engine::Manager` → namespace/deployment `jarvis`/`jarvis`).
+It is **not** the Haswell desk machine. Primary software development happens via
+Cursor cloud agents. See [`docs/infrastructure-topology.md`](../docs/infrastructure-topology.md).
 
 ---
 
@@ -21,7 +29,7 @@ This directory contains the core engine runtime configurations, startup tooling,
 
 ```
 engine/
-├── models.ini                  # Single source of truth for presets ([*], [qwen36-coder], etc.)
+├── models.ini                  # Local mirror of JARVIS presets (homelab-k3s is SoT)
 ├── workstation.env              # Environment variable defaults (paths, port, default preset)
 ├── bin/
 │   ├── ini2args.py             # Parses models.ini sections into CLI arguments

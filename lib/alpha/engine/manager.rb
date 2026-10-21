@@ -10,28 +10,48 @@ require "uri"
 
 module Alpha
   module Engine
-    # Manages the on-demand lifecycle of the inference server running under k3s
-    # on the homelab node. Supports scaling to zero
-    # to reclaim RAM & VRAM, waking on demand, switching model presets,
-    # and verifying health.
+    # Thin client for JARVIS (shared Watchtower inference in homelab-k3s).
+    #
+    # Production preset SoT is the JARVIS ConfigMap `jarvis-models` / models.ini
+    # in homelab-k3s — not this repo's engine/models.ini. Alpha wakes/scales
+    # JARVIS, checks health, and optionally holds a lease. Model selection is
+    # the OpenAI `model` id on chat completions (router `--models-max 1`).
+    #
+    # See https://github.com/bstruong/homelab-k3s/blob/main/docs/jarvis.md
     class Manager
       DEFAULT_HOST = "user@homelab.local"
-      DEFAULT_NAMESPACE = "alpha"
-      DEFAULT_DEPLOYMENT = "alpha-llama"
+      DEFAULT_NAMESPACE = "jarvis"
+      DEFAULT_DEPLOYMENT = "jarvis"
       DEFAULT_BASE_URL = "http://127.0.0.1:8080/v1"
+      DEFAULT_LEASE_CONFIGMAP = "jarvis-lease"
 
-      attr_reader :host, :namespace, :deployment, :base_url
+      KNOWN_PRESETS = %w[
+        qwen25-coder-14b
+        qwen36-coder
+        qwen36-coder-hybrid
+        glm47-reap
+        gemma4-4b
+        gemma4-e4b
+        gemma4-12b
+        gemma4-27b
+        qwen38-27b-ista-2b
+        qwen38-27b-ista-3b
+      ].freeze
+
+      attr_reader :host, :namespace, :deployment, :base_url, :lease_configmap
 
       def initialize(
         host: ENV.fetch("ALPHA_ENGINE_HOST", DEFAULT_HOST),
         namespace: ENV.fetch("ALPHA_ENGINE_NAMESPACE", DEFAULT_NAMESPACE),
         deployment: ENV.fetch("ALPHA_ENGINE_DEPLOYMENT", DEFAULT_DEPLOYMENT),
-        base_url: ENV.fetch("OPENAI_BASE_URL", DEFAULT_BASE_URL)
+        base_url: ENV.fetch("OPENAI_BASE_URL", DEFAULT_BASE_URL),
+        lease_configmap: ENV.fetch("JARVIS_LEASE_CONFIGMAP", DEFAULT_LEASE_CONFIGMAP)
       )
         @host = host
         @namespace = namespace
         @deployment = deployment
         @base_url = base_url.chomp("/")
+        @lease_configmap = lease_configmap
       end
 
       def local?
@@ -59,8 +79,7 @@ module Alpha
         if expected_preset
           body = JSON.parse(res2.body) rescue {}
           loaded_ids = Array(body["data"]).flat_map { |m| [ m["id"], *Array(m["aliases"]) ] }.compact
-          _model_path, expected_aliases = resolve_model_and_alias(expected_preset)
-          expected_list = expected_aliases.split(",").map(&:strip)
+          expected_list = model_ids_for(expected_preset)
           return false unless (loaded_ids & expected_list).any?
         end
 
@@ -76,7 +95,8 @@ module Alpha
             deployment_found: false,
             error: err.strip,
             running: false,
-            healthy: healthy?
+            healthy: healthy?,
+            router_mode: true
           }
         end
 
@@ -84,15 +104,7 @@ module Alpha
         spec_replicas = data.dig("spec", "replicas").to_i
         ready_replicas = data.dig("status", "readyReplicas").to_i
         args = data.dig("spec", "template", "spec", "containers", 0, "args") || []
-
-        model_arg = nil
-        alias_arg = nil
-        args.each_cons(2) do |k, v|
-          model_arg = v if k == "--model"
-          alias_arg = v if k == "--alias"
-        end
-
-        active_preset = resolve_preset_from_model(model_arg, alias_arg)
+        router_mode = args.include?("--models-preset")
 
         {
           deployment_found: true,
@@ -102,19 +114,20 @@ module Alpha
           ready_replicas: ready_replicas,
           running: ready_replicas.positive?,
           healthy: healthy?,
-          active_preset: active_preset,
-          model_path: model_arg,
-          alias: alias_arg,
+          router_mode: router_mode,
+          active_preset: nil,
           current_args: args
         }
       end
 
-      def up(preset: nil, wait: true, timeout: 60)
+      # Wake JARVIS. Preset is recorded for health checks; the router loads the
+      # GGUF when the client sends that model id — we do not patch Deployment args.
+      def up(preset: nil, wait: true, timeout: 180)
         current = status
         raise "Deployment #{deployment} not found in namespace #{namespace}: #{current[:error]}" unless current[:deployment_found]
 
-        if preset && (preset.to_s != current[:active_preset] || current[:current_args] != preset_args(preset.to_s))
-          patch_preset!(preset.to_s)
+        if preset
+          model_ids_for(preset) # validate known id early
         end
 
         if current[:spec_replicas].zero?
@@ -122,6 +135,7 @@ module Alpha
           raise "Failed to scale deployment #{deployment} to 1: #{err}" unless status.success?
         end
 
+        touch_activity!
         return true unless wait
 
         wait_until_healthy(timeout: timeout, expected_preset: preset)
@@ -134,168 +148,117 @@ module Alpha
         true
       end
 
-      def ensure_running!(preset: nil, timeout: 60)
+      def ensure_running!(preset: nil, timeout: 180)
         st = status
-        if st[:running] && st[:healthy] && (preset.nil? || (preset.to_s == st[:active_preset] && st[:current_args] == preset_args(preset.to_s)))
+        if st[:running] && st[:healthy] && (preset.nil? || healthy?(expected_preset: preset))
+          touch_activity!
           return true
         end
 
         up(preset: preset, wait: true, timeout: timeout)
       end
 
-      def preset_args(preset_name)
+      def acquire_lease!(holder:, ttl_minutes: 60)
+        raise ArgumentError, "holder required" if holder.to_s.strip.empty?
+
+        expires = (Time.now.utc + ttl_minutes.to_i * 60).strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+        annotate = [
+          "jarvis.watchtower/holder=#{holder}",
+          "jarvis.watchtower/expires-at=#{expires}",
+          "jarvis.watchtower/last-activity-at=#{now}"
+        ].map { |a| Shellwords.escape(a) }.join(" ")
+
+        _out, err, status = run_cmd(
+          "kubectl -n #{namespace} annotate configmap #{lease_configmap} #{annotate} --overwrite"
+        )
+        raise "Failed to acquire JARVIS lease: #{err}" unless status.success?
+
+        true
+      end
+
+      def release_lease!
+        now = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+        _out, err, status = run_cmd(
+          "kubectl -n #{namespace} annotate configmap #{lease_configmap} " \
+          "jarvis.watchtower/holder- jarvis.watchtower/expires-at- " \
+          "jarvis.watchtower/last-activity-at=#{Shellwords.escape(now)} --overwrite"
+        )
+        raise "Failed to release JARVIS lease: #{err}" unless status.success?
+
+        true
+      end
+
+      # Client-side mirror of JARVIS preset ids for health matching. Production
+      # flags live in homelab-k3s ConfigMap jarvis-models — do not use this to
+      # patch the Deployment.
+      def model_ids_for(preset_name)
         case preset_name.to_s
         when "qwen25-coder-14b", "qwen25-14b", "14b"
-          [
-            "--model", "/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf",
-            "--alias", "qwen25-coder-14b,qwen2.5-coder-14b",
-            "--host", "0.0.0.0",
-            "--port", "8080",
-            "--ctx-size", "16384",
-            "--n-gpu-layers", "all",
-            "--threads", "7",
-            "--threads-batch", "7",
-            "--parallel", "1",
-            "--batch-size", "2048",
-            "--ubatch-size", "2048",
-            "--flash-attn", "on",
-            "--load-mode", "mlock",
-            "--cache-type-k", "q8_0",
-            "--cache-type-v", "q8_0",
-            "--jinja",
-            "--metrics",
-            "--slots"
-          ]
+          %w[qwen25-coder-14b qwen2.5-coder-14b]
+        when "qwen36-coder"
+          %w[qwen36-coder]
+        when "qwen36-coder-hybrid", "qwen"
+          %w[qwen36-coder-hybrid qwen36-coder]
         when "glm47-reap", "glm47"
-          [
-            "--model", "/models/GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf",
-            "--alias", "glm47-reap,glm-4.7-flash",
-            "--host", "0.0.0.0",
-            "--port", "8080",
-            "--ctx-size", "131072",
-            "--n-gpu-layers", "all",
-            "--cpu-moe",
-            "--threads", "7",
-            "--threads-batch", "7",
-            "--parallel", "2",
-            "--batch-size", "2048",
-            "--ubatch-size", "2048",
-            "--flash-attn", "on",
-            "--load-mode", "mlock",
-            "--cache-type-k", "q8_0",
-            "--cache-type-v", "q8_0",
-            "--jinja",
-            "--metrics",
-            "--slots"
-          ]
-        when "qwen36-coder-hybrid", "qwen36-coder", "qwen"
-          [
-            "--model", "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf",
-            "--alias", "qwen36-coder-hybrid,qwen36-coder",
-            "--host", "0.0.0.0",
-            "--port", "8080",
-            "--ctx-size", "262144",
-            "--n-gpu-layers", "all",
-            "--n-cpu-moe", "32",
-            "--threads", "7",
-            "--threads-batch", "7",
-            "--parallel", "2",
-            "--batch-size", "2048",
-            "--ubatch-size", "2048",
-            "--flash-attn", "on",
-            "--load-mode", "mlock",
-            "--cache-type-k", "q8_0",
-            "--cache-type-v", "q8_0",
-            "--jinja",
-            "--metrics",
-            "--slots"
-          ]
-        when "gemma4-4b", "gemma-4-e4b", "gemma4:4b", "gemma4", "gemma"
-          [
-            "--model", "/models/gemma-4-e4b-it-q4_k_m.gguf",
-            "--alias", "gemma4-4b,gemma-4-e4b,gemma-4-4b",
-            "--host", "0.0.0.0",
-            "--port", "8080",
-            "--ctx-size", "16384",
-            "--n-gpu-layers", "all",
-            "--threads", "7",
-            "--threads-batch", "7",
-            "--parallel", "1",
-            "--batch-size", "2048",
-            "--ubatch-size", "2048",
-            "--flash-attn", "on",
-            "--load-mode", "mlock",
-            "--cache-type-k", "q8_0",
-            "--cache-type-v", "q8_0",
-            "--jinja",
-            "--metrics",
-            "--slots"
-          ]
+          %w[glm47-reap glm-4.7-flash]
+        when "gemma4-4b", "gemma-4-e4b", "gemma4:4b", "gemma4", "gemma", "gemma4-e4b"
+          %w[gemma4-4b gemma4-e4b gemma-4-e4b gemma-4-4b]
         when "gemma4-12b", "gemma-4-12b", "gemma4:12b", "gemma-12b"
-          [
-            "--model", "/models/gemma-4-12b-it-q4_k_m.gguf",
-            "--alias", "gemma4-12b,gemma-4-12b,gemma-12b",
-            "--host", "0.0.0.0",
-            "--port", "8080",
-            "--ctx-size", "16384",
-            "--n-gpu-layers", "all",
-            "--threads", "7",
-            "--threads-batch", "7",
-            "--parallel", "1",
-            "--batch-size", "2048",
-            "--ubatch-size", "2048",
-            "--flash-attn", "on",
-            "--load-mode", "mlock",
-            "--cache-type-k", "q8_0",
-            "--cache-type-v", "q8_0",
-            "--jinja",
-            "--metrics",
-            "--slots"
-          ]
+          %w[gemma4-12b gemma-4-12b gemma-12b]
         when "gemma4-27b", "gemma-4-27b", "gemma4:27b", "gemma-27b", "gemma-4-26b-a4b", "gemma4-26b"
-          [
-            "--model", "/models/gemma-4-26b-a4b-it-q4_k_m.gguf",
-            "--alias", "gemma4-27b,gemma-4-27b,gemma-4-26b-a4b,gemma4-26b",
-            "--host", "0.0.0.0",
-            "--port", "8080",
-            "--ctx-size", "32768",
-            "--n-gpu-layers", "all",
-            "--cpu-moe",
-            "--threads", "7",
-            "--threads-batch", "7",
-            "--parallel", "1",
-            "--batch-size", "2048",
-            "--ubatch-size", "2048",
-            "--flash-attn", "on",
-            "--load-mode", "mlock",
-            "--cache-type-k", "q8_0",
-            "--cache-type-v", "q8_0",
-            "--jinja",
-            "--metrics",
-            "--slots"
-          ]
+          %w[gemma4-27b gemma-4-27b gemma-4-26b-a4b gemma4-26b]
+        when "qwen38-27b-ista-2b", "qwen38-27b"
+          %w[qwen38-27b qwen38-27b-ista-2b qwen3.8-27b-ista-2b]
+        when "qwen38-27b-ista-3b"
+          %w[qwen38-27b-ista-3b qwen3.8-27b-ista-3b]
         else
-          raise ArgumentError, "Unknown preset #{preset_name.inspect}; valid presets are qwen25-coder-14b, qwen36-coder-hybrid, glm47-reap, gemma4-4b, gemma4-12b, gemma4-27b"
+          raise ArgumentError,
+            "Unknown preset #{preset_name.inspect}; known client ids: #{KNOWN_PRESETS.join(', ')} " \
+            "(JARVIS ConfigMap is SoT — add new ids there first)"
         end
       end
 
-      def patch_preset!(preset_name)
-        new_args = preset_args(preset_name)
+      # @deprecated Prefer model_ids_for. Kept for tests / local single-model labs.
+      def resolve_model_and_alias(preset_name)
+        ids = model_ids_for(preset_name)
+        path = case preset_name.to_s
+        when "qwen25-coder-14b", "qwen25-14b", "14b"
+          "/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf"
+        when "glm47-reap", "glm47"
+          "/models/GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf"
+        when "qwen36-coder-hybrid", "qwen36-coder", "qwen"
+          "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf"
+        when "gemma4-4b", "gemma-4-e4b", "gemma4:4b", "gemma4", "gemma", "gemma4-e4b"
+          "/models/gemma-4-e4b-it-q4_k_m.gguf"
+        when "gemma4-12b", "gemma-4-12b", "gemma4:12b", "gemma-12b"
+          "/models/gemma-4-12b-it-q4_k_m.gguf"
+        when "gemma4-27b", "gemma-4-27b", "gemma4:27b", "gemma-27b", "gemma-4-26b-a4b", "gemma4-26b"
+          "/models/gemma-4-26b-a4b-it-q4_k_m.gguf"
+        when "qwen38-27b-ista-2b", "qwen38-27b"
+          "/models/Qwen3.8-27B-GSQ-RCO-IQ2_XS.gguf"
+        when "qwen38-27b-ista-3b"
+          "/models/Qwen3.8-27B-GSQ-RCO-IQ3_XXS.gguf"
+        end
+        [ path, ids.join(",") ]
+      end
 
-        patch_payload = [
-          {
-            "op" => "replace",
-            "path" => "/spec/template/spec/containers/0/args",
-            "value" => new_args
-          }
-        ].to_json
+      # @deprecated Under JARVIS, Deployment args are not patched. Returns a
+      # descriptive stub for labs/tests; prefer model_ids_for + chat `model` id.
+      def preset_args(preset_name)
+        model_path, aliases = resolve_model_and_alias(preset_name)
+        [
+          "--models-preset", "/etc/llama/models.ini",
+          "--models-max", "1",
+          "--model", model_path,
+          "--alias", aliases
+        ]
+      end
 
-        escaped_patch = patch_payload.gsub('"', '\"')
-        patch_cmd = %(kubectl -n #{namespace} patch deployment #{deployment} --type='json' -p="#{escaped_patch}")
-        _out, err, status = run_cmd(patch_cmd)
-        raise "Failed to patch preset on deployment #{deployment}: #{err}" unless status.success?
-
-        true
+      def patch_preset!(_preset_name)
+        raise "JARVIS uses router presets (ConfigMap jarvis-models); " \
+              "refusing to patch Deployment #{deployment} args. " \
+              "Send model id on /v1/chat/completions instead."
       end
 
       private
@@ -308,44 +271,25 @@ module Alpha
           Open3.capture3(full_cmd)
         end
 
-        def wait_until_healthy(timeout: 60, expected_preset: nil)
+        def touch_activity!
+          now = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+          run_cmd(
+            "kubectl -n #{namespace} annotate configmap #{lease_configmap} " \
+            "jarvis.watchtower/last-activity-at=#{Shellwords.escape(now)} --overwrite"
+          )
+        rescue StandardError
+          # Lease ConfigMap may be absent in local docker labs.
+          nil
+        end
+
+        def wait_until_healthy(timeout: 180, expected_preset: nil)
           deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
           while Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
             return true if healthy?(expected_preset: expected_preset)
 
             sleep 1
           end
-          raise Timeout::Error, "Inference server at #{base_url} did not become healthy within #{timeout}s"
-        end
-
-        def resolve_preset_from_model(model_arg, alias_arg)
-          return "qwen25-coder-14b" if model_arg&.include?("14B") || model_arg&.include?("14b") || alias_arg&.include?("14b")
-          return "qwen36-coder-hybrid" if model_arg&.include?("Qwen3.6") || alias_arg&.include?("qwen36-coder")
-          return "glm47-reap" if model_arg&.include?("GLM-4.7") || alias_arg&.include?("glm47")
-          return "gemma4-27b" if model_arg&.include?("gemma-4-26b") || model_arg&.include?("gemma-4-27b") || alias_arg&.include?("gemma4-27b") || alias_arg&.include?("gemma-27b")
-          return "gemma4-12b" if model_arg&.include?("gemma-4-12b") || alias_arg&.include?("gemma4-12b") || alias_arg&.include?("gemma-12b")
-          return "gemma4-4b" if model_arg&.include?("gemma-4-e4b") || alias_arg&.include?("gemma4-4b") || alias_arg&.include?("gemma-4b")
-
-          "unknown"
-        end
-
-        def resolve_model_and_alias(preset_name)
-          case preset_name.to_s
-          when "qwen25-coder-14b", "qwen25-14b", "14b"
-            [ "/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf", "qwen25-coder-14b,qwen2.5-coder-14b" ]
-          when "glm47-reap", "glm47"
-            [ "/models/GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf", "glm47-reap,glm-4.7-flash" ]
-          when "qwen36-coder-hybrid", "qwen36-coder", "qwen"
-            [ "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf", "qwen36-coder-hybrid,qwen36-coder" ]
-          when "gemma4-4b", "gemma-4-e4b", "gemma4:4b", "gemma4", "gemma"
-            [ "/models/gemma-4-e4b-it-q4_k_m.gguf", "gemma4-4b,gemma-4-e4b,gemma-4-4b" ]
-          when "gemma4-12b", "gemma-4-12b", "gemma4:12b", "gemma-12b"
-            [ "/models/gemma-4-12b-it-q4_k_m.gguf", "gemma4-12b,gemma-4-12b,gemma-12b" ]
-          when "gemma4-27b", "gemma-4-27b", "gemma4:27b", "gemma-27b", "gemma-4-26b-a4b", "gemma4-26b"
-            [ "/models/gemma-4-26b-a4b-it-q4_k_m.gguf", "gemma4-27b,gemma-4-27b,gemma-4-26b-a4b,gemma4-26b" ]
-          else
-            raise ArgumentError, "Unknown preset #{preset_name.inspect}; valid presets are qwen25-coder-14b, qwen36-coder-hybrid, glm47-reap, gemma4-4b, gemma4-12b, gemma4-27b"
-          end
+          raise Timeout::Error, "JARVIS at #{base_url} did not become healthy within #{timeout}s"
         end
     end
   end

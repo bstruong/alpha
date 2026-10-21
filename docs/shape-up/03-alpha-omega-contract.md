@@ -10,7 +10,7 @@
 | Field | Meaning | Example |
 |-------|---------|---------|
 | `model_id` | Inference API model / Pi model name | `qwen36-coder-hybrid` |
-| `engine_preset` | `engine/models.ini` section | `qwen36-coder-hybrid` |
+| `engine_preset` | JARVIS preset id (homelab-k3s `jarvis-models`; local `engine/models.ini` mirror) | `qwen36-coder-hybrid` |
 | `prompt_preset` | Guardrail/profile bundle | `shipping` \| `measurement` \| `omega-default` |
 | `scenario_id` | Alpha scenario slug | `qwen36-daily` |
 | `alpha_run_id` | One Alpha execution | `20261012T022600Z-…` |

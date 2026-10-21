@@ -12,7 +12,7 @@
 
 | Keep / promote into Alpha | Role today | Alpha fate |
 |---------------------------|------------|------------|
-| `engine/` (`models.ini`, `llama-up.sh`, systemd, `workstation.env`) | Local inference lifecycle | **Shared substrate** — Alpha *consumes* endpoints; does not own UX. Document as `Alpha::InferenceTarget` config only. |
+| `engine/` (`models.ini`, `llama-up.sh`, systemd, `workstation.env`) | Local lab mirror / wake client | **Client of JARVIS** (homelab-k3s `jarvis` ns) — Alpha *consumes* `OPENAI_BASE_URL`; does not own GPU Deployments. Document as `Alpha::InferenceTarget` + thin `Engine::Manager`. |
 | `benchmarks/qwen36-daily/` (`Bench::Task`, library app, graded tasks) | Closest to the target harness | **Seed of Alpha core** — rename module → `Alpha`, generalize beyond one model id. |
 | `harness/pi/` | Pi + `pi-llama-cpp` wiring | **Executor adapter** — `Alpha::Runner::PiRpc` (headless). Interactive cockpit moves to Omega. |
 | `tests/benchmark_suite/` + `scripts/run_module{1,2,3}_*.py` | Flash telemetry / spec traps / planner-worker | **Battery pack** `scenarios/frontier_*` — keep as optional suites, not the default path. |
