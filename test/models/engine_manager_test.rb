@@ -44,6 +44,21 @@ class EngineManagerTest < ActiveSupport::TestCase
     assert_includes q36, "/models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf"
     assert_includes q36, "262144"
     assert_includes q36, "--n-cpu-moe"
+
+    gemma = mgr.preset_args("gemma4-4b")
+    assert_includes gemma, "/models/gemma-4-e4b-it-q4_k_m.gguf"
+    assert_includes gemma, "16384"
+    assert_not_includes gemma, "--cpu-moe"
+
+    gemma12 = mgr.preset_args("gemma4-12b")
+    assert_includes gemma12, "/models/gemma-4-12b-it-q4_k_m.gguf"
+    assert_includes gemma12, "16384"
+    assert_not_includes gemma12, "--cpu-moe"
+
+    gemma27 = mgr.preset_args("gemma4-27b")
+    assert_includes gemma27, "/models/gemma-4-26b-a4b-it-q4_k_m.gguf"
+    assert_includes gemma27, "32768"
+    assert_includes gemma27, "--cpu-moe"
   end
 
   test "InferenceTarget provides wake! and sleep! methods" do

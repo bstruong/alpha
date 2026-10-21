@@ -31,13 +31,21 @@ module Alpha
           { "role" => "user", "content" => task.prompt(profile) }
         ]
 
+        thinking_level = task.respond_to?(:thinking) && task.thinking ? task.thinking.to_s : "none"
+        reasoning_budget = case thinking_level
+        when "none", "off", "0" then 0
+        when "minimal" then 128
+        when "low" then 256
+        else 0
+        end
+
         payload = {
           "model" => inference_target.model_id,
           "messages" => messages,
           "temperature" => 0.0,
           "seed" => 12345,
-          "reasoning_budget" => 0,
-          "chat_template_kwargs" => { "thinking" => false }
+          "reasoning_budget" => reasoning_budget,
+          "chat_template_kwargs" => { "thinking" => false, "enable_thinking" => false }
         }
 
         if task.respond_to?(:json_mode?) && task.json_mode?

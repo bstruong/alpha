@@ -1,0 +1,25 @@
+--- /dev/null
++++ b/output.txt
+@@ -0,0 +1,22 @@
++{
++  "action_items": [
++    {
++      "task": "Finalize the Postgres 17 logical replication rollback runbook",
++      "owner": "Elena Rostova",
++      "deadline": "2026-10-18",
++      "context": "Q4 database cutover preparation"
++    },
++    {
++      "task": "Apply the k3s NetworkPolicy egress lock for namespace alpha on watchtower",
++      "owner": "Marcus Vance",
++      "deadline": "2026-10-18",
++      "context": "Homelab watchtower k3s cluster security"
++    },
++    {
++      "task": "Run billing webhook replay load test and deliver latency sign-off report",
++      "owner": "Devon Brooks",
++      "deadline": "2026-10-20",
++      "context": "Acme staging tenant webhook cutover"
++    }
++  ]
++}

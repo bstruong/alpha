@@ -1,0 +1,27 @@
+name: audit-security-phishing
+kind: graded
+expected_seed: 0
+executor: openai_chat_completions
+grader: json_schema
+thinking_level: "low"
+json_mode: true
+required_json_keys:
+  - is_threat
+  - attack_type
+  - confidence
+  - risk_indicators
+  - recommended_action
+expected_json_values:
+  is_threat: true
+  attack_type:
+    - "credential_phishing"
+    - "phishing"
+    - "spear_phishing"
+required_json_markers:
+  - "spf"
+  - "dkim"
+  - "micros0ft-auth-verify\\.com|lookalike|typosquat|spoof"
+  - "credential-update-portal\\.ru|reply-to"
+denied_json_patterns:
+  false_negative_threat: '"is_threat"\s*:\s*false'
+  false_positive_internal_domain: 'status\.watchtower\.local.*malicious|malicious.*status\.watchtower\.local'

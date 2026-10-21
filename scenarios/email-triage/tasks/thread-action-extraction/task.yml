@@ -1,0 +1,23 @@
+name: thread-action-extraction
+kind: graded
+expected_seed: 0
+executor: openai_chat_completions
+grader: json_schema
+thinking_level: "none"
+json_mode: true
+required_json_keys:
+  - action_items
+nested_json_keys:
+  action_items:
+    - task
+    - owner
+    - deadline
+    - context
+required_json_markers:
+  - "Elena"
+  - "Marcus"
+  - "Devon"
+  - "2026-10-18"
+  - "2026-10-20"
+denied_json_patterns:
+  completed_tls_task: "staging TLS"
