@@ -1,0 +1,17 @@
+id: email-triage
+base_app: ../qwen36-daily/library
+role: triager
+executor: openai_chat_completions
+grader: json_schema
+default_model: qwen36-coder-hybrid
+tasks:
+  - triage-classify-priority
+  - audit-security-phishing
+  - thread-action-extraction
+  - isolation-cross-account-leakage
+budget:
+  wall_seconds: 45
+  max_tool_calls: 0
+qualification:
+  gate_pass_at_1: 1.0
+  graded_pass_at_1: 0.75

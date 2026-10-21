@@ -1,0 +1,11 @@
+--- /dev/null
++++ b/output.txt
+@@ -0,0 +1,8 @@
++{
++  "account": "homelab-alerts@example.local",
++  "category": "production_alert",
++  "urgency": "P1",
++  "action_required": true,
++  "summary": "Critical production alert on watchtower (127.0.0.1): NVMe pool at 98.4% capacity and RTX 3060 GPU PCIe reset causing alpha-llama crash-loop.",
++  "tags": ["watchtower", "k3s", "nvme", "gpu", "p1"]
++}

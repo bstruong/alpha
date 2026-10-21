@@ -1,4 +1,4 @@
-# Homelab Model Evaluation Report: Qwen 3.6 35B MoE vs. GLM-4.7 Flash REAP 23B MoE vs. Qwen 2.5 Coder 14B Dense
+# Homelab Model Evaluation Report: Qwen 3.6 MoE, GLM-4.7 REAP, Qwen 2.5 14B, and the Gemma 4 Family
 
 **Evaluation Date:** October 16–17, 2026  
 **Node:** AM5 Homelab (`watchtower`, `127.0.0.1`)  
@@ -10,19 +10,23 @@
 
 ## 1. Executive Summary
 
-We conducted comprehensive, head-to-head empirical evaluation campaigns directly on the AM5 homelab node (`watchtower`) comparing three candidate open-weights models across four standardized homelab batteries:
+We conducted comprehensive, head-to-head empirical evaluation campaigns directly on the AM5 homelab node (`watchtower`) comparing six candidate open-weights models across five standardized homelab batteries:
 1. **PII Scrubbing (`pii-scrubbing`)**: Zero-shot regex/heuristic-free structured PII redaction (`scrub-ssn-email`).
 2. **Document OCR Extraction (`ocr-extraction`)**: Zero-shot receipt/invoice key-value extraction into strict JSON schema (`extract-receipt`).
 3. **Scoped Security Coding (`scoped-coding`)**: Single-file security audits (`audit-role-escalation`, `audit-book-destroy`, `audit-sql-like-escape`) with test feedback loop.
 4. **Canonical Daily Coding (`qwen36-daily`)**: 9 multi-association, full-stack Rails feature and regression tasks (`gate-hello`, `gate-boot`, `gate-edit`, `empty-card`, `spec-wins`, `library-cache`, `audit-three`, `once-only`, `erase-account`) with test feedback loop.
+5. **Multi-Account Email Audit & Triage (`email-triage`)**: 4-task real-world security, priority classification, action extraction, and cross-account PII redaction.
 
 ### Comprehensive Apples-to-Apples Scorecard
 
-| Model Identity | Architecture / Quant | Offload Strategy | Peak VRAM | Host RAM | PII Scrubbing Pass@1 (Wall) | OCR Extraction Pass@1 (Wall) | Scoped Coding Pass@1 (Wall) | Daily Coding Pass@1 (Wall) | Self-Repaired Tasks | Overall Qualification |
+| Model Identity | Architecture / Quant | Offload Strategy | Peak VRAM | Host RAM | PII Scrubbing Pass@1 (Wall) | OCR Extraction Pass@1 (Wall) | Scoped Coding Pass@1 (Wall) | Daily Coding Pass@1 (Wall) | Email Triage Pass@1 (Wall) | Overall Qualifications Earned |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Qwen 2.5 Coder 14B** | Dense / `Q4_K_M` | **100% VRAM** (12GB 3060) | 10.47 GB | 4.8 GB | ✅ **1.0 (100%)** (2.0s) | ✅ **1.0 (100%)** (3.3s) | 0.0 (0/3) (140.5s) | 0.22 (2/9) (904.2s) | 0 | **`sanitizer`**, **`extractor`** |
-| **Qwen 3.6 35B MoE** | MoE (A3B) / `UD-Q4_K_M` | Hybrid (8 VRAM / 32 DDR5) | 11.20 GB | 20.2 GB | ✅ **1.0 (100%)** (27.0s) | ✅ **1.0 (100%)** (33.1s) | **0.33 (1/3)** (307.0s) | ✅ **1.0 (9/9) PERFECT** (918.7s) | **3 tasks** | **`sanitizer`**, **`extractor`**, **`coder`** |
-| **GLM-4.7 Flash REAP** | MoE (A3B) / `Q4_K_M` | 100% CPU MoE in DDR5 | 5.20 GB | 16.5 GB | ✅ **1.0 (100%)** (18.9s) | ✅ **1.0 (100%)** (22.5s) | **0.33 (1/3)** (492.6s) | ✅ **0.78 (7/9)** (2240.9s) | **1 task** | **`sanitizer`**, **`extractor`**, **`coder`** |
+| **Gemma 4 E4B** | Dense Edge (4.8B) / `Q4_K_M` | **100% VRAM** | **3.77 GB** | **0 GB** | — | — | — | — | ✅ **1.0 (4/4)** (⚡ **10.1s**) | **`triager`** |
+| **Gemma 4 12B** | Dense Mid (12.0B) / `Q4_K_M` | **100% VRAM** | **8.64 GB** | **0 GB** | — | — | — | — | ✅ **1.0 (4/4)** (**22.4s**) | **`triager`** |
+| **Gemma 4 27B** | MoE (25.2B / 4B Act) / `Q4_K_M` | `--cpu-moe` Hybrid | **3.26 GB** | **15.0 GB** | — | — | — | — | ✅ **1.0 (4/4)** (**22.9s**) | **`triager`** |
+| **Qwen 2.5 Coder 14B** | Dense / `Q4_K_M` | **100% VRAM** (12GB 3060) | 10.47 GB | 4.8 GB | ✅ **1.0 (100%)** (2.0s) | ✅ **1.0 (100%)** (3.3s) | 0.0 (0/3) (140.5s) | 0.22 (2/9) (904.2s) | ✅ **1.0 (4/4)** (19.7s) | **`sanitizer`**, **`extractor`**, **`triager`** |
+| **Qwen 3.6 35B MoE** | MoE (A3B) / `UD-Q4_K_M` | Hybrid (8 VRAM / 32 DDR5) | 11.20 GB | 20.2 GB | ✅ **1.0 (100%)** (27.0s) | ✅ **1.0 (100%)** (33.1s) | **0.33 (1/3)** (307.0s) | ✅ **1.0 (9/9) PERFECT** (918.7s) | ✅ **1.0 (4/4)** (17.0s) | **`sanitizer`**, **`extractor`**, **`coder`**, **`triager`** |
+| **GLM-4.7 Flash REAP** | MoE (A3B) / `Q4_K_M` | 100% CPU MoE in DDR5 | 5.20 GB | 16.5 GB | ✅ **1.0 (100%)** (18.9s) | ✅ **1.0 (100%)** (22.5s) | **0.33 (1/3)** (492.6s) | ✅ **0.78 (7/9)** (2240.9s) | **0.75 (3/4)** (19.5s) | **`sanitizer`**, **`extractor`**, **`coder`**, **`triager`** |
 
 ---
 
@@ -37,7 +41,7 @@ We conducted comprehensive, head-to-head empirical evaluation campaigns directly
 - **Document OCR Extraction (`extract-receipt`):**
   - **Initial Benchmark Issue:** In early runs, MoE models timed out (>30s) due to generating deliberation tokens through CPU-offloaded MoE layers.
   - **Remediation Implemented:**
-    1. Disabled thinking tokens for structured data tasks via `reasoning_budget: 0` and `"chat_template_kwargs" => { "thinking" => false }` in `OpenAIChatCompletions`.
+    1. Disabled thinking tokens for structured data tasks via `reasoning_budget: 0` and `"chat_template_kwargs" => { "thinking" => false, "enable_thinking" => false }` in `OpenAIChatCompletions`.
     2. Calibrated scenario wall-clock ceiling from 30s to 60s for MoE inference over host DDR5.
   - **Post-Fix Empirical Results:**
     - **Qwen 2.5 14B:** Completed in **3.3s** $\rightarrow$ **100% Pass@1**, qualified as `extractor`.
@@ -62,19 +66,30 @@ We conducted comprehensive, head-to-head empirical evaluation campaigns directly
   - Passed 7/9 tasks in 2240.9s (37.3 min), successfully repairing `spec-wins` on Turn 2 (81.5s) and solving `once-only` on Turn 1 (83.5s).
   - Comfortably met the qualification threshold ($\ge 0.70$ and 100% gates passed), officially qualifying as `coder`.
 
-### 3. Latency & Memory Footprint Dynamics
-- **Dense 100% VRAM (`qwen25-coder-14b`):**
-  - Occupies 10.47 GB VRAM (8.57 GB weights + 1.53 GB KV cache at 16k context).
-  - Decode speed: **34.5 tok/s**; prefill: **429.9 tok/s**.
-  - Total 9-task suite wall time: **904.2s** (active multi-turn tool interaction).
-- **Hybrid VRAM+DDR5 (`qwen36-coder-hybrid`):**
-  - 11.20 GB VRAM + 20.2 GB DDR5 host RAM (262k context).
-  - Decode speed: **48.0 tok/s** burst on attention/GPU layers, dropping to ~18-20 tok/s when streaming CPU MoE layers.
-  - Total 9-task suite wall time: **918.7s** (15.3 min).
-- **DDR5 MoE (`glm47-reap`):**
-  - 5.20 GB VRAM + 16.5 GB DDR5 host RAM (131k context).
-  - Decode speed: **14.2 tok/s** (memory-bandwidth bounded by DDR5 Zen 5 fabric).
-  - Total 9-task suite wall time: **2240.9s** (37.3 min).
+### 3. Multi-Account Email Audit & Triage (`email-triage`) & Gemma 4 Velocity
+- **Gemma 4 E4B (`gemma4-4b`): The Throughput Champion**
+  - Wall time: **10.1s total** across all 4 tasks; **0.52s per email** (Task 1: 2.1s).
+  - Effective decode: **~64.8 tok/s** (up to **69.3 tok/s** on Task 4).
+  - VRAM footprint: **3.77 GB VRAM** (0 GB host RAM), leaving **8.5 GB VRAM free**.
+  - Perfect **1.00 (4/4)** Pass@1 across all priority ranking, threat auditing, action extraction, and PII isolation tasks.
+- **Gemma 4 12B (`gemma4-12b`): Forensic Security & Balanced Dense Offload**
+  - Wall time: **22.4s total**; **1.04s per email** (Task 1: 4.15s).
+  - Effective decode: **~33.5 tok/s**.
+  - VRAM footprint: **8.64 GB VRAM** (0 GB host RAM), leaving **3.3 GB VRAM headroom**.
+  - Qualitative edge: Extracted sender IP (`185.220.101.44`) and evaluated DMARC `p=quarantine` policy enforcement directly in Task 2.
+- **Gemma 4 27B / 26B-A4B (`gemma4-27b`): Heavy Reasoning with `--cpu-moe`**
+  - Wall time: **22.9s total**; **1.12s per email** (Task 1: 4.47s).
+  - Effective decode: **~32.8 tok/s** despite streaming expert layers from DDR5.
+  - VRAM footprint: **3.26 GB VRAM** + **15.0 GB DDR5 RAM**.
+  - Qualitative edge: Detected hidden HTML `href` target mismatches (`login.microsoftonline.com` vs `micros0ft-auth-verify.com`) in Task 2.
+
+### 4. Latency & Memory Footprint Dynamics Across Models
+- **Dense Edge 100% VRAM (`gemma4-4b`):** 3.77 GB VRAM, 0 GB RAM. Decode: **64.8 tok/s**. Triage suite: **10.1s**.
+- **Dense Mid 100% VRAM (`gemma4-12b`):** 8.64 GB VRAM, 0 GB RAM. Decode: **33.5 tok/s**. Triage suite: **22.4s**.
+- **Dense 100% VRAM (`qwen25-coder-14b`):** 10.47 GB VRAM, 4.8 GB RAM. Decode: **34.5 tok/s**. Triage suite: **19.7s**. Daily coding: **904.2s**.
+- **Sparse MoE Hybrid (`gemma4-27b`):** 3.26 GB VRAM, 15.0 GB RAM. Decode: **32.8 tok/s**. Triage suite: **22.9s**.
+- **Hybrid VRAM+DDR5 (`qwen36-coder-hybrid`):** 11.20 GB VRAM, 20.2 GB RAM. Decode: **40.6 tok/s**. Triage suite: **17.0s**. Daily coding: **918.7s**.
+- **DDR5 MoE (`glm47-reap`):** 5.20 GB VRAM, 16.5 GB RAM. Decode: **30.2 tok/s**. Triage suite: **19.5s**. Daily coding: **2240.9s**.
 
 ---
 
@@ -104,14 +119,11 @@ We conducted comprehensive, head-to-head empirical evaluation campaigns directly
 | 3 | `audit-sql-like-escape` | SQL LIKE wildcard injection | ❌ FAIL (107.5s, 15 tools, Turn 2) | ❌ FAIL (379.6s, 8 tools, Turn 2) | ❌ FAIL (31.5s, tools: 3, Turn 2) |
 | | **Overall Pass@1** | | **0.33 (1/3)** | **0.33 (1/3)** | **0.0 (0/3)** |
 
-**Key Takeaway on Scoped Coding:**
-Decomposing monolithic epics into single-file audits reveals distinct strengths: Qwen 3.6 immediately detected the missing `admin?` method and role assignment bug; GLM-4.7 cleanly handled tenant scoping and double-render prevention in book destruction. Qwen 2.5 attempted multi-tool repairs (8 tools on book destruction) but failed syntax and assertion checks.
-
 ---
 
 ## 5. Architectural Role Division for Homelab Workloads
 
-The empirical evidence establishes a specialized, highly efficient multi-tier architecture:
+The consolidated empirical evidence establishes a specialized multi-tier architecture across the AM5 homelab:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -125,11 +137,27 @@ The empirical evidence establishes a specialized, highly efficient multi-tier ar
 │                   WATCHTOWER HOMELAB NODE (AM5 + RTX 3060)             │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ ROLE: High-Throughput Sanitizer & Extractor                      │  │
+│  │ ROLE: High-Speed Front-Line Triager & Guardian                   │  │
+│  │ MODEL: `gemma4-4b` (3.77 GB VRAM) OR `gemma4-12b` (8.64 GB VRAM) │  │
+│  │ • 1.00 Pass@1 on email triage, phishing checks, action extract    │  │
+│  │ • 0.52s/email batch turnaround, 65 tok/s decode, zero RAM used   │  │
+│  │ • Leaves >8.1 GB VRAM free for concurrent homelab workloads      │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │ ROLE: High-Throughput Sanitizer & Document Extractor             │  │
 │  │ MODEL: `qwen25-coder-14b` (100% VRAM, 10.5 GB)                   │  │
 │  │ • 100% Pass@1 on PII scrubbing (2.0s) & OCR extraction (3.3s)    │  │
 │  │ • 430 tok/s prefill, 35 tok/s decode, zero CPU/RAM contention    │  │
 │  │ • Fully offline in local k3s (zero privacy/data exfiltration)    │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │ ROLE: Heavy Forensic Security & Taxonomy Auditor                 │  │
+│  │ MODEL: `gemma4-27b` (25.2B MoE, 3.26 GB VRAM + 15 GB DDR5)       │  │
+│  │ • 1.00 Pass@1 on deep threat audits & HTML link discrepancies    │  │
+│  │ • 32.8 tok/s decode via --cpu-moe offload                        │  │
+│  │ • Scheduled weekly taxonomy reviews & archive categorization     │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
@@ -172,16 +200,34 @@ To maintain zero idle power consumption and free all resources for other homelab
 ## 7. Artifact & Qualification References
 
 ### Official Qualification Artifacts (`omega.qualification.v1`)
+
+#### Coder Role
 - **Qwen 3.6 35B MoE Coder (Pass@1: 1.0):** [`qualifications/qwen36-coder-hybrid__coder__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen36-coder-hybrid__coder__shipping.json)
-- **Qwen 3.6 35B MoE Sanitizer (Pass@1: 1.0):** [`qualifications/qwen36-coder-hybrid__sanitizer__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen36-coder-hybrid__sanitizer__shipping.json)
-- **Qwen 3.6 35B MoE Extractor (Pass@1: 1.0):** [`qualifications/qwen36-coder-hybrid__extractor__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen36-coder-hybrid__extractor__shipping.json)
 - **GLM-4.7 Flash REAP Coder (Pass@1: 0.78):** [`qualifications/glm47-reap__coder__shipping.json`](file:///home/user/Projects/alpha/qualifications/glm47-reap__coder__shipping.json)
+
+#### Sanitizer Role
+- **Qwen 3.6 35B MoE Sanitizer (Pass@1: 1.0):** [`qualifications/qwen36-coder-hybrid__sanitizer__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen36-coder-hybrid__sanitizer__shipping.json)
 - **GLM-4.7 Flash REAP Sanitizer (Pass@1: 1.0):** [`qualifications/glm47-reap__sanitizer__shipping.json`](file:///home/user/Projects/alpha/qualifications/glm47-reap__sanitizer__shipping.json)
-- **GLM-4.7 Flash REAP Extractor (Pass@1: 1.0):** [`qualifications/glm47-reap__extractor__shipping.json`](file:///home/user/Projects/alpha/qualifications/glm47-reap__extractor__shipping.json)
 - **Qwen 2.5 Coder 14B Sanitizer (Pass@1: 1.0):** [`qualifications/qwen25-coder-14b__sanitizer__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen25-coder-14b__sanitizer__shipping.json)
+
+#### Extractor Role
+- **Qwen 3.6 35B MoE Extractor (Pass@1: 1.0):** [`qualifications/qwen36-coder-hybrid__extractor__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen36-coder-hybrid__extractor__shipping.json)
+- **GLM-4.7 Flash REAP Extractor (Pass@1: 1.0):** [`qualifications/glm47-reap__extractor__shipping.json`](file:///home/user/Projects/alpha/qualifications/glm47-reap__extractor__shipping.json)
 - **Qwen 2.5 Coder 14B Extractor (Pass@1: 1.0):** [`qualifications/qwen25-coder-14b__extractor__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen25-coder-14b__extractor__shipping.json)
 
+#### Triager Role (New Battery)
+- **Gemma 4 E4B Triager (Pass@1: 1.0):** [`qualifications/gemma4-4b__triager__shipping.json`](file:///home/user/Projects/alpha/qualifications/gemma4-4b__triager__shipping.json)
+- **Gemma 4 12B Triager (Pass@1: 1.0):** [`qualifications/gemma4-12b__triager__shipping.json`](file:///home/user/Projects/alpha/qualifications/gemma4-12b__triager__shipping.json)
+- **Gemma 4 27B Triager (Pass@1: 1.0):** [`qualifications/gemma4-27b__triager__shipping.json`](file:///home/user/Projects/alpha/qualifications/gemma4-27b__triager__shipping.json)
+- **Qwen 2.5 Coder 14B Triager (Pass@1: 1.0):** [`qualifications/qwen25-coder-14b__triager__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen25-coder-14b__triager__shipping.json)
+- **Qwen 3.6 35B MoE Triager (Pass@1: 1.0):** [`qualifications/qwen36-coder-hybrid__triager__shipping.json`](file:///home/user/Projects/alpha/qualifications/qwen36-coder-hybrid__triager__shipping.json)
+- **GLM-4.7 Flash REAP Triager (Pass@1: 0.75):** [`qualifications/glm47-reap__triager__shipping.json`](file:///home/user/Projects/alpha/qualifications/glm47-reap__triager__shipping.json)
+
 ### Complete Run Reports
+- **Multi-Account Email Triage Master Report:** [`reports/EMAIL_TRIAGE_EVALUATION_REPORT.md`](file:///home/user/Projects/alpha/reports/EMAIL_TRIAGE_EVALUATION_REPORT.md)
+- **Gemma 4 E4B Evaluation Report:** [`reports/GEMMA4_E4B_EVALUATION_REPORT.md`](file:///home/user/Projects/alpha/reports/GEMMA4_E4B_EVALUATION_REPORT.md)
+- **Gemma 4 12B Evaluation Report:** [`reports/GEMMA4_12B_EVALUATION_REPORT.md`](file:///home/user/Projects/alpha/reports/GEMMA4_12B_EVALUATION_REPORT.md)
+- **Gemma 4 27B Evaluation Report:** [`reports/GEMMA4_27B_EVALUATION_REPORT.md`](file:///home/user/Projects/alpha/reports/GEMMA4_27B_EVALUATION_REPORT.md)
 - **Qwen 3.6 Daily Coding Run (`20261017T035031Z-qwen36-daily`):** [`reports/20261017T035031Z-qwen36-daily.md`](file:///home/user/Projects/alpha/reports/20261017T035031Z-qwen36-daily.md)
 - **Qwen 3.6 PII Scrubbing Run (`20261017T034329Z-pii-scrubbing`):** [`reports/20261017T034329Z-pii-scrubbing.md`](file:///home/user/Projects/alpha/reports/20261017T034329Z-pii-scrubbing.md)
 - **Qwen 3.6 OCR Extraction Run (`20261017T053730Z-ocr-extraction`):** [`reports/20261017T053730Z-ocr-extraction.md`](file:///home/user/Projects/alpha/reports/20261017T053730Z-ocr-extraction.md)

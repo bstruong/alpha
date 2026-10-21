@@ -62,7 +62,7 @@ def parse_qualify_options(argv)
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: bin/alpha qualify --run RUN_ID [options]"
     opts.on("-r", "--run ID", "Alpha run ID to qualify") { |v| options[:run_id] = v }
-    opts.on("--role ROLE", "Qualification role: coder, scoped_coder, sanitizer, extractor") { |v| options[:role] = v }
+    opts.on("--role ROLE", "Qualification role: coder, scoped_coder, sanitizer, extractor, triager") { |v| options[:role] = v }
     opts.on("--promote", "Save qualification artifact for Omega") { options[:promote] = true }
   end
   parser.parse!(argv)
@@ -160,20 +160,22 @@ when "qualify"
   summary = JSON.parse(File.read(summary_file))
   pass_at_1 = summary.dig("aggregate", "pass_at_1").to_f
 
-  gates_passed = summary["tasks"].select { |t| t["kind"] == "gate" }.all? { |t| t["pass"] }
-  qualified = gates_passed && pass_at_1 >= 0.70
-
-  report_md = File.expand_path("../reports/#{options[:run_id]}.md", __dir__)
-  report_uri = File.file?(report_md) ? "file://#{report_md}" : "file://#{summary_file}"
-
   target_role = options[:role] || (
     case summary["scenario"].to_s
     when /scoped/i then "scoped_coder"
     when /pii/i then "sanitizer"
     when /ocr|extract/i then "extractor"
+    when /triage|email/i then "triager"
     else "coder"
     end
   )
+
+  threshold = target_role == "triager" ? 0.75 : 0.70
+  gates_passed = summary["tasks"].select { |t| t["kind"] == "gate" }.all? { |t| t["pass"] }
+  qualified = gates_passed && pass_at_1 >= threshold
+
+  report_md = File.expand_path("../reports/#{options[:run_id]}.md", __dir__)
+  report_uri = File.file?(report_md) ? "file://#{report_md}" : "file://#{summary_file}"
 
   qual_data = {
     "schema" => "omega.qualification.v1",

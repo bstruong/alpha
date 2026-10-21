@@ -82,4 +82,31 @@ class Cycle3BatteriesTest < ActiveSupport::TestCase
     assert_equal "extract-receipt", scenario.tasks.first.name
     assert scenario.tasks.first.json_mode?
   end
+
+  test "loads email-triage scenario with 4 multi-account tasks and triager role" do
+    scenario = Alpha::Scenario.load("email-triage")
+    assert_equal "email-triage", scenario.id
+    assert_equal "triager", scenario.role
+    assert_equal 45, scenario.budget[:wall_seconds]
+    assert_equal 0.75, scenario.qualification[:graded_pass_at_1]
+    assert_equal 4, scenario.tasks.size
+    assert_equal %w[
+      triage-classify-priority
+      audit-security-phishing
+      thread-action-extraction
+      isolation-cross-account-leakage
+    ], scenario.tasks.map(&:name)
+
+    triage_task = scenario.tasks.find { |t| t.name == "triage-classify-priority" }
+    assert_equal "none", triage_task.thinking
+    assert triage_task.json_mode?
+    refute_includes triage_task.prompt("shipping"), "Leave bin/rails test green"
+
+    phishing_task = scenario.tasks.find { |t| t.name == "audit-security-phishing" }
+    assert_equal "low", phishing_task.thinking
+    assert phishing_task.json_mode?
+
+    leakage_task = scenario.tasks.find { |t| t.name == "isolation-cross-account-leakage" }
+    assert_equal "pattern_deny", leakage_task.grader_type
+  end
 end
