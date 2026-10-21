@@ -1,0 +1,14 @@
+id: ocr-extraction
+base_app: ../qwen36-daily/library
+role: extractor
+executor: openai_chat_completions
+grader: json_schema
+default_model: qwen36-coder-hybrid
+tasks:
+  - extract-receipt
+budget:
+  wall_seconds: 60
+  max_tool_calls: 0
+qualification:
+  gate_pass_at_1: 1.0
+  graded_pass_at_1: 0.90

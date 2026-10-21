@@ -1,0 +1,14 @@
+id: pii-scrubbing
+base_app: ../qwen36-daily/library
+role: sanitizer
+executor: openai_chat_completions
+grader: pattern_deny
+default_model: qwen36-coder-hybrid
+tasks:
+  - scrub-ssn-email
+budget:
+  wall_seconds: 60
+  max_tool_calls: 0
+qualification:
+  gate_pass_at_1: 1.0
+  graded_pass_at_1: 0.90

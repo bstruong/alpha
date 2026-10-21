@@ -47,9 +47,9 @@ Dispatched simultaneous inference requests to Slot 0 and Slot 1 at the exact sam
 
 ## 3. Stone 2: Real Production Repository Coding (`saber` & `caster`)
 
-Evaluated the models as autonomous coding agents directly on the user's production Ruby on Rails repositories (`/home/user/Projects/saber` and `/home/user/Projects/caster`) backed by Docker PostgreSQL instances.
+Evaluated the models as autonomous coding agents directly on production Ruby on Rails repositories (`saber` and `caster`) backed by Docker PostgreSQL instances.
 
-### 3A. Saber Repository (`/home/user/Projects/saber`)
+### 3A. Saber Repository (`saber`)
 - **Challenge:** Fix 5 test failures in `Interaction` (`Interaction::RECENT_WINDOW` scope) and `Reminder` (`Reminder#snoozed?` predicate and expired/future spec assertions).
 - **Target Suite:** 138 RSpec examples (1 pending expected).
 
@@ -58,7 +58,7 @@ Evaluated the models as autonomous coding agents directly on the user's producti
 | **`glm47-reap`** | 137/138 (100%) | 137/138 (100%) | 137/138 (100%) | **3 / 3 PASS (100%)** | ~34.8 tok/s |
 | **`qwen36-coder-hybrid`** | 137/138 (100%) | 137/138 (100%) | 137/138 (100%) | **3 / 3 PASS (100%)** | **~50.3 tok/s** |
 
-### 3B. Caster Repository (`/home/user/Projects/caster`)
+### 3B. Caster Repository (`caster`)
 - **Challenge:** Implement complete `ListingNormalizer` class utilizing `Cents.to_cents(value)` across 28 converters, decimal parsing, and composite pipe delimiters.
 - **Target Suite:** 72 RSpec examples (33 failing at baseline).
 
@@ -103,11 +103,11 @@ Tested retrieval accuracy of cryptographic secret (`VAULT-ALPHA-7729-OMEGA`) pla
 - **Qwen 3.6 Hybrid (`qwen36-coder-hybrid`):** Requires **23.21 GB** host RAM with 10.72 GB VRAM on the RTX 3060. With `mlock` active, all weights remain pinned in physical memory with zero disk paging.
 
 ### Production Promotion
-- Updated [`engine/workstation.env`](file:///home/user/Projects/berserker/engine/workstation.env):
+- Updated [`engine/workstation.env`](../engine/workstation.env):
   ```bash
   DEFAULT_PRESET="qwen36-coder-hybrid"
   ```
-- User repositories `/home/user/Projects/saber` and `/home/user/Projects/caster` verified green:
+- Repositories `saber` and `caster` verified green:
   - `saber`: 138/138 passing (1 pending expected).
   - `caster`: 72/72 passing.
 - Working tree clean. Engine stopped cleanly.

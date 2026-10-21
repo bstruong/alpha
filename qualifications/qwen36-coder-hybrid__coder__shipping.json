@@ -1,0 +1,14 @@
+{
+  "schema": "omega.qualification.v1",
+  "model_id": "qwen36-coder-hybrid",
+  "engine_preset": "qwen36-coder-hybrid",
+  "prompt_preset": "shipping",
+  "role": "coder",
+  "alpha_run_id": "20261017T035031Z-qwen36-daily",
+  "scenario_id": "qwen36-daily",
+  "pass_at_1": 1.0,
+  "report_uri": "reports/20261017T035031Z-qwen36-daily.md",
+  "qualified_at": "2026-10-17T04:06:15Z",
+  "expires_at": "2026-11-16T04:06:15Z",
+  "node_class": "am5-homelab-32g-3060"
+}

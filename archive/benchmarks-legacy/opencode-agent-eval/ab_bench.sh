@@ -9,7 +9,7 @@
 set -uo pipefail
 
 REPO=/home/user/odysseus
-SP=/tmp/claude-1000/-home-brian-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
+SP=/tmp/claude-1000/-home-user-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
 RESULTS=$SP/ab-results
 TIMEOUT=300
 

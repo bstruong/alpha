@@ -11,6 +11,7 @@ require "shellwords"
 
 SCRIPT_DIR = __dir__
 HARNESS_DIR = File.expand_path("..", SCRIPT_DIR)
+ENV["PI_CODING_AGENT_DIR"] ||= HARNESS_DIR
 SESSIONS_DIR = File.join(HARNESS_DIR, "sessions")
 DEFAULT_LOG = File.join(SESSIONS_DIR, "current_run.log")
 DEFAULT_PI = File.join(HARNESS_DIR, "node_modules", ".bin", "pi")
@@ -172,6 +173,39 @@ def monitor(cmd, log_path, telemetry_path: nil, passthrough: false)
 
         clean = raw.gsub(ANSI, "").strip
         next if clean.empty?
+
+        parsed = JSON.parse(clean) rescue nil
+        if parsed.is_a?(Hash)
+          # 1. Extract token usage from Pi JSON event stream
+          if parsed["type"] == "message_end" || parsed["type"] == "turn_end"
+            usage = parsed.dig("message", "usage") || parsed["usage"]
+            if usage.is_a?(Hash)
+              inp = (usage["input"] || usage["prompt_tokens"] || usage["promptTokens"]).to_i
+              out = (usage["output"] || usage["completion_tokens"] || usage["completionTokens"]).to_i
+              prompt_tokens += inp
+              completion_tokens += out
+            end
+          elsif parsed["type"] == "agent_end"
+            messages = Array(parsed["messages"])
+            asst_usages = messages.select { |m| m["role"] == "assistant" }.map { |m| m["usage"] }.compact
+            if asst_usages.any?
+              total_inp = asst_usages.sum { |u| (u["input"] || u["prompt_tokens"] || u["promptTokens"]).to_i }
+              total_out = asst_usages.sum { |u| (u["output"] || u["completion_tokens"] || u["completionTokens"]).to_i }
+              prompt_tokens = [prompt_tokens, total_inp].max
+              completion_tokens = [completion_tokens, total_out].max
+            end
+          end
+
+          # 2. Tool call heartbeat and count
+          action = from_json(parsed)
+          if action && action != last
+            tool_calls += 1
+            puts action
+            $stdout.flush
+            last = action
+          end
+          next
+        end
 
         if (tok_match = clean.match(/(?:prompt_tokens|promptTokens)["']?\s*:\s*(\d+)/i))
           prompt_tokens += tok_match[1].to_i

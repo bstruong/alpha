@@ -3,13 +3,13 @@
 require "json"
 require "net/http"
 require "uri"
+require_relative "engine/manager"
 
 module Alpha
-  # Points at the AM5 homelab (watchtower) OpenAI-compatible endpoint.
-  # Standardizes on http://127.0.0.1:8080/v1 by default so invocations
-  # work identically from watchtower (AM5) or metrotower (Haswell desk).
+  # Points at the OpenAI-compatible inference endpoint.
+  # Defaults to http://127.0.0.1:8080 or ENV["LLAMA_SERVER_URL"].
   class InferenceTarget
-    DEFAULT_HOST_URL = "http://127.0.0.1:8080"
+    DEFAULT_HOST_URL = ENV.fetch("LLAMA_SERVER_URL", "http://127.0.0.1:8080")
 
     attr_reader :base_url, :model_id, :engine_preset, :context_window
 
@@ -24,7 +24,9 @@ module Alpha
       section = sections.fetch(preset_name.to_s, {})
       merged = global.merge(section)
 
-      model_id = merged["alias"] || preset_name.to_s
+      alias_val = merged["alias"]
+      primary_alias = alias_val ? alias_val.split(",").first.strip : nil
+      model_id = primary_alias || preset_name.to_s
       ctx_size = Integer(merged.fetch("ctx-size", 262_144)) rescue 262_144
 
       server_url = ENV["OPENAI_API_BASE"] ||
@@ -78,7 +80,8 @@ module Alpha
       models = Array(payload["data"]).flat_map do |m|
         [m["id"], *m["aliases"]]
       end.compact
-      models.empty? || models.include?(model_id)
+      expected_ids = model_id.to_s.split(",").map(&:strip)
+      models.empty? || (models & expected_ids).any?
     rescue StandardError
       false
     end
@@ -99,6 +102,36 @@ module Alpha
       true
     rescue StandardError
       false
+    end
+
+    def manager
+      @manager ||= Alpha::Engine::Manager.new(base_url: base_url)
+    end
+
+    def wake!(wait: true, timeout: 60)
+      manager.up(preset: engine_preset, wait: wait, timeout: timeout)
+    end
+
+    def sleep!
+      manager.down
+    end
+
+    def metrics
+      uri = URI.parse("#{server_root_url}/metrics")
+      res = http_get(uri)
+      return {} unless res.is_a?(Net::HTTPSuccess)
+
+      data = {}
+      res.body.each_line do |line|
+        line = line.strip
+        next if line.empty? || line.start_with?("#")
+
+        parts = line.split(/\s+/)
+        data[parts[0]] = parts[1].to_f if parts.size >= 2
+      end
+      data
+    rescue StandardError
+      {}
     end
 
     private

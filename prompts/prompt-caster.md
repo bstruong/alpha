@@ -4,7 +4,7 @@ consistent with the spec — do not invent conventions, do not add dependencies,
 do not implement what the spec does not require.
 
 Your role is to scaffold and review. Leave TODOs marked
-`# TODO(brian): implement this` on critical paths. Do not implement business
+`# TODO(dev): implement this` on critical paths. Do not implement business
 logic unprompted.
 
 ---

@@ -47,7 +47,9 @@ module Alpha
           "tool_calls_mean" => tool_calls_mean,
           "wall_ms_total" => wall_ms_total,
           "prompt_tokens_total" => prompt_tokens_total,
-          "completion_tokens_total" => completion_tokens_total
+          "completion_tokens_total" => completion_tokens_total,
+          "repaired_count" => task_records.count { |t| t[:repaired] },
+          "pass_final" => tasks_total.positive? ? (tasks_passed.to_f / tasks_total).round(2) : 0.0
         },
         "tasks" => task_records.map do |t|
           {
@@ -55,6 +57,9 @@ module Alpha
             "kind" => t[:kind],
             "pass" => t[:pass],
             "pass_at_1" => t[:pass_at_1],
+            "repaired" => t[:repaired] || false,
+            "turns" => t[:turns] || 1,
+            "thinking_level" => t[:thinking_level],
             "tool_calls" => t[:tool_calls] || 0,
             "prompt_tokens" => t[:prompt_tokens] || 0,
             "completion_tokens" => t[:completion_tokens] || 0,
@@ -92,18 +97,25 @@ module Alpha
       lines << "| **Model** | `#{data["model_id"]}` |"
       lines << "| **Preset** | `#{data["prompt_preset"]}` |"
       lines << "| **Pass@1** | **#{agg["pass_at_1"]}** (#{agg["tasks_passed"]}/#{agg["tasks_total"]}) |"
+      lines << "| **Self-Repaired** | #{agg["repaired_count"]} tasks |" if agg["repaired_count"].to_i.positive?
       lines << "| **Mean Tool Calls** | #{agg["tool_calls_mean"]} |"
       lines << "| **Total Wall Time** | #{(agg["wall_ms_total"] / 1000.0).round(1)}s |"
       lines << "| **Total Tokens** | #{agg["prompt_tokens_total"]} prompt / #{agg["completion_tokens_total"]} completion |"
       lines << ""
       lines << "## Task Breakdown"
       lines << ""
-      lines << "| Task | Kind | Pass@1 | Tools | Wall (s) | Verdict |"
-      lines << "|---|---|---|---|---|---|"
+      lines << "| Task | Kind | Pass@1 | Turns | Repaired | Tools | Wall (s) | Verdict |"
+      lines << "|---|---|---|---|---|---|---|---|"
 
       Array(data["tasks"]).each do |t|
-        verdict = t["pass"] ? "✅ PASS" : "❌ FAIL"
-        lines << "| `#{t["name"]}` | #{t["kind"]} | #{t["pass_at_1"] ? "1.0" : "0.0"} | #{t["tool_calls"]} | #{(t["wall_ms"] / 1000.0).round(1)} | #{verdict} |"
+        verdict = if t["repaired"]
+          "🔧 REPAIRED"
+        elsif t["pass"]
+          "✅ PASS"
+        else
+          "❌ FAIL"
+        end
+        lines << "| `#{t["name"]}` | #{t["kind"]} | #{t["pass_at_1"] ? "1.0" : "0.0"} | #{t["turns"] || 1} | #{t["repaired"] ? "Yes" : "No"} | #{t["tool_calls"]} | #{(t["wall_ms"] / 1000.0).round(1)} | #{verdict} |"
       end
 
       lines << ""

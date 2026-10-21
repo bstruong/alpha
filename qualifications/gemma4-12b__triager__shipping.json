@@ -1,0 +1,14 @@
+{
+  "schema": "omega.qualification.v1",
+  "model_id": "gemma4-12b",
+  "engine_preset": "gemma4-12b",
+  "prompt_preset": "shipping",
+  "role": "triager",
+  "alpha_run_id": "20261017T174427Z-email-triage",
+  "scenario_id": "email-triage",
+  "pass_at_1": 1.0,
+  "report_uri": "reports/20261017T174427Z-email-triage.md",
+  "qualified_at": "2026-10-17T17:45:05Z",
+  "expires_at": "2026-11-16T17:45:05Z",
+  "node_class": "am5-homelab-32g-3060"
+}

@@ -1,0 +1,16 @@
+--- /dev/null
++++ b/output.txt
+@@ -0,0 +1,13 @@
++{
++  "is_threat": true,
++  "attack_type": "credential_phishing",
++  "confidence": "high",
++  "risk_indicators": [
++    "SPF authentication failed (IP 185.220.101.44 unauthorized)",
++    "DKIM signature verification failed and DMARC failed",
++    "Spoofed Microsoft 365 display name using lookalike domain micros0ft-auth-verify.com",
++    "Mismatched external Reply-To header pointing to support-desk@credential-update-portal.ru",
++    "Deceptive hyperlink anchoring microsoftonline.com text to http://login.micros0ft-auth-verify.com/oauth2/v2.0/authorize?mode=credential_harvest"
++  ],
++  "recommended_action": "quarantine_and_block_sender"
++}

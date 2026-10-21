@@ -1,0 +1,14 @@
+{
+  "schema": "omega.qualification.v1",
+  "model_id": "glm47-reap",
+  "engine_preset": "glm47-reap",
+  "prompt_preset": "shipping",
+  "role": "extractor",
+  "alpha_run_id": "20261017T053853Z-ocr-extraction",
+  "scenario_id": "ocr-extraction",
+  "pass_at_1": 1.0,
+  "report_uri": "reports/20261017T053853Z-ocr-extraction.md",
+  "qualified_at": "2026-10-17T05:39:22Z",
+  "expires_at": "2026-11-16T05:39:22Z",
+  "node_class": "am5-homelab-32g-3060"
+}
