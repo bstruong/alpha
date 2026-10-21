@@ -4,7 +4,7 @@
 set -uo pipefail
 M=qwen3:32b
 REPO=/home/user/odysseus
-SP=/tmp/claude-1000/-home-brian-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
+SP=/tmp/claude-1000/-home-user-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
 OUT=$SP/results_qwen3_32b; mkdir -p "$OUT"
 
 run_task() { # tid file setup testcmd prompt

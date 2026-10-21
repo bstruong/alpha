@@ -175,7 +175,7 @@ when "qualify"
   qualified = gates_passed && pass_at_1 >= threshold
 
   report_md = File.expand_path("../reports/#{options[:run_id]}.md", __dir__)
-  report_uri = File.file?(report_md) ? "file://#{report_md}" : "file://#{summary_file}"
+  report_uri = File.file?(report_md) ? "reports/#{options[:run_id]}.md" : "results/runs/#{options[:run_id]}/summary.json"
 
   qual_data = {
     "schema" => "omega.qualification.v1",

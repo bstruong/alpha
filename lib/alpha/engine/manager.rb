@@ -11,11 +11,11 @@ require "uri"
 module Alpha
   module Engine
     # Manages the on-demand lifecycle of the inference server running under k3s
-    # on Watchtower (AM5 homelab node at 127.0.0.1). Supports scaling to zero
-    # to reclaim 20 GB RAM & 11 GB VRAM, waking on demand, switching model presets,
+    # on the homelab node. Supports scaling to zero
+    # to reclaim RAM & VRAM, waking on demand, switching model presets,
     # and verifying health.
     class Manager
-      DEFAULT_HOST = "user@127.0.0.1"
+      DEFAULT_HOST = "user@homelab.local"
       DEFAULT_NAMESPACE = "alpha"
       DEFAULT_DEPLOYMENT = "alpha-llama"
       DEFAULT_BASE_URL = "http://127.0.0.1:8080/v1"

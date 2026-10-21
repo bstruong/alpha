@@ -23,7 +23,7 @@ Team, before Monday's cutover we need to track these items:
 1. Rotate the staging TLS certificate on the edge proxy.
 2. I (Elena Rostova) will finalize the Postgres 17 logical replication rollback runbook by `2026-10-18`.
 
-**[Message 2 — From: Brian <alex@apex-consulting.example> | Date: 2026-10-16 09:42 UTC]**
+**[Message 2 — From: Alex <alex@apex-consulting.example> | Date: 2026-10-16 09:42 UTC]**
 Update on item #1: I already rotated and verified the staging TLS certificate this morning. That item is 100% done and closed—remove it from the open action list.
 
 **[Message 3 — From: Marcus Vance <marcus@watchtower.local> | Date: 2026-10-16 10:15 UTC]**

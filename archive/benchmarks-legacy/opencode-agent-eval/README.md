@@ -78,4 +78,4 @@ qwen3:32b (validation / post-upgrade). Deleted: mistral-nemo, qwen2.5-coder 14b/
 ## Files here
 Modelfile.q25tools* (fix), task{B,C}_before.patch (regression setups), *.sh (harnesses),
 ab-results/ + results_32b_patched/ + results_qwen3_32b/ (per-task diffs, logs, test outputs).
-Full findings also in ~/.claude/projects/-home-brian-odysseus/memory/opencode-build-agent-model.md
+Full findings also in ~/.claude/projects/-home-user-odysseus/memory/opencode-build-agent-model.md

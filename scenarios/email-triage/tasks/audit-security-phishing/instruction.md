@@ -14,8 +14,8 @@ Note: The internal homelab status link `https://status.watchtower.local` appende
 
 ```http
 Delivered-To: alex@apex-consulting.example
-Received: from mail-relay99.external-bulk.net (185.220.101.44) by mx.apex-consulting.io
-Authentication-Results: mx.apex-consulting.io;
+Received: from mail-relay99.external-bulk.net (185.220.101.44) by mx.apex-consulting.example
+Authentication-Results: mx.apex-consulting.example;
   spf=fail (sender IP 185.220.101.44 is not authorized by domain micros0ft-auth-verify.com);
   dkim=fail (signature verification failed for d=micros0ft-auth-verify.com);
   dmarc=fail (p=quarantine dis=none) header.from=micros0ft-auth-verify.com

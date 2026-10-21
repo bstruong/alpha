@@ -20,8 +20,8 @@ sys.path.insert(0, PROJECT_ROOT)
 from tests.benchmark_suite.common import CHAT_ENDPOINT, erase_slots, repro_params
 
 REPORTS_DIR = os.path.join(PROJECT_ROOT, "reports")
-SABER_DIR = "/home/user/Projects/saber"
-CASTER_DIR = "/home/user/Projects/caster"
+SABER_DIR = os.getenv("SABER_DIR", os.path.join(PROJECT_ROOT, "saber"))
+CASTER_DIR = os.getenv("CASTER_DIR", os.path.join(PROJECT_ROOT, "caster"))
 
 
 def call_llm(model: str, system_prompt: str, user_prompt: str, max_tokens: int = 2500):
