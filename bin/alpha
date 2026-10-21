@@ -9,6 +9,7 @@ require "fileutils"
 require "time"
 
 require_relative "../config/environment"
+require_relative "../lib/alpha/qualification_manifest"
 
 def parse_oracle_options(argv)
   options = { scenario: "qwen36-daily", task: nil, keep_sandbox: false }
@@ -58,12 +59,15 @@ def parse_run_options(argv)
 end
 
 def parse_qualify_options(argv)
-  options = { run_id: nil, promote: false, role: nil }
+  options = { run_id: nil, promote: false, role: nil, list: false, manifest: false, export_dir: nil }
   parser = OptionParser.new do |opts|
-    opts.banner = "Usage: bin/alpha qualify --run RUN_ID [options]"
+    opts.banner = "Usage: bin/alpha qualify [options]"
     opts.on("-r", "--run ID", "Alpha run ID to qualify") { |v| options[:run_id] = v }
     opts.on("--role ROLE", "Qualification role: coder, scoped_coder, sanitizer, extractor, triager") { |v| options[:role] = v }
     opts.on("--promote", "Save qualification artifact for Omega") { options[:promote] = true }
+    opts.on("-l", "--list", "List all current qualified models for Omega") { options[:list] = true }
+    opts.on("-m", "--manifest", "Generate qualifications/manifest.json for Omega") { options[:manifest] = true }
+    opts.on("-e", "--export DIR", "Export active qualifications and manifest to Omega directory") { |v| options[:export_dir] = v }
   end
   parser.parse!(argv)
   options
@@ -148,7 +152,34 @@ when "engine"
 
 when "qualify"
   options = parse_qualify_options(ARGV)
-  abort "Error: --run RUN_ID is required" unless options[:run_id]
+
+  if options[:list]
+    items = Alpha::QualificationManifest.active
+    puts "=== Alpha Handoff A: Active Omega Qualifications (#{items.size} certified) ==="
+    printf "%-12s | %-24s | %-12s | %-8s | %-12s | %s\n", "ROLE", "MODEL", "PRESET", "PASS@1", "EXPIRES IN", "SCENARIO"
+    puts "-" * 88
+    items.sort_by { |q| [ q["role"].to_s, -q["pass_at_1"].to_f ] }.each do |q|
+      exp = Time.parse(q["expires_at"]) rescue nil
+      days_left = exp ? [ ((exp - Time.now.utc) / 86_400).round, 0 ].max : "?"
+      printf "%-12s | %-24s | %-12s | %-8.2f | %-10s d | %s\n",
+             q["role"], q["model_id"], q["prompt_preset"], q["pass_at_1"], "#{days_left}", q["scenario_id"]
+    end
+    exit 0
+  end
+
+  if options[:manifest]
+    manifest = Alpha::QualificationManifest.generate
+    puts "✓ Generated qualifications/manifest.json for Omega (#{manifest["roles"].keys.size} roles certified)"
+    exit 0
+  end
+
+  if options[:export_dir]
+    copied = Alpha::QualificationManifest.export(options[:export_dir])
+    puts "✓ Exported #{copied.size} qualification artifacts to #{options[:export_dir]} for Omega"
+    exit 0
+  end
+
+  abort "Error: --run RUN_ID is required (or use --list, --manifest, --export)" unless options[:run_id]
 
   results_dir = File.expand_path("../results/runs/#{options[:run_id]}", __dir__)
   summary_file = File.join(results_dir, "summary.json")
