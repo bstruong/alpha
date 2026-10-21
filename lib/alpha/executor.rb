@@ -14,3 +14,7 @@ module Alpha
     )
   end
 end
+
+require_relative "executor/base"
+require_relative "executor/pi_rpc"
+require_relative "executor/openai_chat_completions"

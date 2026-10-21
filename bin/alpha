@@ -32,7 +32,10 @@ def parse_run_options(argv)
     trials: 1,
     keep_sandbox: false,
     dry_run: false,
-    no_gate_halt: false
+    no_gate_halt: false,
+    auto_lifecycle: false,
+    max_turns: 1,
+    thinking: "low"
   }
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: bin/alpha run [options]"
@@ -42,19 +45,24 @@ def parse_run_options(argv)
     opts.on("--profile NAME", "Prompt/execution profile: shipping or measurement (default: shipping)") { |v| options[:profile] = v }
     opts.on("-t", "--task NAME", "Run only a specific task") { |v| options[:task] = v }
     opts.on("--trials N", Integer, "Number of trials per task (default: 1)") { |v| options[:trials] = v }
+    opts.on("--max-turns N", Integer, "Maximum interaction turns per task (default: 1)") { |v| options[:max_turns] = v }
+    opts.on("--repair", "Enable multi-turn test-driven repair (alias for --max-turns 2)") { options[:max_turns] = 2 }
+    opts.on("--thinking LEVEL", "Model thinking budget: off, minimal, low, medium, high, xhigh, max (default: low)") { |v| options[:thinking] = v }
     opts.on("--keep-sandbox", "Do not remove the temporary sandbox directory") { options[:keep_sandbox] = true }
     opts.on("--dry-run", "Verify prompt and sandbox preparation without executing model") { options[:dry_run] = true }
     opts.on("--no-gate-halt", "Continue running subsequent tasks even if a gate fails") { options[:no_gate_halt] = true }
+    opts.on("--wake", "--auto-lifecycle", "Wake inference engine on demand and sleep after run") { options[:auto_lifecycle] = true }
   end
   parser.parse!(argv)
   options
 end
 
 def parse_qualify_options(argv)
-  options = { run_id: nil, promote: false }
+  options = { run_id: nil, promote: false, role: nil }
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: bin/alpha qualify --run RUN_ID [options]"
     opts.on("-r", "--run ID", "Alpha run ID to qualify") { |v| options[:run_id] = v }
+    opts.on("--role ROLE", "Qualification role: coder, scoped_coder, sanitizer, extractor, triager") { |v| options[:role] = v }
     opts.on("--promote", "Save qualification artifact for Omega") { options[:promote] = true }
   end
   parser.parse!(argv)
@@ -78,15 +86,65 @@ when "run"
   target_preset = options[:preset] || target_model
 
   inference_target = Alpha::InferenceTarget.from_engine(target_preset)
-  runner = Alpha::Runner.new(scenario: scenario, inference_target: inference_target)
 
-  result = runner.call(
-    trials: options[:trials],
-    keep_sandbox: options[:keep_sandbox],
-    dry_run: options[:dry_run],
-    no_gate_halt: options[:no_gate_halt]
-  )
-  exit(result[:ok] ? 0 : 1)
+  if options[:auto_lifecycle]
+    puts "Waking engine on demand for preset #{target_preset} ..."
+    inference_target.wake!(wait: true, timeout: 60)
+  end
+
+  begin
+    runner = Alpha::Runner.new(scenario: scenario, inference_target: inference_target)
+
+    result = runner.call(
+      trials: options[:trials],
+      keep_sandbox: options[:keep_sandbox],
+      dry_run: options[:dry_run],
+      no_gate_halt: options[:no_gate_halt],
+      max_turns: options[:max_turns],
+      thinking: options[:thinking]
+    )
+    exit(result[:ok] ? 0 : 1)
+  ensure
+    if options[:auto_lifecycle]
+      puts "Putting engine to sleep (scale-to-zero) ..."
+      inference_target.sleep!
+    end
+  end
+
+when "engine"
+  subcmd = ARGV.shift || "status"
+  manager = Alpha::Engine::Manager.new
+
+  case subcmd
+  when "status"
+    st = manager.status
+    puts "=== Alpha Engine Status (Watchtower k3s) ==="
+    puts "Deployment:   #{st[:namespace]}/#{st[:deployment]}"
+    puts "Replicas:     #{st[:ready_replicas]}/#{st[:spec_replicas]}"
+    puts "Running:      #{st[:running] ? "✓ YES" : "✗ NO"}"
+    puts "Healthy:      #{st[:healthy] ? "✓ YES" : "✗ NO"}"
+    puts "Active Preset: #{st[:active_preset]}"
+    puts "Model Path:   #{st[:model_path]}"
+    puts "Alias:        #{st[:alias]}"
+    exit(st[:running] && st[:healthy] ? 0 : 1)
+
+  when "up"
+    preset = ARGV[0] == "--preset" ? ARGV[1] : ARGV[0]
+    puts "Scaling engine up (preset: #{preset || "current"})..."
+    manager.up(preset: preset, wait: true, timeout: 120)
+    puts "✓ Engine is healthy and ready!"
+    exit 0
+
+  when "down"
+    puts "Scaling engine down to zero replicas..."
+    manager.down
+    puts "✓ Engine scaled to 0 (RAM and VRAM reclaimed)."
+    exit 0
+
+  else
+    warn "Unknown engine command: #{subcmd.inspect} (use: status, up, down)"
+    exit 1
+  end
 
 when "qualify"
   options = parse_qualify_options(ARGV)
@@ -102,18 +160,29 @@ when "qualify"
   summary = JSON.parse(File.read(summary_file))
   pass_at_1 = summary.dig("aggregate", "pass_at_1").to_f
 
+  target_role = options[:role] || (
+    case summary["scenario"].to_s
+    when /scoped/i then "scoped_coder"
+    when /pii/i then "sanitizer"
+    when /ocr|extract/i then "extractor"
+    when /triage|email/i then "triager"
+    else "coder"
+    end
+  )
+
+  threshold = target_role == "triager" ? 0.75 : 0.70
   gates_passed = summary["tasks"].select { |t| t["kind"] == "gate" }.all? { |t| t["pass"] }
-  qualified = gates_passed && pass_at_1 >= 0.70
+  qualified = gates_passed && pass_at_1 >= threshold
 
   report_md = File.expand_path("../reports/#{options[:run_id]}.md", __dir__)
-  report_uri = File.file?(report_md) ? "file://#{report_md}" : "file://#{summary_file}"
+  report_uri = File.file?(report_md) ? "reports/#{options[:run_id]}.md" : "results/runs/#{options[:run_id]}/summary.json"
 
   qual_data = {
     "schema" => "omega.qualification.v1",
     "model_id" => summary["model_id"],
     "engine_preset" => summary.dig("inference", "preset") || summary["model_id"],
     "prompt_preset" => summary["prompt_preset"],
-    "role" => "coder",
+    "role" => target_role,
     "alpha_run_id" => summary["run_id"],
     "scenario_id" => summary["scenario"],
     "pass_at_1" => pass_at_1,
@@ -125,14 +194,15 @@ when "qualify"
 
   qual_dir = File.expand_path("../qualifications", __dir__)
   FileUtils.mkdir_p(qual_dir)
-  qual_path = File.join(qual_dir, "#{qual_data["model_id"]}__#{qual_data["prompt_preset"]}.json")
+  qual_path = File.join(qual_dir, "#{qual_data["model_id"]}__#{qual_data["role"]}__#{qual_data["prompt_preset"]}.json")
   File.write(qual_path, JSON.pretty_generate(qual_data))
 
   if defined?(Qualification) && Qualification.respond_to?(:table_exists?) && Qualification.table_exists?
     q = Qualification.find_or_initialize_by(
       model_id: qual_data["model_id"],
       prompt_preset: qual_data["prompt_preset"],
-      scenario_id: qual_data["scenario_id"]
+      scenario_id: qual_data["scenario_id"],
+      role: qual_data["role"]
     )
     q.engine_preset = qual_data["engine_preset"]
     q.role = qual_data["role"]
@@ -186,6 +256,7 @@ when nil, "help", "-h", "--help"
       oracle    Zero-model task & grader verification (e.g. bin/alpha oracle --task gate-hello)
       run       Run an evaluation scenario against an inference target
       qualify   Promote an evaluation run to an omega.qualification.v1 artifact
+      engine    Manage inference server lifecycle (status, up, down) on Watchtower
       doctor    Check environment, inference target health, and agent binaries
       version   Print Ruby and Rails versions
 
