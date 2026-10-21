@@ -83,7 +83,7 @@ def test_streaming_ttft_vs_total_time():
 
 def test_live_server_if_available():
     """Verify against live llama-server if running on localhost:8080 or Watchtower."""
-    health_url = os.getenv("ALPHA_HEALTH_URL") or (os.getenv("LLAMA_SERVER_URL", "http://192.168.1.92:8080").rstrip("/") + "/health")
+    health_url = os.getenv("ALPHA_HEALTH_URL") or (os.getenv("LLAMA_SERVER_URL", "http://127.0.0.1:8080").rstrip("/") + "/health")
     try:
         with urllib.request.urlopen(health_url, timeout=2) as resp:
             if resp.status != 200:

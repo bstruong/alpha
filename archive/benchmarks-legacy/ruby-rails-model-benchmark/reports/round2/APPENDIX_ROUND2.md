@@ -3105,7 +3105,7 @@ end
 
 
 ### qwen2.5-coder:14b — run 2 | executes=False | behavior=FAIL: test malformed / did not run (rc=1): e/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'
-	from /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'
+	from /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'
 	from bin/rails:4:in `<main>' | false_positive=False
 
 ```
@@ -4019,12 +4019,12 @@ end
 ```
 
 
-### deepseek-coder-v2:16b-lite-instruct-q4_K_M — run 2 | executes=False | behavior=FAIL: ruby exited 1: /home/brian/benchmarks/results/round2/tmp_h.rb:10:in `private_constant': constant Point::x not defined (NameError)
+### deepseek-coder-v2:16b-lite-instruct-q4_K_M — run 2 | executes=False | behavior=FAIL: ruby exited 1: /home/user/benchmarks/results/round2/tmp_h.rb:10:in `private_constant': constant Point::x not defined (NameError)
 
   private_constant :x, :y
   ^^^^^^^^^^^^^^^^
-	from /home/brian/benchmarks/results/round2/tmp_h.rb:10:in `<class:Point>'
-	from /home/brian/benchmarks/results/round2/tmp_h.rb:1:in `<main>' | idiom=pre-3.2-hand-rolled-class
+	from /home/user/benchmarks/results/round2/tmp_h.rb:10:in `<class:Point>'
+	from /home/user/benchmarks/results/round2/tmp_h.rb:1:in `<main>' | idiom=pre-3.2-hand-rolled-class
 
 ```
 ```ruby

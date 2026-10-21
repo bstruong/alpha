@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-08
 **Models:** `qwen2.5-coder:7b`, `qwen2.5-coder:14b`, `deepseek-coder-v2:16b-lite-instruct-q4_K_M` (via local Ollama, raw prompt-in/code-out, no tool-calling)
-**Sandbox:** `/home/brian/benchmarks/rails-scratch` (Ruby 3.3.0, Rails 7.1.6)
+**Sandbox:** `/home/user/benchmarks/rails-scratch` (Ruby 3.3.0, Rails 7.1.6)
 **Method:** 12 prompts (4 generic-Ruby / 5 Rails-7.1 / 3 Rails-8-boundary) × 3 models × 3 fresh runs each = 108 generations, all captured raw before scoring. Category A executed with plain `ruby`; Category B executed inside the Rails sandbox (migrations run and rolled back, model/controller files applied and reverted, integration tests run via `bin/rails test`) with `git checkout -- . && git clean -fd` between every trial. Category C scored qualitatively only (no execution expected or required).
 **Raw data:** `APPENDIX.md` (all 108 full outputs) and `scores_a.json` / `scores_b.json` (per-run execution results) in the same directory. Nothing here should be taken on faith — spot-check against those files.
 

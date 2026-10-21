@@ -8,8 +8,8 @@
 #   ab_bench.sh         # full 2x3 matrix
 set -uo pipefail
 
-REPO=/home/brian/odysseus
-SP=/tmp/claude-1000/-home-brian-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
+REPO=/home/user/odysseus
+SP=/tmp/claude-1000/-home-user-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
 RESULTS=$SP/ab-results
 TIMEOUT=300
 

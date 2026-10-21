@@ -20,13 +20,13 @@ __________ ERROR collecting tests/test_markitdown_format_nonstring.py __________
     exec(co, module.__dict__)
 tests/test_markitdown_format_nonstring.py:5: in <module>
     from src.markitdown_runtime import is_markitdown_format
-E     File "/home/brian/odysseus/src/markitdown_runtime.py", line 28
+E     File "/home/user/odysseus/src/markitdown_runtime.py", line 28
 E       return False
 E       ^^^^^^^^^^^^
 E   SyntaxError: 'return' outside function
 =============================== warnings summary ===============================
 core/database.py:17
-  /home/brian/odysseus/core/database.py:17: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  /home/user/odysseus/core/database.py:17: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
     Base = declarative_base()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

@@ -9,7 +9,7 @@ import urllib.request
 
 def get_default_completions_url() -> str:
     """Return default chat completions endpoint based on environment or Watchtower."""
-    base = os.getenv("ALPHA_SERVER_URL") or os.getenv("OPENAI_BASE_URL") or "http://192.168.1.92:8080/v1"
+    base = os.getenv("ALPHA_SERVER_URL") or os.getenv("OPENAI_BASE_URL") or "http://127.0.0.1:8080/v1"
     base = base.rstrip("/")
     if base.endswith("/chat/completions"):
         return base

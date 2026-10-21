@@ -20,12 +20,12 @@ __________________ ERROR collecting tests/test_url_safety.py ___________________
     exec(co, module.__dict__)
 tests/test_url_safety.py:6: in <module>
     from src.url_safety import check_outbound_url
-E     File "/home/brian/odysseus/src/url_safety.py", line 99
+E     File "/home/user/odysseus/src/url_safety.py", line 99
 E       return True, "ok"
 E   IndentationError: unexpected indent
 =============================== warnings summary ===============================
 core/database.py:17
-  /home/brian/odysseus/core/database.py:17: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  /home/user/odysseus/core/database.py:17: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
     Base = declarative_base()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

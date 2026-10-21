@@ -7,7 +7,7 @@
   "alpha_run_id": "20261017T053730Z-ocr-extraction",
   "scenario_id": "ocr-extraction",
   "pass_at_1": 1.0,
-  "report_uri": "file:///home/brian/Projects/alpha/reports/20261017T053730Z-ocr-extraction.md",
+  "report_uri": "reports/20261017T053730Z-ocr-extraction.md",
   "qualified_at": "2026-10-17T05:38:28Z",
   "expires_at": "2026-11-16T05:38:28Z",
   "node_class": "am5-homelab-32g-3060"

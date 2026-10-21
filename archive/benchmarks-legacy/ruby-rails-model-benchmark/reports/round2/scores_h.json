@@ -321,7 +321,7 @@
     "idiom": "pre-3.2-hand-rolled-class",
     "it_trap": false,
     "executes": false,
-    "behavior": "FAIL: ruby exited 1: /home/brian/benchmarks/results/round2/tmp_h.rb:10:in `private_constant': constant Point::x not defined (NameError)\n\n  private_constant :x, :y\n  ^^^^^^^^^^^^^^^^\n\tfrom /home/brian/benchmarks/results/round2/tmp_h.rb:10:in `<class:Point>'\n\tfrom /home/brian/benchmarks/results/round2/tmp_h.rb:1:in `<main>'",
+    "behavior": "FAIL: ruby exited 1: /home/user/benchmarks/results/round2/tmp_h.rb:10:in `private_constant': constant Point::x not defined (NameError)\n\n  private_constant :x, :y\n  ^^^^^^^^^^^^^^^^\n\tfrom /home/user/benchmarks/results/round2/tmp_h.rb:10:in `<class:Point>'\n\tfrom /home/user/benchmarks/results/round2/tmp_h.rb:1:in `<main>'",
     "stdout": ""
   },
   {

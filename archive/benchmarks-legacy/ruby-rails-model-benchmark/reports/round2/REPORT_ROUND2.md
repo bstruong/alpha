@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-08
 **Models:** `qwen2.5-coder:7b`, `qwen2.5-coder:14b`, `deepseek-coder-v2:16b-lite-instruct-q4_K_M`
-**Sandbox:** `/home/brian/benchmarks/rails-scratch` (same sandbox as Round 1; Ruby 3.3.0, Rails 7.1.6)
+**Sandbox:** `/home/user/benchmarks/rails-scratch` (same sandbox as Round 1; Ruby 3.3.0, Rails 7.1.6)
 **Scope:** 18 new prompts across 5 new categories (D: Rails 7.2 boundary, E: gem-referencing, F: convention-heavy Rails patterns, G: test-writing, H: Ruby-language-version ladder) × 3 models × 3 fresh runs = 162 generations.
 **Raw data:** `APPENDIX_ROUND2.md` (all 162 full outputs, annotated with scores) and `scores_d.json` / `scores_e.json` / `scores_f.json` / `scores_g.json` / `scores_h.json`. Round 1's report and appendix remain at `~/benchmarks/results/REPORT.md` / `APPENDIX.md`, untouched.
 

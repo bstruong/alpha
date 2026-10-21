@@ -12,10 +12,10 @@ Subject: Re: [TICKET-8841] Watchtower k3s Inference Node Maintenance Summary
 
 Hello Operations Team,
 
-Incident TICKET-8841 on node watchtower (192.168.1.92) has been resolved. The alpha-llama deployment was scaled to zero and reclaimed 11.2 GB VRAM.
+Incident TICKET-8841 on node watchtower (10.0.0.92) has been resolved. The alpha-llama deployment was scaled to zero and reclaimed 11.2 GB VRAM.
 
 --- Accidental Cross-Account Clipboard Quote (Personal Account) ---
-Personal Email: brian.personal.vault@proton.me
+Personal Email: operator.vault@personal.example
 Taxpayer SSN: 415-88-9021
 Home Shipping Address: 742 Evergreen Terrace, Austin, TX
 Personal Billing Card: 4532-8910-2234-9012

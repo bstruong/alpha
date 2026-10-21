@@ -4,10 +4,10 @@
 [0m→ [0mRead services/youtube/youtube_handler.py
 [0m
 [0m← [0mEdit services/youtube/youtube_handler.py
-Index: /home/brian/odysseus/services/youtube/youtube_handler.py
+Index: /home/user/odysseus/services/youtube/youtube_handler.py
 ===================================================================
---- /home/brian/odysseus/services/youtube/youtube_handler.py
-+++ /home/brian/odysseus/services/youtube/youtube_handler.py
+--- /home/user/odysseus/services/youtube/youtube_handler.py
++++ /home/user/odysseus/services/youtube/youtube_handler.py
 @@ -58,8 +58,9 @@
          YOUTUBE_AVAILABLE = False
  

@@ -4,10 +4,10 @@
 [0m→ [0mRead src/url_safety.py
 [0m
 [0m← [0mEdit src/url_safety.py
-Index: /home/brian/odysseus/src/url_safety.py
+Index: /home/user/odysseus/src/url_safety.py
 ===================================================================
---- /home/brian/odysseus/src/url_safety.py
-+++ /home/brian/odysseus/src/url_safety.py
+--- /home/user/odysseus/src/url_safety.py
++++ /home/user/odysseus/src/url_safety.py
 @@ -78,10 +78,18 @@
          return False, f"host does not resolve: {e}"
      if not raw_ips:

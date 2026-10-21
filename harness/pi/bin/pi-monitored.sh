@@ -23,7 +23,7 @@ if [[ ! -x "${LLAMA_UP}" && -x "${SCRIPT_DIR}/../../engine/bin/llama-up.sh" ]]; 
     LLAMA_DOWN="${SCRIPT_DIR}/../../engine/bin/llama-down.sh"
 fi
 
-LLAMA_SERVER_URL="${LLAMA_SERVER_URL:-http://192.168.1.92:8080}"
+LLAMA_SERVER_URL="${LLAMA_SERVER_URL:-http://127.0.0.1:8080}"
 LLAMA_HEALTH_URL="${LLAMA_SERVER_URL}/health"
 
 # -----------------------------------------------------------------------------

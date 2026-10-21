@@ -1,10 +1,10 @@
 # Multi-Account Email Audit & Triage Evaluation Report (`email-triage`)
 
 **Evaluation Date:** October 17, 2026  
-**Node:** AM5 Homelab (`watchtower`, `192.168.1.92`)  
+**Node:** AM5 Homelab (`watchtower`)  
 **Hardware Profile:** AMD Ryzen 7 9700X (8C/16T, 32 MiB L3) | 32 GB DDR5-6000 CL36 | NVIDIA GeForce RTX 3060 12GB | Samsung 990 Pro NVMe  
-**Scenario:** [`scenarios/email-triage/scenario.yml`](file:///home/brian/Projects/alpha/scenarios/email-triage/scenario.yml) (`wall_seconds: 45`, `graded_pass_at_1: 0.75`)  
-**Executor & Graders:** [`Alpha::Executor::OpenAIChatCompletions`](file:///home/brian/Projects/alpha/lib/alpha/executor/openai_chat_completions.rb), [`Alpha::Grader::JsonSchema`](file:///home/brian/Projects/alpha/lib/alpha/grader/json_schema.rb), [`Alpha::Grader::PatternDeny`](file:///home/brian/Projects/alpha/lib/alpha/grader/pattern_deny.rb)
+**Scenario:** [`scenarios/email-triage/scenario.yml`](../scenarios/email-triage/scenario.yml) (`wall_seconds: 45`, `graded_pass_at_1: 0.75`)  
+**Executor & Graders:** [`Alpha::Executor::OpenAIChatCompletions`](../lib/alpha/executor/openai_chat_completions.rb), [`Alpha::Grader::JsonSchema`](../lib/alpha/grader/json_schema.rb), [`Alpha::Grader::PatternDeny`](../lib/alpha/grader/pattern_deny.rb)
 
 ---
 
@@ -44,7 +44,7 @@ The suite evaluates multi-account email priority classification, phishing/header
 
 ### Task 1: `triage-classify-priority` (Structured Multi-Account Triage)
 - **Objective:** Ingest 4 cross-account messages (Personal, Work, Homelab Alerts) and classify priority (`P1`–`P4`), category, summary, and action flag.
-- **Grader:** [`Alpha::Grader::JsonSchema`](file:///home/brian/Projects/alpha/lib/alpha/grader/json_schema.rb) | **Thinking Level:** `none`
+- **Grader:** [`Alpha::Grader::JsonSchema`](../lib/alpha/grader/json_schema.rb) | **Thinking Level:** `none`
 - **Model Performance & Latency:**
   - `gemma4-4b`: **2.104s** (706 prompt / 125 completion, **59.4 tok/s**, **0.52s/email**) — ✅ PASS.
   - `gemma4-12b`: **4.147s** (710 prompt / 127 completion, **30.6 tok/s**, **1.04s/email**) — ✅ PASS.
@@ -58,7 +58,7 @@ The suite evaluates multi-account email priority classification, phishing/header
 
 ### Task 2: `audit-security-phishing` (Envelope & Header Threat Audit)
 - **Objective:** Detect credential phishing attacks via SPF/DKIM authentication failures, lookalike sender/link domains, and mismatched `Reply-To` addresses without flagging internal homelab services.
-- **Grader:** [`Alpha::Grader::JsonSchema`](file:///home/brian/Projects/alpha/lib/alpha/grader/json_schema.rb) | **Thinking Level:** `low`
+- **Grader:** [`Alpha::Grader::JsonSchema`](../lib/alpha/grader/json_schema.rb) | **Thinking Level:** `low`
 - **Model Performance & Latency:**
   - `gemma4-4b`: **2.425s** (727 prompt / 151 completion, **62.3 tok/s**) — ✅ PASS.
   - `gemma4-12b`: **6.574s** (731 prompt / 219 completion, **33.3 tok/s**) — ✅ PASS.
@@ -74,7 +74,7 @@ The suite evaluates multi-account email priority classification, phishing/header
 
 ### Task 3: `thread-action-extraction` (Multi-Party Thread Analysis)
 - **Objective:** Extract active deliverables, owners, deadlines, and context across a 6-message conversation thread while excluding closed/completed tasks.
-- **Grader:** [`Alpha::Grader::JsonSchema`](file:///home/brian/Projects/alpha/lib/alpha/grader/json_schema.rb) | **Thinking Level:** `none`
+- **Grader:** [`Alpha::Grader::JsonSchema`](../lib/alpha/grader/json_schema.rb) | **Thinking Level:** `none`
 - **Model Performance & Latency:**
   - `gemma4-4b`: **3.171s** (746 prompt / 213 completion, **67.2 tok/s**) — ✅ PASS.
   - `gemma4-12b`: **6.717s** (750 prompt / 221 completion, **32.9 tok/s**) — ✅ PASS.
@@ -88,7 +88,7 @@ The suite evaluates multi-account email priority classification, phishing/header
 
 ### Task 4: `isolation-cross-account-leakage` (Cross-Account Boundary Isolation)
 - **Objective:** Scrub personal clipboard leakage (SSN, credit card, home address, personal email, API key) from a work ticket response using the strict placeholder marker `[PERSONAL_PII_REDACTED]`.
-- **Grader:** [`Alpha::Grader::PatternDeny`](file:///home/brian/Projects/alpha/lib/alpha/grader/pattern_deny.rb) | **Thinking Level:** `none`
+- **Grader:** [`Alpha::Grader::PatternDeny`](../lib/alpha/grader/pattern_deny.rb) | **Thinking Level:** `none`
 - **Model Performance & Latency:**
   - `gemma4-4b`: **2.426s** (436 prompt / 168 completion, **69.3 tok/s**) — ✅ PASS (`violations: []`).
   - `gemma4-12b`: **4.970s** (440 prompt / 168 completion, **33.8 tok/s**) — ✅ PASS (`violations: []`).
@@ -107,7 +107,7 @@ The suite evaluates multi-account email priority classification, phishing/header
 - It consumes only **3.77 GB VRAM** and **0 GB host RAM**, leaving over **8.1 GB VRAM** unallocated for concurrent homelab workloads (embeddings, Immich, Paperless-ngx).
 
 ### 3.2. Eliminating Unbounded MoE `<think>` Overhead
-- Passing `"chat_template_kwargs" => { "thinking" => false, "enable_thinking" => false }` and `reasoning_budget: 0` inside [`Alpha::Executor::OpenAIChatCompletions`](file:///home/brian/Projects/alpha/lib/alpha/executor/openai_chat_completions.rb#L34-L48) eliminated hidden deliberation tokens on Qwen 3.6 and GLM-4.7, dropping structured JSON latency from **33s down to ~3.5s**.
+- Passing `"chat_template_kwargs" => { "thinking" => false, "enable_thinking" => false }` and `reasoning_budget: 0` inside [`Alpha::Executor::OpenAIChatCompletions`](../lib/alpha/executor/openai_chat_completions.rb#L34-L48) eliminated hidden deliberation tokens on Qwen 3.6 and GLM-4.7, dropping structured JSON latency from **33s down to ~3.5s**.
 
 ### 3.3. `--cpu-moe` Hybrid Offloading with Gemma 4 27B
 - Gemma 4 26B-A4B routes 4B active parameters into GPU VRAM (**3.26 GB**) while holding inactive experts in host DDR5 RAM (**15 GB**).
@@ -151,17 +151,17 @@ Based on the empirical 6-model findings, the recommended homelab email architect
 ## 5. Qualification & Run Artifacts
 
 ### Official Qualification Artifacts (`omega.qualification.v1`)
-- [`qualifications/gemma4-4b__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/gemma4-4b__triager__shipping.json) (Pass@1: **1.00**)
-- [`qualifications/gemma4-12b__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/gemma4-12b__triager__shipping.json) (Pass@1: **1.00**)
-- [`qualifications/gemma4-27b__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/gemma4-27b__triager__shipping.json) (Pass@1: **1.00**)
-- [`qualifications/qwen25-coder-14b__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/qwen25-coder-14b__triager__shipping.json) (Pass@1: **1.00**)
-- [`qualifications/qwen36-coder-hybrid__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/qwen36-coder-hybrid__triager__shipping.json) (Pass@1: **1.00**)
-- [`qualifications/glm47-reap__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/glm47-reap__triager__shipping.json) (Pass@1: **0.75**)
+- [`qualifications/gemma4-4b__triager__shipping.json`](../qualifications/gemma4-4b__triager__shipping.json) (Pass@1: **1.00**)
+- [`qualifications/gemma4-12b__triager__shipping.json`](../qualifications/gemma4-12b__triager__shipping.json) (Pass@1: **1.00**)
+- [`qualifications/gemma4-27b__triager__shipping.json`](../qualifications/gemma4-27b__triager__shipping.json) (Pass@1: **1.00**)
+- [`qualifications/qwen25-coder-14b__triager__shipping.json`](../qualifications/qwen25-coder-14b__triager__shipping.json) (Pass@1: **1.00**)
+- [`qualifications/qwen36-coder-hybrid__triager__shipping.json`](../qualifications/qwen36-coder-hybrid__triager__shipping.json) (Pass@1: **1.00**)
+- [`qualifications/glm47-reap__triager__shipping.json`](../qualifications/glm47-reap__triager__shipping.json) (Pass@1: **0.75**)
 
 ### Individual Run Summaries & Deep-Dive Reports
-- **Gemma 4 E4B (`20261017T172657Z-email-triage`):** [`GEMMA4_E4B_EVALUATION_REPORT.md`](file:///home/brian/Projects/alpha/reports/GEMMA4_E4B_EVALUATION_REPORT.md) | [`report.md`](file:///home/brian/Projects/alpha/reports/20261017T172657Z-email-triage.md)
-- **Gemma 4 12B (`20261017T174427Z-email-triage`):** [`GEMMA4_12B_EVALUATION_REPORT.md`](file:///home/brian/Projects/alpha/reports/GEMMA4_12B_EVALUATION_REPORT.md) | [`report.md`](file:///home/brian/Projects/alpha/reports/20261017T174427Z-email-triage.md)
-- **Gemma 4 27B (`20261017T175836Z-email-triage`):** [`GEMMA4_27B_EVALUATION_REPORT.md`](file:///home/brian/Projects/alpha/reports/GEMMA4_27B_EVALUATION_REPORT.md) | [`report.md`](file:///home/brian/Projects/alpha/reports/20261017T175836Z-email-triage.md)
-- **Qwen 2.5 Coder 14B (`20261017T060203Z-email-triage`):** [`20261017T060203Z-email-triage.md`](file:///home/brian/Projects/alpha/reports/20261017T060203Z-email-triage.md)
-- **GLM-4.7 Flash REAP (`20261017T060416Z-email-triage`):** [`20261017T060416Z-email-triage.md`](file:///home/brian/Projects/alpha/reports/20261017T060416Z-email-triage.md)
-- **Qwen 3.6 MoE Hybrid (`20261017T060511Z-email-triage`):** [`20261017T060511Z-email-triage.md`](file:///home/brian/Projects/alpha/reports/20261017T060511Z-email-triage.md)
+- **Gemma 4 E4B (`20261017T172657Z-email-triage`):** [`GEMMA4_E4B_EVALUATION_REPORT.md`](GEMMA4_E4B_EVALUATION_REPORT.md) | [`report.md`](20261017T172657Z-email-triage.md)
+- **Gemma 4 12B (`20261017T174427Z-email-triage`):** [`GEMMA4_12B_EVALUATION_REPORT.md`](GEMMA4_12B_EVALUATION_REPORT.md) | [`report.md`](20261017T174427Z-email-triage.md)
+- **Gemma 4 27B (`20261017T175836Z-email-triage`):** [`GEMMA4_27B_EVALUATION_REPORT.md`](GEMMA4_27B_EVALUATION_REPORT.md) | [`report.md`](20261017T175836Z-email-triage.md)
+- **Qwen 2.5 Coder 14B (`20261017T060203Z-email-triage`):** [`20261017T060203Z-email-triage.md`](20261017T060203Z-email-triage.md)
+- **GLM-4.7 Flash REAP (`20261017T060416Z-email-triage`):** [`20261017T060416Z-email-triage.md`](20261017T060416Z-email-triage.md)
+- **Qwen 3.6 MoE Hybrid (`20261017T060511Z-email-triage`):** [`20261017T060511Z-email-triage.md`](20261017T060511Z-email-triage.md)

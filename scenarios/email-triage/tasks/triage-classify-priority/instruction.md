@@ -11,22 +11,22 @@ The JSON object must strictly adhere to this schema:
 
 ### Incoming Multi-Account Batch
 
-**[Email 1 — Account: `personal` (`brian.personal@example.com`)]**
+**[Email 1 — Account: `personal` (`alex.personal@example.com`)]**
 From: Deals Weekly <promo@ergokeyboards-direct.example>
 Subject: FLASH SALE: 40% Off Split Mechanical Keyboards Ends Tonight!
 Body: Upgrade your desk setup today with coupon code MECH40. Unsubscribe anytime.
 
-**[Email 2 — Account: `work` (`brian@apex-consulting.io`)]**
+**[Email 2 — Account: `work` (`alex@apex-consulting.example`)]**
 From: CloudBilling <billing@saas-metrics.example>
 Subject: Invoice #INV-2026-1042 for October 2026 ($49.00)
 Body: Your monthly subscription invoice for $49.00 has been generated. Auto-pay is scheduled for November 15, 2026. No immediate action is required.
 
-**[Email 3 — Account: `work` (`brian@apex-consulting.io`)]**
+**[Email 3 — Account: `work` (`alex@apex-consulting.example`)]**
 From: Sarah Jenkins <s.jenkins@acmecorp.example>
 Subject: Urgent Calendar Conflict: Q4 Architecture Review Tomorrow
-Body: Hi Brian, our VP has a hard conflict with tomorrow's 10:00 AM PT Q4 Architecture Review. Can we move the session to 2:00 PM PT tomorrow? Please confirm today.
+Body: Hi Alex, our VP has a hard conflict with tomorrow's 10:00 AM PT Q4 Architecture Review. Can we move the session to 2:00 PM PT tomorrow? Please confirm today.
 
 **[Email 4 — Account: `homelab-alerts@watchtower.local`]**
 From: Alertmanager <alertmanager@watchtower.local>
-Subject: [FIRING:1] NodeStorageAndGPUCritical on watchtower (192.168.1.92)
-Body: CRITICAL P1 PRODUCTION ALERT: k3s node `watchtower` (192.168.1.92) NVMe pool `/mnt/models` is at 98.4% capacity and RTX 3060 GPU reported a PCIe bus reset causing `alpha-llama` deployment crash-loop. Immediate intervention required.
+Subject: [FIRING:1] NodeStorageAndGPUCritical on watchtower (10.0.0.92)
+Body: CRITICAL P1 PRODUCTION ALERT: k3s node `watchtower` (10.0.0.92) NVMe pool `/mnt/models` is at 98.4% capacity and RTX 3060 GPU reported a PCIe bus reset causing `alpha-llama` deployment crash-loop. Immediate intervention required.

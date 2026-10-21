@@ -6,6 +6,6 @@
 +  "category": "production_alert",
 +  "urgency": "P1",
 +  "action_required": true,
-+  "summary": "Critical production alert on watchtower (192.168.1.92): NVMe pool at 98.4% capacity and RTX 3060 GPU PCIe reset causing alpha-llama crash-loop.",
++  "summary": "Critical production alert on watchtower (10.0.0.92): NVMe pool at 98.4% capacity and RTX 3060 GPU PCIe reset causing alpha-llama crash-loop.",
 +  "tags": ["watchtower", "k3s", "nvme", "gpu", "p1"]
 +}

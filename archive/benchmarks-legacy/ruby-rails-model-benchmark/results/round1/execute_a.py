@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from execute_common import (RESULTS_DIR, MODELS, extract_code, load_run, sh, write_scores)
 
 PROMPT_IDS = ["A1", "A2", "A3", "A4"]
-TMP_RB = "/home/brian/benchmarks/results/tmp_a.rb"
+TMP_RB = "/home/user/benchmarks/results/tmp_a.rb"
 
 def run_one(prompt_id, model, run):
     content = load_run(prompt_id, model, run)
@@ -24,7 +24,7 @@ def run_one(prompt_id, model, run):
     with open(TMP_RB, "w") as f:
         f.write(code + "\n\n" + driver)
 
-    rc, out, err = sh(f"ruby {TMP_RB}", cwd="/home/brian/benchmarks/results", timeout=15)
+    rc, out, err = sh(f"ruby {TMP_RB}", cwd="/home/user/benchmarks/results", timeout=15)
     result["exit_code"] = rc
     result["stdout"] = out.strip()
     result["stderr"] = err.strip()[-2000:]

@@ -12,7 +12,7 @@ This is a **CachyOS i7-4790K / RX 7600 workstation** hardware report from the se
 
 | When | Event |
 |------|--------|
-| 2026-10-02 14:51 | Source file birth in `/home/brian/Projects/hyperbolic-time-chamber/...` (also `root:root`) |
+| 2026-10-02 14:51 | Source file birth in `hyperbolic-time-chamber/...` (also `root:root`) |
 | 2026-10-02 14:58–14:59 | Copied into this repo; commit `75d2661` on `archive/workstation-benchmark-report`. Working-tree copy birth/mtime/ctime all **2026-10-02 14:59** (inode never rewritten later) |
 | 2026-10-06 | Accidentally re-staged in `1887f4e`, removed from the index in `2f0885a` (PR #17). Squash merge `dd6c7f6` never left the file in `master` |
 | After removal | Path kept appearing in `git status` as **untracked** because the **on-disk inode was never unlinked** |

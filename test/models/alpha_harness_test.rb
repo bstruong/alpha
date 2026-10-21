@@ -38,7 +38,7 @@ class AlphaHarnessTest < ActiveSupport::TestCase
     ]
 
     target = Alpha::InferenceTarget.new(
-      base_url: "http://192.168.1.92:8080/v1",
+      base_url: "http://127.0.0.1:8080/v1",
       model_id: "qwen36-coder-hybrid",
       engine_preset: "qwen36-coder-hybrid"
     )

@@ -6,11 +6,10 @@ require "uri"
 require_relative "engine/manager"
 
 module Alpha
-  # Points at the AM5 homelab (watchtower) OpenAI-compatible endpoint.
-  # Standardizes on http://192.168.1.92:8080/v1 by default so invocations
-  # work identically from watchtower (AM5) or metrotower (Haswell desk).
+  # Points at the OpenAI-compatible inference endpoint.
+  # Defaults to http://127.0.0.1:8080 or ENV["LLAMA_SERVER_URL"].
   class InferenceTarget
-    DEFAULT_HOST_URL = "http://192.168.1.92:8080"
+    DEFAULT_HOST_URL = ENV.fetch("LLAMA_SERVER_URL", "http://127.0.0.1:8080")
 
     attr_reader :base_url, :model_id, :engine_preset, :context_window
 

@@ -1,11 +1,11 @@
 # Gemma 4 27B / 26B-A4B Instruct (`gemma4-27b`) Evaluation Report: Email Triage Battery
 
 **Evaluation Date:** October 17, 2026  
-**Node:** AM5 Homelab (`watchtower`, `192.168.1.92`)  
+**Node:** AM5 Homelab (`watchtower`)  
 **Hardware Profile:** AMD Ryzen 7 9700X (8C/16T, 32 MiB L3) | 32 GB DDR5-6000 CL36 | NVIDIA GeForce RTX 3060 12GB | Samsung 990 Pro NVMe  
 **Model Under Test:** `gemma4-27b` (`bartowski/google_gemma-4-26B-A4B-it-GGUF`, `Q4_K_M`, 15.86 GB file size, 25.2B total / 4B active parameters MoE)  
-**Run ID:** [`20261017T175836Z-email-triage`](file:///home/brian/Projects/alpha/results/runs/20261017T175836Z-email-triage/summary.json)  
-**Qualification:** [`qualifications/gemma4-27b__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/gemma4-27b__triager__shipping.json) (`role: triager`, Pass@1 = `1.00`)
+**Run ID:** [`20261017T175836Z-email-triage`](../results/runs/20261017T175836Z-email-triage/summary.json)  
+**Qualification:** [`qualifications/gemma4-27b__triager__shipping.json`](../qualifications/gemma4-27b__triager__shipping.json) (`role: triager`, Pass@1 = `1.00`)
 
 ---
 
@@ -124,7 +124,7 @@ By utilizing `--cpu-moe` hybrid offloading, the model placed its 4B active atten
 
   Hello Operations Team,
 
-  Incident TICKET-8841 on node watchtower (192.168.1.92) has been resolved. The alpha-llama deployment was scaled to zero and reclaimed 11.2 GB VRAM.
+  Incident TICKET-8841 on node watchtower (10.0.0.92) has been resolved. The alpha-llama deployment was scaled to zero and reclaimed 11.2 GB VRAM.
 
   --- Accidental Cross-Account Clipboard Quote (Personal Account) ---
   Personal Email: [PERSONAL_PII_REDACTED]
@@ -179,6 +179,6 @@ With all three Gemma 4 tiers evaluated and qualified, a clear division of labor 
 
 ## 4. Run & Qualification Artifacts
 
-- **Alpha Summary JSON:** [`results/runs/20261017T175836Z-email-triage/summary.json`](file:///home/brian/Projects/alpha/results/runs/20261017T175836Z-email-triage/summary.json)
-- **Alpha Markdown Report:** [`reports/20261017T175836Z-email-triage.md`](file:///home/brian/Projects/alpha/reports/20261017T175836Z-email-triage.md)
-- **Qualification Record:** [`qualifications/gemma4-27b__triager__shipping.json`](file:///home/brian/Projects/alpha/qualifications/gemma4-27b__triager__shipping.json)
+- **Alpha Summary JSON:** [`results/runs/20261017T175836Z-email-triage/summary.json`](../results/runs/20261017T175836Z-email-triage/summary.json)
+- **Alpha Markdown Report:** [`reports/20261017T175836Z-email-triage.md`](20261017T175836Z-email-triage.md)
+- **Qualification Record:** [`qualifications/gemma4-27b__triager__shipping.json`](../qualifications/gemma4-27b__triager__shipping.json)

@@ -2,8 +2,8 @@
 # Competence test: PATCHED 32B (bare-JSON template) on all 3 tasks, headless OpenCode.
 set -uo pipefail
 M=qwen2.5-coder-tools:32b
-REPO=/home/brian/odysseus
-SP=/tmp/claude-1000/-home-brian-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
+REPO=/home/user/odysseus
+SP=/tmp/claude-1000/-home-user-odysseus/2fae7a02-ebad-43fa-a859-96726b4ebf02/scratchpad
 OUT=$SP/results_32b_patched; mkdir -p "$OUT"
 
 run_task() { # tid file setup testcmd prompt

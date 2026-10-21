@@ -1,4 +1,4 @@
-Perform a security and phishing audit on the raw email message below received by `brian@apex-consulting.io`.
+Perform a security and phishing audit on the raw email message below received by `alex@apex-consulting.example`.
 Inspect the SMTP authentication headers (`SPF`, `DKIM`, `DMARC`), sender display name vs. envelope domain, `Reply-To` header, and embedded hyperlinks.
 
 Output a single JSON object adhering strictly to this schema:
@@ -13,15 +13,15 @@ Note: The internal homelab status link `https://status.watchtower.local` appende
 ### Raw Email Under Audit
 
 ```http
-Delivered-To: brian@apex-consulting.io
-Received: from mail-relay99.external-bulk.net (185.220.101.44) by mx.apex-consulting.io
-Authentication-Results: mx.apex-consulting.io;
+Delivered-To: alex@apex-consulting.example
+Received: from mail-relay99.external-bulk.net (185.220.101.44) by mx.apex-consulting.example
+Authentication-Results: mx.apex-consulting.example;
   spf=fail (sender IP 185.220.101.44 is not authorized by domain micros0ft-auth-verify.com);
   dkim=fail (signature verification failed for d=micros0ft-auth-verify.com);
   dmarc=fail (p=quarantine dis=none) header.from=micros0ft-auth-verify.com
 From: "Microsoft 365 Security Team" <security-alert@micros0ft-auth-verify.com>
 Reply-To: support-desk@credential-update-portal.ru
-To: brian@apex-consulting.io
+To: alex@apex-consulting.example
 Subject: [URGENT] Immediate MFA Token Re-Authentication Required Within 2 Hours
 Content-Type: text/html; charset="UTF-8"
 

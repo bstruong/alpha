@@ -1,8 +1,8 @@
 import json, os, re, subprocess, time
 
-RESULTS_DIR = "/home/brian/benchmarks/results/round2"
+RESULTS_DIR = "/home/user/benchmarks/results/round2"
 RAW_DIR = os.path.join(RESULTS_DIR, "raw")
-SANDBOX = "/home/brian/benchmarks/rails-scratch"
+SANDBOX = "/home/user/benchmarks/rails-scratch"
 MODELS = [
     "qwen2.5-coder:7b",
     "qwen2.5-coder:14b",

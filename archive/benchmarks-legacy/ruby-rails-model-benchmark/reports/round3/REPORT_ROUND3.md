@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-08
 **Model:** `qwen3:8b` (5.2 GB), run in default/non-thinking mode via Ollama's `think: false` API parameter — confirmed via log inspection that all 90 generations show `thinking_present=False`, so mode was consistent throughout.
-**Sandbox:** `/home/brian/benchmarks/rails-scratch` — same disposable sandbox as Rounds 1/2, confirmed clean at Round 2's final commit (`2544dee`) before starting, no drift.
+**Sandbox:** `/home/user/benchmarks/rails-scratch` — same disposable sandbox as Rounds 1/2, confirmed clean at Round 2's final commit (`2544dee`) before starting, no drift.
 **Scope:** the exact same 30 prompts from Rounds 1 and 2, reused verbatim from their `prompts.json` source files (not re-transcribed from prose, so wording is byte-identical) × 1 model × 3 fresh runs = 90 generations.
 **Raw data:** `APPENDIX_ROUND3.md` (all 90 outputs, annotated with scores) and `scores_a.json` / `scores_b.json` / `scores_d.json` / `scores_e.json` / `scores_f.json` / `scores_g.json` / `scores_h.json`.
 

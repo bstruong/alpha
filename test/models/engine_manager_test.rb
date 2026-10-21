@@ -4,11 +4,11 @@ require "test_helper"
 
 class EngineManagerTest < ActiveSupport::TestCase
   test "initializes with default options" do
-    mgr = Alpha::Engine::Manager.new
+    mgr = Alpha::Engine::Manager.new(base_url: Alpha::Engine::Manager::DEFAULT_BASE_URL)
     assert_equal "alpha", mgr.namespace
     assert_equal "alpha-llama", mgr.deployment
-    assert_equal "http://192.168.1.92:8080/v1", mgr.base_url
-    assert_equal "http://192.168.1.92:8080", mgr.server_root_url
+    assert_equal "http://127.0.0.1:8080/v1", mgr.base_url
+    assert_equal "http://127.0.0.1:8080", mgr.server_root_url
   end
 
   test "resolves presets correctly" do
@@ -63,7 +63,7 @@ class EngineManagerTest < ActiveSupport::TestCase
 
   test "InferenceTarget provides wake! and sleep! methods" do
     target = Alpha::InferenceTarget.new(
-      base_url: "http://192.168.1.92:8080/v1",
+      base_url: "http://127.0.0.1:8080/v1",
       model_id: "qwen36-coder-hybrid",
       engine_preset: "qwen36-coder-hybrid"
     )

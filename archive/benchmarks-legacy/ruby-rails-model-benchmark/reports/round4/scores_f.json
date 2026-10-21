@@ -153,11 +153,11 @@
     "run": 3,
     "code_extracted": true,
     "executes": false,
-    "behavior": "FAIL: runner errored: ise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'",
+    "behavior": "FAIL: runner errored: ise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `require'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'",
     "detail": {
       "rc": 1,
       "out": "",
-      "err": "e/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/command.rb:149:in `with_argv'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/command.rb:69:in `invoke'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/commands.rb:18:in `<main>'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'\n",
+      "err": "e/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/command.rb:149:in `with_argv'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/command.rb:69:in `invoke'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/railties-7.1.6/lib/rails/commands.rb:18:in `<main>'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `require'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'\n",
       "module_name": "Archivable"
     }
   },

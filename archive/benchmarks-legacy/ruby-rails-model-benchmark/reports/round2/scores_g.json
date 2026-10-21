@@ -208,7 +208,7 @@
     "run": 2,
     "code_extracted": true,
     "executes": false,
-    "behavior": "FAIL: test malformed / did not run (rc=1): e/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'",
+    "behavior": "FAIL: test malformed / did not run (rc=1): e/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'\n\tfrom /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'\n\tfrom bin/rails:4:in `<main>'",
     "detail": {
       "summary_vs_correct": null,
       "summary_vs_broken": null,

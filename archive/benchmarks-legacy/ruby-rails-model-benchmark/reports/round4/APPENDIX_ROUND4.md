@@ -2849,8 +2849,8 @@ end
 
 
 ### gemma4:12b-it-q4_K_M — run 3 | executes=False | behavior=FAIL: runner errored: ise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `require'
-	from /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'
-	from /home/brian/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'
+	from /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/3.3.0/bundled_gems.rb:74:in `block (2 levels) in replace_require'
+	from /home/user/.local/share/mise/installs/ruby/3.3.0/lib/ruby/gems/3.3.0/gems/bootsnap-1.25.0/lib/bootsnap/load_path_cache/core_ext/kernel_require.rb:33:in `require'
 	from bin/rails:4:in `<main>'
 
 ```

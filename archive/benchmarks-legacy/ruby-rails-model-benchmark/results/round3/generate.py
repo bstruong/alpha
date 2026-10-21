@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json, os, sys, time, urllib.request
 
-RESULTS_DIR = "/home/brian/benchmarks/results/round3"
+RESULTS_DIR = "/home/user/benchmarks/results/round3"
 RAW_DIR = os.path.join(RESULTS_DIR, "raw")
 MODELS = ["qwen3:8b"]
 RUNS_PER_PROMPT = 3

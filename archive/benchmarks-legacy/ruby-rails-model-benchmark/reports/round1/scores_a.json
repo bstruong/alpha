@@ -7,7 +7,7 @@
     "raw_chars": 173,
     "exit_code": 1,
     "stdout": "",
-    "stderr": "/home/brian/benchmarks/results/tmp_a.rb: /home/brian/benchmarks/results/tmp_a.rb:13: unmatched close parenthesis: /\\b\\w+\\b).each_with_object(Hash.new(0)) { |word, freq| freq[word] += 1 }.sort_by { |_word, count| -count }.to_h (SyntaxError)\nend\n\n# Driver for A1: word_frequency(text)\nbegin\n  text = \"The quick, brown fox! The fox jumps over the lazy dog. THE fox runs fast; the dog barks.\"\n  result = word_frequency(text)\n  raise \"not a Hash\" unless result.is_a?(Hash)\n  norm = {}\n  result.each { |k, v| norm[k.to_s.downcase] = v }\n  # reference computation\n  words = text.downcase.gsub(/\n/home/brian/benchmarks/results/tmp_a.rb:13: syntax error, unexpected '^', expecting ']'\n... words = text.downcase.gsub(/[^a-z\\s]/, \"\").split\n...                              ^",
+    "stderr": "/home/user/benchmarks/results/tmp_a.rb: /home/user/benchmarks/results/tmp_a.rb:13: unmatched close parenthesis: /\\b\\w+\\b).each_with_object(Hash.new(0)) { |word, freq| freq[word] += 1 }.sort_by { |_word, count| -count }.to_h (SyntaxError)\nend\n\n# Driver for A1: word_frequency(text)\nbegin\n  text = \"The quick, brown fox! The fox jumps over the lazy dog. THE fox runs fast; the dog barks.\"\n  result = word_frequency(text)\n  raise \"not a Hash\" unless result.is_a?(Hash)\n  norm = {}\n  result.each { |k, v| norm[k.to_s.downcase] = v }\n  # reference computation\n  words = text.downcase.gsub(/\n/home/user/benchmarks/results/tmp_a.rb:13: syntax error, unexpected '^', expecting ']'\n... words = text.downcase.gsub(/[^a-z\\s]/, \"\").split\n...                              ^",
     "executes": false,
     "behavior": "FAIL: ruby exited 1"
   },
@@ -19,7 +19,7 @@
     "raw_chars": 211,
     "exit_code": 1,
     "stdout": "",
-    "stderr": "/home/brian/benchmarks/results/tmp_a.rb: /home/brian/benchmarks/results/tmp_a.rb:15: unmatched close parenthesis: /\\b[\\w']+\\b').each_with_object(Hash.new(0)) { |word, hash| hash[word] += 1 } (SyntaxError)\n                .sort_by { |_word, count| -count }\n                .to_h\nend\n\n# Driver for A1: word_frequency(text)\nbegin\n  text = \"The quick, brown fox! The fox jumps over the lazy dog. THE fox runs fast; the dog barks.\"\n  result = word_frequency(text)\n  raise \"not a Hash\" unless result.is_a?(Hash)\n  norm = {}\n  result.each { |k, v| norm[k.to_s.downcase] = v }\n  # reference computation\n  words = text.downcase.gsub(/\n/home/brian/benchmarks/results/tmp_a.rb:15: syntax error, unexpected '^', expecting ']'\n... words = text.downcase.gsub(/[^a-z\\s]/, \"\").split\n...                              ^",
+    "stderr": "/home/user/benchmarks/results/tmp_a.rb: /home/user/benchmarks/results/tmp_a.rb:15: unmatched close parenthesis: /\\b[\\w']+\\b').each_with_object(Hash.new(0)) { |word, hash| hash[word] += 1 } (SyntaxError)\n                .sort_by { |_word, count| -count }\n                .to_h\nend\n\n# Driver for A1: word_frequency(text)\nbegin\n  text = \"The quick, brown fox! The fox jumps over the lazy dog. THE fox runs fast; the dog barks.\"\n  result = word_frequency(text)\n  raise \"not a Hash\" unless result.is_a?(Hash)\n  norm = {}\n  result.each { |k, v| norm[k.to_s.downcase] = v }\n  # reference computation\n  words = text.downcase.gsub(/\n/home/user/benchmarks/results/tmp_a.rb:15: syntax error, unexpected '^', expecting ']'\n... words = text.downcase.gsub(/[^a-z\\s]/, \"\").split\n...                              ^",
     "executes": false,
     "behavior": "FAIL: ruby exited 1"
   },
@@ -55,7 +55,7 @@
     "raw_chars": 406,
     "exit_code": 1,
     "stdout": "",
-    "stderr": "/home/brian/benchmarks/results/tmp_a.rb:8:in `private': undefined method `@store' for class `Stack' (NameError)\n\n  private :@store\n  ^^^^^^^\n\tfrom /home/brian/benchmarks/results/tmp_a.rb:8:in `<class:Stack>'\n\tfrom /home/brian/benchmarks/results/tmp_a.rb:3:in `<main>'",
+    "stderr": "/home/user/benchmarks/results/tmp_a.rb:8:in `private': undefined method `@store' for class `Stack' (NameError)\n\n  private :@store\n  ^^^^^^^\n\tfrom /home/user/benchmarks/results/tmp_a.rb:8:in `<class:Stack>'\n\tfrom /home/user/benchmarks/results/tmp_a.rb:3:in `<main>'",
     "executes": false,
     "behavior": "FAIL: ruby exited 1"
   },

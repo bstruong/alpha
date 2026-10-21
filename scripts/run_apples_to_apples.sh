@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd /home/btruong/projects/alpha
+cd "$(dirname "$0")/.."
 
 echo "=== Running GLM-4.7 Flash REAP Apples-to-Apples Suite on Watchtower ==="
 date

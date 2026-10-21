@@ -187,7 +187,7 @@ def require_server() -> None:
     import os
     import requests
 
-    health_url = os.getenv("ALPHA_HEALTH_URL") or (os.getenv("LLAMA_SERVER_URL", "http://192.168.1.92:8080").rstrip("/") + "/health")
+    health_url = os.getenv("ALPHA_HEALTH_URL") or (os.getenv("LLAMA_SERVER_URL", "http://127.0.0.1:8080").rstrip("/") + "/health")
     try:
         r = requests.get(health_url, timeout=3)
         if r.status_code != 200:
