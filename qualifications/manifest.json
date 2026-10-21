@@ -1,0 +1,180 @@
+{
+  "schema": "omega.qualification_manifest.v1",
+  "generated_at": "2026-10-21T02:45:25Z",
+  "roles": {
+    "coder": {
+      "primary_model": "qwen36-coder-hybrid",
+      "qualified_models": [
+        {
+          "model_id": "qwen36-coder-hybrid",
+          "engine_preset": "qwen36-coder-hybrid",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "qwen36-daily",
+          "report_uri": "reports/20261017T035031Z-qwen36-daily.md",
+          "qualified_at": "2026-10-17T04:06:15Z",
+          "expires_at": "2026-11-16T04:06:15Z",
+          "artifact_file": "qwen36-coder-hybrid__coder__shipping.json"
+        },
+        {
+          "model_id": "glm47-reap",
+          "engine_preset": "glm47-reap",
+          "prompt_preset": "shipping",
+          "pass_at_1": 0.78,
+          "scenario_id": "qwen36-daily",
+          "report_uri": "reports/20261017T041648Z-qwen36-daily.md",
+          "qualified_at": "2026-10-17T04:54:27Z",
+          "expires_at": "2026-11-16T04:54:27Z",
+          "artifact_file": "glm47-reap__coder__shipping.json"
+        }
+      ]
+    },
+    "extractor": {
+      "primary_model": "qwen25-coder-14b",
+      "qualified_models": [
+        {
+          "model_id": "glm47-reap",
+          "engine_preset": "glm47-reap",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "ocr-extraction",
+          "report_uri": "reports/20261017T053853Z-ocr-extraction.md",
+          "qualified_at": "2026-10-17T05:39:22Z",
+          "expires_at": "2026-11-16T05:39:22Z",
+          "artifact_file": "glm47-reap__extractor__shipping.json"
+        },
+        {
+          "model_id": "qwen25-coder-14b",
+          "engine_preset": "qwen25-coder-14b",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "ocr-extraction",
+          "report_uri": "reports/20261017T032819Z-ocr-extraction.md",
+          "qualified_at": "2026-10-17T03:28:28Z",
+          "expires_at": "2026-11-16T03:28:28Z",
+          "artifact_file": "qwen25-coder-14b__extractor__shipping.json"
+        },
+        {
+          "model_id": "qwen36-coder-hybrid",
+          "engine_preset": "qwen36-coder-hybrid",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "ocr-extraction",
+          "report_uri": "reports/20261017T053730Z-ocr-extraction.md",
+          "qualified_at": "2026-10-17T05:38:28Z",
+          "expires_at": "2026-11-16T05:38:28Z",
+          "artifact_file": "qwen36-coder-hybrid__extractor__shipping.json"
+        }
+      ]
+    },
+    "sanitizer": {
+      "primary_model": "qwen25-coder-14b",
+      "qualified_models": [
+        {
+          "model_id": "glm47-reap",
+          "engine_preset": "glm47-reap",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "pii-scrubbing",
+          "report_uri": "reports/20261017T040735Z-pii-scrubbing.md",
+          "qualified_at": "2026-10-17T04:07:55Z",
+          "expires_at": "2026-11-16T04:07:55Z",
+          "artifact_file": "glm47-reap__sanitizer__shipping.json"
+        },
+        {
+          "model_id": "qwen25-coder-14b",
+          "engine_preset": "qwen25-coder-14b",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "pii-scrubbing",
+          "report_uri": "reports/20261017T032806Z-pii-scrubbing.md",
+          "qualified_at": "2026-10-17T03:28:13Z",
+          "expires_at": "2026-11-16T03:28:13Z",
+          "artifact_file": "qwen25-coder-14b__sanitizer__shipping.json"
+        },
+        {
+          "model_id": "qwen36-coder-hybrid",
+          "engine_preset": "qwen36-coder-hybrid",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "pii-scrubbing",
+          "report_uri": "reports/20261017T034329Z-pii-scrubbing.md",
+          "qualified_at": "2026-10-17T03:44:04Z",
+          "expires_at": "2026-11-16T03:44:04Z",
+          "artifact_file": "qwen36-coder-hybrid__sanitizer__shipping.json"
+        }
+      ]
+    },
+    "triager": {
+      "primary_model": "gemma4-4b",
+      "qualified_models": [
+        {
+          "model_id": "gemma4-12b",
+          "engine_preset": "gemma4-12b",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "email-triage",
+          "report_uri": "reports/20261017T174427Z-email-triage.md",
+          "qualified_at": "2026-10-17T17:45:05Z",
+          "expires_at": "2026-11-16T17:45:05Z",
+          "artifact_file": "gemma4-12b__triager__shipping.json"
+        },
+        {
+          "model_id": "gemma4-27b",
+          "engine_preset": "gemma4-27b",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "email-triage",
+          "report_uri": "reports/20261017T175836Z-email-triage.md",
+          "qualified_at": "2026-10-17T17:59:23Z",
+          "expires_at": "2026-11-16T17:59:23Z",
+          "artifact_file": "gemma4-27b__triager__shipping.json"
+        },
+        {
+          "model_id": "gemma4-4b",
+          "engine_preset": "gemma4-4b",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "email-triage",
+          "report_uri": "reports/20261017T172657Z-email-triage.md",
+          "qualified_at": "2026-10-17T17:27:24Z",
+          "expires_at": "2026-11-16T17:27:24Z",
+          "artifact_file": "gemma4-4b__triager__shipping.json"
+        },
+        {
+          "model_id": "qwen25-coder-14b",
+          "engine_preset": "qwen25-coder-14b",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "email-triage",
+          "report_uri": "reports/20261017T060203Z-email-triage.md",
+          "qualified_at": "2026-10-17T06:06:07Z",
+          "expires_at": "2026-11-16T06:06:07Z",
+          "artifact_file": "qwen25-coder-14b__triager__shipping.json"
+        },
+        {
+          "model_id": "qwen36-coder-hybrid",
+          "engine_preset": "qwen36-coder-hybrid",
+          "prompt_preset": "shipping",
+          "pass_at_1": 1.0,
+          "scenario_id": "email-triage",
+          "report_uri": "reports/20261017T060511Z-email-triage.md",
+          "qualified_at": "2026-10-17T06:06:09Z",
+          "expires_at": "2026-11-16T06:06:09Z",
+          "artifact_file": "qwen36-coder-hybrid__triager__shipping.json"
+        },
+        {
+          "model_id": "glm47-reap",
+          "engine_preset": "glm47-reap",
+          "prompt_preset": "shipping",
+          "pass_at_1": 0.75,
+          "scenario_id": "email-triage",
+          "report_uri": "reports/20261017T060416Z-email-triage.md",
+          "qualified_at": "2026-10-17T06:06:08Z",
+          "expires_at": "2026-11-16T06:06:08Z",
+          "artifact_file": "glm47-reap__triager__shipping.json"
+        }
+      ]
+    }
+  }
+}
