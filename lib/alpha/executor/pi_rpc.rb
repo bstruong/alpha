@@ -23,7 +23,8 @@ module Alpha
       end
 
       def call(task:, sandbox:, inference_target:, profile: "shipping",
-               log_path: nil, telemetry_path: nil, timeout_s: DEFAULT_TIMEOUT)
+               log_path: nil, telemetry_path: nil, timeout_s: DEFAULT_TIMEOUT,
+               max_tool_calls: nil)
         # gate-boot is a pure test of the unpatched environment, no agent required
         if task.name == "gate-boot"
           return Result.new(
@@ -41,7 +42,10 @@ module Alpha
         resolved_telemetry = telemetry_path || File.join(sandbox.work_dir, "telemetry.json")
         FileUtils.mkdir_p(File.dirname(resolved_log))
 
-        cmd, env = build_command(task, sandbox, inference_target, profile, resolved_log, resolved_telemetry)
+        cmd, env = build_command(
+          task, sandbox, inference_target, profile, resolved_log, resolved_telemetry,
+          max_tool_calls: max_tool_calls
+        )
 
         start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         pid = Process.spawn(env, *cmd, chdir: sandbox.path, pgroup: true)
@@ -72,6 +76,8 @@ module Alpha
         telemetry = read_telemetry(resolved_telemetry, resolved_log)
         exit_reason = if timed_out
           "timeout"
+        elsif telemetry["tool_budget_exceeded"] || (max_tool_calls && telemetry["tool_calls"] >= max_tool_calls)
+          "tool_budget_exceeded"
         else
           telemetry["tool_calls"].positive? ? "completed" : "no_tools_called"
         end
@@ -88,7 +94,7 @@ module Alpha
       end
 
       private
-        def build_command(task, sandbox, inference_target, profile, log_path, telemetry_path)
+        def build_command(task, sandbox, inference_target, profile, log_path, telemetry_path, max_tool_calls: nil)
           prompt_text = task.prompt(profile)
           server_url = inference_target.server_root_url
           openai_base = inference_target.base_url
@@ -124,10 +130,15 @@ module Alpha
             else
               "off"
             end
+            monitor_args = [
+              "--log-file", log_path,
+              "--telemetry-file", telemetry_path
+            ]
+            monitor_args.concat(["--max-tool-calls", max_tool_calls.to_s]) if max_tool_calls
+
             cmd = [
               RbConfig.ruby, monitor_script,
-              "--log-file", log_path,
-              "--telemetry-file", telemetry_path,
+              *monitor_args,
               "--",
               "--mode", "json",
               "-p",

@@ -9,6 +9,23 @@ module Alpha
     # plus optional stable_except path drift verification.
     class RSpecSuite < Base
       def call(sandbox:, task:, check_stability: false)
+        syntax_res = sandbox.respond_to?(:check_ruby_syntax) ? sandbox.check_ruby_syntax : { ok: true, errors: [] }
+        if !syntax_res[:ok]
+          return Result.new(
+            name: "RSpecSuite",
+            pass: false,
+            detail: {
+              syntax_ok: false,
+              syntax_errors: syntax_res[:errors],
+              rspec_test: false,
+              rspec_output: syntax_res[:output],
+              verifier_ok: false,
+              verifier_output: nil,
+              drifted: []
+            }
+          )
+        end
+
         rspec_res = run_rspec(sandbox)
         verifier_res = task.verifier_path ? run_verifier(sandbox, task) : nil
         drifted = check_stability && task.stable_except.any? ? sandbox.drifted_files(task.stable_except) : []
@@ -16,6 +33,8 @@ module Alpha
         passed = rspec_res[:ok] && (verifier_res.nil? || verifier_res[:ok]) && drifted.empty?
 
         detail = {
+          syntax_ok: true,
+          syntax_errors: [],
           rspec_test: rspec_res[:ok],
           rspec_output: rspec_res[:output],
           verifier_ok: verifier_res ? verifier_res[:ok] : nil,

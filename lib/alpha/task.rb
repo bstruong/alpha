@@ -10,7 +10,7 @@ module Alpha
                 :restore, :restore_except, :stable_except,
                 :denied_patterns, :required_markers, :required_json_keys,
                 :expected_json_values, :required_json_markers, :denied_json_patterns, :nested_json_keys,
-                :executor_type, :grader_type, :system_prompt
+                :executor_type, :grader_type, :system_prompt, :max_tool_calls
     attr_accessor :thinking, :repair_feedback
 
     def self.load(dir)
@@ -42,7 +42,8 @@ module Alpha
         executor_type: data["executor"],
         grader_type: data["grader"],
         system_prompt: data["system_prompt"],
-        json_mode: data["json_mode"] == true
+        json_mode: data["json_mode"] == true,
+        max_tool_calls: data["max_tool_calls"] ? data["max_tool_calls"].to_i : nil
       )
     end
 
@@ -50,7 +51,8 @@ module Alpha
                    restore: [], restore_except: [], stable_except: [], thinking: nil, repair_feedback: nil,
                    denied_patterns: {}, required_markers: [], required_json_keys: [],
                    expected_json_values: {}, required_json_markers: [], denied_json_patterns: {}, nested_json_keys: {},
-                   executor_type: nil, grader_type: nil, system_prompt: nil, json_mode: false)
+                   executor_type: nil, grader_type: nil, system_prompt: nil, json_mode: false,
+                   max_tool_calls: nil)
       @name = name
       @kind = kind
       @dir = dir
@@ -72,6 +74,7 @@ module Alpha
       @grader_type = grader_type
       @system_prompt = system_prompt
       @json_mode = json_mode
+      @max_tool_calls = max_tool_calls
     end
 
     def json_mode?

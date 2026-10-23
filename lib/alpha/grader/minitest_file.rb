@@ -10,6 +10,24 @@ module Alpha
     # `stable_except` path drift verification.
     class MinitestFile < Base
       def call(sandbox:, task:, check_stability: false)
+        syntax_res = sandbox.respond_to?(:check_ruby_syntax) ? sandbox.check_ruby_syntax : { ok: true, errors: [] }
+        if !syntax_res[:ok]
+          return Result.new(
+            name: "MinitestFile",
+            pass: false,
+            detail: {
+              syntax_ok: false,
+              syntax_errors: syntax_res[:errors],
+              rails_test: false,
+              rails_output: syntax_res[:output],
+              verifier_ok: false,
+              verifier_output: nil,
+              checks: {},
+              drifted: []
+            }
+          )
+        end
+
         rails_res = run_rails_test(sandbox)
         verifier_res = task.verifier_path ? run_verifier(sandbox, task) : nil
         drifted = check_stability && task.stable_except.any? ? sandbox.drifted_files(task.stable_except) : []
@@ -17,6 +35,8 @@ module Alpha
         passed = rails_res[:ok] && (verifier_res.nil? || verifier_res[:ok]) && drifted.empty?
 
         detail = {
+          syntax_ok: true,
+          syntax_errors: [],
           rails_test: rails_res[:ok],
           rails_output: rails_res[:output],
           verifier_ok: verifier_res ? verifier_res[:ok] : nil,

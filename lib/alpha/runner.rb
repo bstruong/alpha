@@ -134,12 +134,16 @@ module Alpha
         active_executor = resolve_executor(active_task)
         active_grader = resolve_grader(active_task)
 
+        task_max_tool_calls = (active_task.respond_to?(:max_tool_calls) && active_task.max_tool_calls) ||
+                              scenario.budget[:max_tool_calls]
+
         exec_res = active_executor.call(
           task: active_task,
           sandbox: sandbox,
           inference_target: inference_target,
           profile: scenario.profile,
-          timeout_s: scenario.budget[:wall_seconds]
+          timeout_s: scenario.budget[:wall_seconds],
+          max_tool_calls: task_max_tool_calls
         )
 
         total_tool_calls += exec_res.tool_calls
@@ -167,12 +171,14 @@ module Alpha
           failure_feedback = extract_failure_summary(grader_res.detail)
           repair_task = active_task.with_repair_feedback(failure_feedback)
 
+          remaining_tool_calls = task_max_tool_calls ? [task_max_tool_calls - total_tool_calls, 1].max : nil
           exec_res_2 = active_executor.call(
             task: repair_task,
             sandbox: sandbox,
             inference_target: inference_target,
             profile: scenario.profile,
-            timeout_s: scenario.budget[:wall_seconds]
+            timeout_s: scenario.budget[:wall_seconds],
+            max_tool_calls: remaining_tool_calls
           )
 
           total_tool_calls += exec_res_2.tool_calls
@@ -195,7 +201,8 @@ module Alpha
         end
 
         pass_at_1 = turn_history.first[:pass]
-        final_pass = grader_res.pass
+        budget_exceeded = task_max_tool_calls && total_tool_calls > task_max_tool_calls
+        final_pass = grader_res.pass && !budget_exceeded
         repaired = !pass_at_1 && final_pass
 
         record = {
@@ -247,9 +254,26 @@ module Alpha
         return "" unless detail.is_a?(Hash)
 
         sections = []
+        if detail[:syntax_errors] && Array(detail[:syntax_errors]).any?
+          sections << "=== Ruby Syntax Errors ===\n#{detail[:syntax_errors].join("\n")}"
+        end
+        if detail[:violations] && Array(detail[:violations]).any?
+          v_lines = detail[:violations].map do |v|
+            if v.is_a?(Hash)
+              "#{v[:file]}:#{v[:line]} - #{v[:reason] || v[:token] || v[:pattern]}"
+            else
+              v.to_s
+            end
+          end
+          sections << "=== AST / Pattern Deny Violations ===\n#{v_lines.join("\n")}"
+        end
         if detail[:rails_output] && !detail[:rails_test]
           lines = detail[:rails_output].to_s.lines
           sections << "=== Rails test output ===\n#{lines.last(30).join}"
+        end
+        if detail[:rspec_output] && !detail[:rspec_test]
+          lines = detail[:rspec_output].to_s.lines
+          sections << "=== RSpec output ===\n#{lines.last(30).join}"
         end
         if detail[:verifier_output] && detail[:verifier_ok] == false
           lines = detail[:verifier_output].to_s.lines
@@ -257,6 +281,9 @@ module Alpha
         end
         if detail[:drifted] && Array(detail[:drifted]).any?
           sections << "=== Modified protected/forbidden files ===\n#{detail[:drifted].join(', ')}"
+        end
+        if detail[:error]
+          sections << "=== Execution Error ===\n#{detail[:error]}"
         end
         sections.empty? ? detail.to_s : sections.join("\n\n")
       end
