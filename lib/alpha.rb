@@ -7,9 +7,8 @@ require "open3"
 require "time"
 require "yaml"
 
-module Alpha
-  VERSION = "0.2.0"
-end
+require_relative "alpha/version"
+require_relative "alpha/configuration"
 
 require_relative "alpha/metric_record"
 require_relative "alpha/inference_target"
@@ -21,4 +20,5 @@ require_relative "alpha/scenario"
 require_relative "alpha/report"
 require_relative "alpha/engine/manager"
 require_relative "alpha/qualification_manifest"
+require_relative "alpha/fixture_importer"
 require_relative "alpha/runner"

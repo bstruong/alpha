@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    alpha-eval (0.2.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -77,6 +82,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  alpha-eval!
   bundler-audit
   debug
   minitest (~> 5.20)
@@ -84,6 +90,7 @@ DEPENDENCIES
   rubocop
 
 CHECKSUMS
+  alpha-eval (0.2.0)
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   bundler (4.0.20) sha256=7978a8ac648767f5e635bc522445b79e80a52b907a39a36c2d8085ed6bc762ae
   bundler-audit (0.9.3) sha256=81c8766c71e47d0d28a0f98c7eed028539f21a6ea3cd8f685eb6f42333c9b4e9

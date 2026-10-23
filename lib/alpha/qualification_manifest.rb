@@ -14,7 +14,7 @@ module Alpha
     }.freeze
 
     def self.qualifications_dir
-      File.expand_path("../../qualifications", __dir__)
+      Alpha.config.qualifications_dir
     end
 
     def self.load_all(dir = qualifications_dir)

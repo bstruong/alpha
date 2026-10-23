@@ -15,12 +15,8 @@ module Alpha
 
     attr_reader :base_url, :model_id, :engine_preset, :context_window
 
-    def self.repo_root
-      File.expand_path("../..", __dir__)
-    end
-
     def self.from_engine(preset_name)
-      ini_path = File.join(repo_root, "engine", "models.ini")
+      ini_path = Alpha.config.engine_ini_path
       sections = File.file?(ini_path) ? parse_ini(ini_path) : {}
       global = sections.fetch("*", {})
       section = sections.fetch(preset_name.to_s, {})
@@ -31,10 +27,7 @@ module Alpha
       model_id = primary_alias || preset_name.to_s
       ctx_size = Integer(merged.fetch("ctx-size", 262_144)) rescue 262_144
 
-      server_url = ENV["OPENAI_API_BASE"] ||
-        ENV["OPENAI_BASE_URL"] ||
-        (ENV["LLAMA_SERVER_URL"] && "#{ENV["LLAMA_SERVER_URL"].chomp("/")}/v1") ||
-        "#{DEFAULT_HOST_URL}/v1"
+      server_url = Alpha.config.default_base_url
 
       new(
         base_url: server_url,
