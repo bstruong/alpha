@@ -37,14 +37,12 @@ and zero risk to already-working projects. Nesting a `reports/` folder
 `.gitignore` negation exception per project, which is exactly the
 fragile, easy-to-forget pattern that caused the original problem.
 
-### Per-project status (as of 2026-08-08)
+### Alpha Project Layout
 
-| Project | Has a `results/`-named folder? | Deliverables location | Status |
-|---|---|---|---|
-| `llm-benchmark/` | No — `bin/benchmark` only prints to stdout | `BENCHMARK.md` at project top level | Already safe, no `reports/` needed |
-| `opencode-agent-eval/` | No — uses `ab-results/`, `results_32b_patched/`, `results_qwen3_32b/` (none match the exact-name `results/` rule) | `README.md`, tracked `.diff`/`.txt` files | Already safe by naming, no `reports/` needed today — if a folder literally named `results/` is ever added here, revisit |
-| `prompts/` | N/A — static template files only | N/A | Not applicable |
-| `archive/benchmarks-legacy/ruby-rails-model-benchmark/` | Yes (under archive) | `reports/round{1,2,3}/` | Archived with berserker → Alpha cleanup |
+- **`results/`**: Regenerable trial outputs, intermediate JSON metrics, and ephemeral traces (`results/runs/<run_id>/`). Fully gitignored.
+- **`reports/`**: Promoted permanent benchmark reports, leaderboards, and qualification summaries. Tracked in git.
+- **`scenarios/`**: Standardized evaluation batteries (`qwen36-daily`, `scoped-coding`, `pii-scrubbing`, `ocr-extraction`, `email-triage`).
+- **`qualifications/`**: Formal JSON qualification artifacts (`omega.qualification.v1`). Tracked in git.
 
 ### If you're starting a new benchmark project
 

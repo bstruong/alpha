@@ -9,31 +9,14 @@ __pycache__/
 .aider*.history*
 aider-test/
 
-# llm-benchmark generated fixtures (keep the dir, ignore contents)
-archive/benchmarks-legacy/llm-benchmark/fixtures/*
-!archive/benchmarks-legacy/llm-benchmark/fixtures/.gitkeep
-
-# Convention: disposable/regenerable working output lives in results/ (or a
-# similarly-named per-project dir, e.g. ab-results/) and stays ignored above.
-# Permanent deliverables -- final reports, appendices, anything meant to be
-# read later rather than regenerated -- live in each project's reports/
-# folder instead, which no rule here ever covers. See CONVENTIONS.md.
-
 # Local LLM model weights and test cache
 *.gguf
 /experiments/
-/validation_v2/
-archive/benchmarks-legacy/experiments/models/
 .pytest_cache/
 
-archive/benchmarks-legacy/experiments/ai-evals-rails/
-
 # Flash eval / local engine noise
-archive/benchmarks-legacy/experiments/hyperbolic-time-chamber/
-archive/benchmarks-legacy/experiments/llama.cpp-qwen4exp/
 engine/run/*.pid
 engine/run/slots/
-archive/**/__pycache__/
 scripts/__pycache__/
 # Rails
 /.bundle

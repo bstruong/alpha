@@ -87,7 +87,7 @@ stop_pid() {
 
 # 0. Check systemd units
 if command -v systemctl >/dev/null 2>&1; then
-    for unit in alpha-llama-server.service alpha-llama.service berserker-llama-server.service berserker-llama.service; do
+    for unit in alpha-llama-server.service alpha-llama.service; do
         if systemctl --user is-active --quiet "${unit}" 2>/dev/null; then
             echo "Stopping systemd unit ${unit}..."
             systemctl --user stop "${unit}" 2>/dev/null || true

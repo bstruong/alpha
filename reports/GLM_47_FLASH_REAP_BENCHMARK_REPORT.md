@@ -4,13 +4,13 @@
 **Date:** 2026-10-10  
 **Evaluated Model:** `GLM-4.7-Flash-REAP-23B-A3B-Q4_K_M.gguf` (14.0 GB / 13.14 GiB, 23B total / ~3B active MoE)  
 **Preset:** `[glm47-reap]` in `engine/models.ini`  
-**Harness:** Berserker Benchmark Suite v3+ (Independent Modules 1–3, reproducible sampling: `temp 0`, `seed 12345`, `cache_prompt false`, automated slot erase, hidden execution oracles)
+**Harness:** Alpha Benchmark Suite v3+ (Independent Modules 1–3, reproducible sampling: `temp 0`, `seed 12345`, `cache_prompt false`, automated slot erase, hidden execution oracles)
 
 ---
 
 ## 1. Executive Summary
 
-This report delivers the comprehensive benchmarking and architecture evaluation of the newly integrated **GLM-4.7-Flash-REAP-23B-A3B** model against the Berserker benchmark harness on the Workstation host.
+This report delivers the comprehensive benchmarking and architecture evaluation of the newly integrated **GLM-4.7-Flash-REAP-23B-A3B** model against the Alpha benchmark harness on the Workstation host.
 
 ### Key Findings
 1. **Dramatically Superior Decode Throughput vs. Qwen 3.8 Flash:**

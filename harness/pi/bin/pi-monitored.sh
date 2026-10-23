@@ -55,7 +55,7 @@ cleanup() {
     # Remote inference (Watchtower) or explicit persist flag: do not shut down remote engine
     if [[ "${LLAMA_SERVER_URL}" != *"127.0.0.1"* && "${LLAMA_SERVER_URL}" != *"localhost"* ]]; then
         : # Remote server, keep running on host
-    elif [[ "${ALPHA_PERSIST_ENGINE:-0}" == "1" || "${BERSERKER_PERSIST_ENGINE:-0}" == "1" || "${PERSIST_ENGINE:-0}" == "1" ]]; then
+    elif [[ "${ALPHA_PERSIST_ENGINE:-0}" == "1" || "${PERSIST_ENGINE:-0}" == "1" ]]; then
         echo "[pi-monitored] PERSIST_ENGINE is enabled; skipping engine shutdown."
     else
         echo "[pi-monitored] Gracefully flushing engine weights from system RAM..."
@@ -103,9 +103,7 @@ is_llama_active() {
     # 3. Check systemd unit
     if command -v systemctl >/dev/null 2>&1; then
         if systemctl --user is-active --quiet alpha-llama-server 2>/dev/null || \
-           systemctl --user is-active --quiet alpha-llama.service 2>/dev/null || \
-           systemctl --user is-active --quiet berserker-llama-server 2>/dev/null || \
-           systemctl --user is-active --quiet berserker-llama.service 2>/dev/null; then
+           systemctl --user is-active --quiet alpha-llama.service 2>/dev/null; then
             return 0
         fi
     fi
@@ -153,7 +151,7 @@ ensure_engine_ready() {
     fi
 }
 
-if [[ "${ALPHA_SKIP_ENGINE:-0}" != "1" && "${BERSERKER_SKIP_ENGINE:-0}" != "1" && "${SKIP_ENGINE:-0}" != "1" ]]; then
+if [[ "${ALPHA_SKIP_ENGINE:-0}" != "1" && "${SKIP_ENGINE:-0}" != "1" ]]; then
     ensure_engine_ready "$@"
 fi
 
