@@ -100,14 +100,24 @@ module Alpha
             "OPENAI_BASE_URL" => openai_base,
             "OPENAI_API_BASE" => openai_base,
             "OPENAI_API_KEY" => ENV["OPENAI_API_KEY"] || "ignored",
-            "PI_BIN" => File.join(harness_dir, "node_modules", ".bin", "pi")
+            "PI_BIN" => Alpha.config.pi_bin
           )
 
           profile_name = profile.respond_to?(:name) ? profile.name : profile.to_s
-          monitor_script = File.join(harness_dir, "bin", "pi-monitor.rb")
+          monitor_script = if File.file?(File.join(harness_dir, "bin", "pi-monitor.rb"))
+            File.join(harness_dir, "bin", "pi-monitor.rb")
+          else
+            File.expand_path("pi_monitor.rb", __dir__)
+          end
 
           if profile_name == "shipping"
-            system_prompt = File.join(harness_dir, "SYSTEM.md")
+            system_prompt = if File.file?(File.join(harness_dir, "SYSTEM.md"))
+              File.join(harness_dir, "SYSTEM.md")
+            elsif File.file?(File.expand_path("~/.pi/agent/SYSTEM.md"))
+              File.expand_path("~/.pi/agent/SYSTEM.md")
+            else
+              File.join(harness_dir, "SYSTEM.md")
+            end
             model_supports_reasoning = !inference_target.model_id.to_s.match?(/14b/i)
             thinking_level = if model_supports_reasoning
               (task.respond_to?(:thinking) && task.thinking) ? task.thinking : "low"
