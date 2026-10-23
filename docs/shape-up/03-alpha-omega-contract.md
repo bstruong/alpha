@@ -194,7 +194,7 @@ Operator          Omega                     Alpha
 |---------|-------|
 | Scenario definitions & graders | Alpha repo |
 | Process lifecycle & mobile UX | Omega repo |
-| `engine/` presets / llama-server | Shared substrate (lives with Alpha/berserker until extracted) |
+| `engine/` presets / llama-server | Shared substrate (lives with Alpha until extracted) |
 | Qualification truth | Alpha produces; Omega consumes |
 | Failure truth | Omega produces; Alpha consumes after human grader |
 
