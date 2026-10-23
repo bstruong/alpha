@@ -19,6 +19,7 @@ engine/run/*.pid
 engine/run/slots/
 scripts/__pycache__/
 # Ruby / Bundler
+*.gem
 /.bundle
 /log/*
 /tmp/*

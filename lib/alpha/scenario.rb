@@ -28,7 +28,7 @@ module Alpha
                 :default_model, :executor_type, :grader_type, :role
 
     def self.scenarios_root
-      File.expand_path("../../scenarios", __dir__)
+      Alpha.config.scenarios_dir
     end
 
     def self.load(id, profile: "shipping", only_task: nil)
