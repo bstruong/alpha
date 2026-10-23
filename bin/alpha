@@ -178,10 +178,10 @@ when "qualify"
 
   abort "Error: --run RUN_ID is required (or use --list, --manifest, --export)" unless options[:run_id]
 
-  results_dir = File.expand_path("../results/runs/#{options[:run_id]}", __dir__)
+  results_dir = File.join(Alpha.config.results_dir, "runs", options[:run_id])
   summary_file = File.join(results_dir, "summary.json")
   unless File.file?(summary_file)
-    summary_file = File.expand_path("../results/#{options[:run_id]}/summary.json", __dir__)
+    summary_file = File.join(Alpha.config.results_dir, options[:run_id], "summary.json")
   end
   abort "Error: summary.json not found for run #{options[:run_id]}" unless File.file?(summary_file)
 
@@ -202,7 +202,7 @@ when "qualify"
   gates_passed = summary["tasks"].select { |t| t["kind"] == "gate" }.all? { |t| t["pass"] }
   qualified = gates_passed && pass_at_1 >= threshold
 
-  report_md = File.expand_path("../reports/#{options[:run_id]}.md", __dir__)
+  report_md = File.join(Alpha.config.reports_dir, "#{options[:run_id]}.md")
   report_uri = File.file?(report_md) ? "reports/#{options[:run_id]}.md" : "results/runs/#{options[:run_id]}/summary.json"
 
   qual_data = {
@@ -220,7 +220,7 @@ when "qualify"
     "node_class" => "am5-homelab-32g-3060"
   }
 
-  qual_dir = File.expand_path("../qualifications", __dir__)
+  qual_dir = Alpha.config.qualifications_dir
   FileUtils.mkdir_p(qual_dir)
   qual_path = File.join(qual_dir, "#{qual_data["model_id"]}__#{qual_data["role"]}__#{qual_data["prompt_preset"]}.json")
   File.write(qual_path, JSON.pretty_generate(qual_data))
@@ -267,11 +267,11 @@ when "doctor"
     puts "⚠ UNREACHABLE or model not loaded (expected at #{target.base_url})"
   end
 
-  pi_bin = File.expand_path("../harness/pi/node_modules/.bin/pi", __dir__)
-  if File.file?(pi_bin) && File.executable?(pi_bin)
+  pi_bin = Alpha.config.pi_bin
+  if pi_bin && !pi_bin.empty? && File.executable?(pi_bin)
     puts "Pi Agent binary: ✓ OK (#{pi_bin})"
   else
-    puts "Pi Agent binary: ⚠ Not found at #{pi_bin} (run npm install in harness/pi)"
+    puts "Pi Agent binary: ⚠ Not found (install pi or configure Alpha.config.pi_bin)"
   end
 
 when "version", "-v", "--version"

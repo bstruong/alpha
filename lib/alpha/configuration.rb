@@ -5,7 +5,7 @@ module Alpha
     attr_accessor :root, :default_base_url, :default_model,
                   :node_class, :qualification_schema
     attr_writer :scenarios_dir, :results_dir, :reports_dir,
-                :qualifications_dir, :engine_ini_path, :harness_dir
+                :qualifications_dir, :engine_ini_path, :harness_dir, :pi_bin
 
     def initialize
       reset!
@@ -49,6 +49,16 @@ module Alpha
 
     def harness_dir
       @harness_dir || File.join(root, "harness", "pi")
+    end
+
+    def pi_bin
+      return @pi_bin if @pi_bin
+      return ENV["PI_BIN"] if ENV["PI_BIN"] && !ENV["PI_BIN"].empty?
+
+      system_pi = `which pi 2>/dev/null`.strip
+      return system_pi if !system_pi.empty? && File.executable?(system_pi)
+
+      File.join(harness_dir, "node_modules", ".bin", "pi")
     end
   end
 
