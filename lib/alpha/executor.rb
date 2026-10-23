@@ -12,6 +12,24 @@ module Alpha
       :completion_tokens,
       :log_path
     )
+
+    @registry = {}
+
+    def self.register(name, klass)
+      @registry[name.to_s] = klass
+    end
+
+    def self.resolve(type)
+      key = type.to_s
+      return @registry[key].new if @registry.key?(key)
+
+      case key
+      when "openai_chat_completions", "openai", "stateless"
+        OpenAIChatCompletions.new
+      else
+        PiRpc.new
+      end
+    end
   end
 end
 

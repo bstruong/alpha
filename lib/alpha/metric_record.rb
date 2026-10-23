@@ -8,7 +8,7 @@ module Alpha
   # Writes trial data under results/<run_id>/<task_name>/trial-<trial_num>/result.json.
   class MetricRecord
     def self.results_dir
-      File.expand_path("../../results", __dir__)
+      Alpha.config.results_dir
     end
 
     def self.write!(run_id, attributes)

@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 # Alpha — Headless LLM Evaluation & Qualification Harness
 # Pure Ruby runtime dependencies: zero third-party gems (Ruby standard library only)
+gemspec
 
 group :development, :test do
   gem "rake", "~> 13.0"

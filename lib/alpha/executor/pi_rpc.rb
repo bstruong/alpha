@@ -12,12 +12,8 @@ module Alpha
     class PiRpc < Base
       DEFAULT_TIMEOUT = 720
 
-      def self.repo_root
-        File.expand_path("../../..", __dir__)
-      end
-
       def self.default_harness_dir
-        File.join(repo_root, "harness", "pi")
+        Alpha.config.harness_dir
       end
 
       attr_reader :harness_dir

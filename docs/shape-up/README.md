@@ -18,6 +18,7 @@ Sovereign AI pair on the Tailscale mesh. **Where things run:** see [`../infrastr
 1. [`01-alpha-transition.md`](01-alpha-transition.md) — `berserker` → Alpha audit, domain model, sandbox, report schema
 2. [`02-omega-pitch.md`](02-omega-pitch.md) — 2-week Shape Up pitch for the iOS Hotwire Native MVP
 3. [`03-alpha-omega-contract.md`](03-alpha-omega-contract.md) — Qualification handoff and failure→fixture extraction
+4. [`04-gem-foundation.md`](04-gem-foundation.md) — Gem foundation, mechanism/policy extraction, Circuit 1 completion
 
 ## Shared constraints
 

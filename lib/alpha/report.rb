@@ -7,16 +7,12 @@ module Alpha
   # Aggregates MetricRecords into alpha.report.v1 JSON under results/<run_id>/summary.json
   # and permanent Markdown report under reports/<run_id>.md.
   class Report
-    def self.repo_root
-      File.expand_path("../..", __dir__)
-    end
-
     def self.results_dir
-      File.join(repo_root, "results")
+      Alpha.config.results_dir
     end
 
     def self.reports_dir
-      File.join(repo_root, "reports")
+      Alpha.config.reports_dir
     end
 
     def self.build(run_id, scenario:, model_id:, prompt_preset:, inference_target:, task_records:)

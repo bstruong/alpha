@@ -263,23 +263,19 @@ module Alpha
 
       def resolve_executor(task)
         type = task.executor_type || (scenario.respond_to?(:executor_type) && scenario.executor_type)
-        case type.to_s
-        when "openai_chat_completions", "openai", "stateless"
-          Executor::OpenAIChatCompletions.new
+        if type
+          Executor.resolve(type)
         else
-          @executor || Executor::PiRpc.new
+          @executor || Executor.resolve(nil)
         end
       end
 
       def resolve_grader(task)
         type = task.grader_type || (scenario.respond_to?(:grader_type) && scenario.grader_type)
-        case type.to_s
-        when "pattern_deny", "pii", "regex"
-          Grader::PatternDeny.new
-        when "json_schema", "schema", "ocr"
-          Grader::JsonSchema.new
+        if type
+          Grader.resolve(type)
         else
-          @grader || Grader::MinitestFile.new
+          @grader || Grader.resolve(nil)
         end
       end
 
