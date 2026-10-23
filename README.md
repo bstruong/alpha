@@ -2,7 +2,7 @@
 
 Headless evaluation & benchmarking harness for self-hosted open-weights LLMs on the **AM5 homelab**.
 
-Formerly the `berserker` lab repo. Legacy experiments live under [`archive/`](archive/README.md). Planning docs: [`docs/shape-up/`](docs/shape-up/). Host roles: [`docs/infrastructure-topology.md`](docs/infrastructure-topology.md).
+Formerly the `berserker` lab repo (historical experiments preserved in git history & archive branches). Planning docs: [`docs/shape-up/`](docs/shape-up/). Host roles: [`docs/infrastructure-topology.md`](docs/infrastructure-topology.md).
 
 ## Stack (target latest)
 
@@ -23,7 +23,6 @@ engine/               # llama-server presets (AM5 substrate)
 harness/pi/           # Pi coding-agent wiring + pi-monitor.rb
 prompts/              # Prompt presets / batteries
 docs/                 # Topology + Shape Up
-archive/              # Everything not required for Alpha Circuit 1
 results/              # Regenerable run output (gitignored)
 reports/              # Permanent write-ups (tracked when you promote them)
 ```
@@ -44,9 +43,7 @@ bin/rails test                                                     # unit + mode
 bin/rails s                                                        # optional API — GET /up, /eval_runs
 ```
 
-> **Note:** The Ruby 4.0.7 / Rails 8.1.4 hand-coding drill scaffold lives in `hyperbolic-time-chamber/ruby-rails/`.
-
 ## What Alpha is / isn’t
 
 - **Is:** deterministic scenario runner + graders + `alpha.report.v1` artifacts that qualify models for Omega.
-- **Isn’t:** interactive cockpit (that’s Omega), or a place to keep one-off experiments (`archive/`).
+- **Isn’t:** interactive cockpit (that’s Omega), or a place to keep one-off scratch experiments.

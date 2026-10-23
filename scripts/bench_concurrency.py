@@ -10,13 +10,18 @@ import json
 import os
 import sys
 import time
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from tests.benchmark_suite.common import CHAT_ENDPOINT, erase_slots, repro_params
-from tests.benchmark_suite.telemetry.test_hardware_limits import generate_dummy_prompt
+try:
+    from scripts.substrate_common import CHAT_ENDPOINT, erase_slots, repro_params, generate_dummy_prompt
+except ImportError:
+    from substrate_common import CHAT_ENDPOINT, erase_slots, repro_params, generate_dummy_prompt
 
 REPORTS_DIR = os.path.join(PROJECT_ROOT, "reports")
 

@@ -1,6 +1,6 @@
 {
   "schema": "omega.qualification_manifest.v1",
-  "generated_at": "2026-10-21T02:45:25Z",
+  "generated_at": "2026-10-23T02:03:24Z",
   "roles": {
     "coder": {
       "primary_model": "qwen36-coder-hybrid",

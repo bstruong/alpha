@@ -2,7 +2,7 @@
 
 **Author:** Principal Local AI Benchmarking Engineer  
 **Date:** 2026-10-10  
-**Harness:** Berserker Benchmark Suite v3+  
+**Harness:** Alpha Benchmark Suite v3+  
 **Target Hardware:** AMD Ryzen 7 9700X (8C/16T, DDR5-6000 32GB) + NVIDIA RTX 3060 12GB (Driver 615.78.08, CUDA 13.4)  
 **Sample Size:** **3 Formal Executions** per model (6 complete multi-module evaluations total)
 

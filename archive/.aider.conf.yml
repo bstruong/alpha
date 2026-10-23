@@ -1,7 +1,0 @@
-model: ollama/gemma4:e4b
-editor-model: ollama/phi4:14b
-edit-format: diff
-no-auto-commits:
-map-tokens: 1024                 # keep context lean for local models
-set-env:
-  - OLLAMA_API_BASE=http://localhost:11434
