@@ -161,6 +161,43 @@ module Alpha
       failures
     end
 
+    def modified_ruby_files
+      return [] unless File.directory?(path)
+
+      files = []
+      Dir.glob(File.join(path, "**/*.rb")).each do |f|
+        rel = f.delete_prefix("#{path}/")
+        next if rel.start_with?("tmp/", "log/", "vendor/", ".git/")
+
+        seeded_file = File.join(seeded_path, rel)
+        if !File.file?(seeded_file) || !FileUtils.compare_file(seeded_file, f)
+          files << rel
+        end
+      end
+      files.sort
+    end
+
+    def check_ruby_syntax(files = nil)
+      target_files = files || modified_ruby_files
+      target_files = target_files.select { |f| f.end_with?(".rb") }
+      return { ok: true, errors: [], output: "" } if target_files.empty?
+
+      errors = []
+      ruby_bin = RbConfig.ruby
+      target_files.each do |rel|
+        full_path = File.join(path, rel)
+        next unless File.file?(full_path)
+
+        out, status = Open3.capture2e(child_env, ruby_bin, "-c", full_path)
+        unless status.success?
+          clean_err = out.gsub("#{path}/", "").strip
+          errors << "#{rel}: #{clean_err}"
+        end
+      end
+
+      { ok: errors.empty?, errors: errors, output: errors.join("\n") }
+    end
+
     def teardown!
       target = work_dir && File.directory?(work_dir) ? work_dir : path
       FileUtils.rm_rf(target) if target && File.exist?(target)
