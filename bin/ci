@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
-require_relative "../config/boot"
-require "active_support/continuous_integration"
+# frozen_string_literal: true
 
-CI = ActiveSupport::ContinuousIntegration
-require_relative "../config/ci.rb"
+def run(cmd)
+  puts "==> #{cmd}"
+  system(cmd) || exit($?.exitstatus || 1)
+end
+
+run("bundle exec rake test")

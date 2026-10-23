@@ -27,7 +27,7 @@ module Alpha
           return Result.new(
             name: "JsonSchema",
             pass: false,
-            detail: { error: "Output is not valid JSON object", raw_output: raw.first(200) }
+            detail: { error: "Output is not valid JSON object", raw_output: raw[0, 200] }
           )
         end
 

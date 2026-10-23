@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class EngineManagerTest < ActiveSupport::TestCase
+class EngineManagerTest < AlphaTest
   test "initializes with JARVIS defaults" do
     mgr = Alpha::Engine::Manager.new(base_url: Alpha::Engine::Manager::DEFAULT_BASE_URL)
     assert_equal "jarvis", mgr.namespace
