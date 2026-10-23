@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "fileutils"
-require "open3"
 
 module Alpha
   module Grader
@@ -46,27 +45,25 @@ module Alpha
       end
 
       private
-        def run_rspec(sandbox)
-          out = nil
-          status = nil
+        def run_rspec(sandbox, timeout_s: DEFAULT_COMMAND_TIMEOUT)
+          res = nil
           sandbox.run_in_clean_env do
             cmd = File.file?(File.join(sandbox.path, "bin", "rspec")) ? ["bin/rspec"] : ["bundle", "exec", "rspec"]
-            out, status = Open3.capture2e(sandbox.child_env, *cmd, chdir: sandbox.path)
+            res = run_command_with_timeout(sandbox.child_env, *cmd, chdir: sandbox.path, timeout_s: timeout_s)
           end
-          { ok: status.success?, output: out, status: status.exitstatus }
+          res
         end
 
-        def run_verifier(sandbox, task)
+        def run_verifier(sandbox, task, timeout_s: DEFAULT_COMMAND_TIMEOUT)
           dest = File.join(sandbox.path, "tmp", "verification_spec.rb")
           FileUtils.mkdir_p(File.dirname(dest))
           FileUtils.cp(task.verifier_path, dest)
-          out = nil
-          status = nil
+          res = nil
           sandbox.run_in_clean_env do
             cmd = File.file?(File.join(sandbox.path, "bin", "rspec")) ? ["bin/rspec", dest] : ["bundle", "exec", "rspec", dest]
-            out, status = Open3.capture2e(sandbox.child_env, *cmd, chdir: sandbox.path)
+            res = run_command_with_timeout(sandbox.child_env, *cmd, chdir: sandbox.path, timeout_s: timeout_s)
           end
-          { ok: status.success?, output: out, status: status.exitstatus }
+          res
         end
     end
   end

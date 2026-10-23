@@ -106,6 +106,46 @@ class StageGatingAndPreflightLintTest < AlphaTest
     assert_includes summary, "Tool call budget exceeded (25/20)"
   end
 
+  test "Runner clean_test_output strips internal gem traces to prioritize assertion failure" do
+    runner = Alpha::Runner.new(scenario: Alpha::Scenario.load("qwen36-daily"))
+
+    noisy_output = <<~OUTPUT
+      Failure:
+      BooksControllerTest#test_destroy [test/controllers/books_controller_test.rb:42]:
+      Expected response to be <302>, but was <403>.
+      /home/brian/.local/share/mise/installs/ruby/3.2.2/lib/ruby/gems/3.2.0/gems/actionpack-7.2.1/lib/action_dispatch/testing/assertions/response.rb:42:in `assert_response'
+      /home/brian/bundle/ruby/3.2.0/gems/railties-7.2.1/lib/rails/test_unit/line_filtering.rb:10:in `run'
+      test/controllers/books_controller_test.rb:42:in `block in <class:BooksControllerTest>'
+    OUTPUT
+
+    cleaned = runner.send(:clean_test_output, noisy_output)
+    assert_includes cleaned, "BooksControllerTest#test_destroy"
+    assert_includes cleaned, "Expected response to be <302>, but was <403>."
+    refute_includes cleaned, "/gems/actionpack-7.2.1/"
+    refute_includes cleaned, "/bundle/ruby/"
+  end
+
+  test "MinitestFile handles command timeout cleanly" do
+    grader = Alpha::Grader::MinitestFile.new
+    temp_dir = Dir.mktmpdir("alpha-timeout-test")
+    FileUtils.mkdir_p(File.join(temp_dir, "bin"))
+    rails_bin = File.join(temp_dir, "bin", "rails")
+    File.write(rails_bin, "#!/usr/bin/env ruby\nsleep 2\n")
+    File.chmod(0o755, rails_bin)
+
+    sandbox = Struct.new(:path, :child_env).new(temp_dir, {})
+    def sandbox.run_in_clean_env
+      yield
+    end
+
+    res = grader.send(:run_rails_test, sandbox, timeout_s: 0.1)
+    assert_equal false, res[:ok]
+    assert_includes res[:output], "Command timed out after 0.1s"
+    assert_equal 124, res[:status]
+  ensure
+    FileUtils.rm_rf(temp_dir) if temp_dir
+  end
+
   test "PiRpc sets exit_reason to tool_budget_exceeded when tool limit is hit" do
     executor = Alpha::Executor::PiRpc.new
     temp_dir = Dir.mktmpdir("alpha-pi-rpc-budget-test")

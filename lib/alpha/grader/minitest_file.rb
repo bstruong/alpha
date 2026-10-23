@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "fileutils"
-require "open3"
 
 module Alpha
   module Grader
@@ -9,6 +8,7 @@ module Alpha
     # `verification_test.rb` (when present) inside the sandbox, plus optional
     # `stable_except` path drift verification.
     class MinitestFile < Base
+
       def call(sandbox:, task:, check_stability: false)
         syntax_res = sandbox.respond_to?(:check_ruby_syntax) ? sandbox.check_ruby_syntax : { ok: true, errors: [] }
         if !syntax_res[:ok]
@@ -49,34 +49,32 @@ module Alpha
       end
 
       private
-        def run_rails_test(sandbox)
-          out = nil
-          status = nil
+        def run_rails_test(sandbox, timeout_s: DEFAULT_COMMAND_TIMEOUT)
+          rails_bin = File.join(sandbox.path, "bin", "rails")
+          return { ok: false, output: "Missing bin/rails in sandbox", status: 127 } unless File.file?(rails_bin)
+
+          res = nil
           sandbox.run_in_clean_env do
-            out, status = Open3.capture2e(sandbox.child_env, "bin/rails", "test", chdir: sandbox.path)
+            res = run_command_with_timeout(sandbox.child_env, rails_bin, "test", chdir: sandbox.path, timeout_s: timeout_s)
           end
-          { ok: status.success?, output: out, status: status.exitstatus }
+          res
         end
 
-        def run_verifier(sandbox, task)
+        def run_verifier(sandbox, task, timeout_s: DEFAULT_COMMAND_TIMEOUT)
           dest = File.join(sandbox.path, "tmp", "verification_test.rb")
           FileUtils.mkdir_p(File.dirname(dest))
           FileUtils.cp(task.verifier_path, dest)
-          out = nil
-          status = nil
+          res = nil
           sandbox.run_in_clean_env do
-            out, status = Open3.capture2e(
+            res = run_command_with_timeout(
               sandbox.child_env,
               "bundle", "exec", "ruby", "-I#{File.join(sandbox.path, "test")}", dest, "-v",
-              chdir: sandbox.path
+              chdir: sandbox.path,
+              timeout_s: timeout_s
             )
           end
-          {
-            ok: status.success?,
-            output: out,
-            status: status.exitstatus,
-            checks: parse_minitest(out)
-          }
+          res[:checks] = parse_minitest(res[:output]) if res[:output]
+          res
         end
 
         def parse_minitest(output)

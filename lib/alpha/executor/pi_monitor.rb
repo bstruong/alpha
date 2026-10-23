@@ -259,6 +259,19 @@ def monitor(cmd, log_path, telemetry_path: nil, passthrough: false, max_tool_cal
         end
       end
     end
+
+    if tool_budget_exceeded
+      begin
+        Process.kill("TERM", wait.pid) rescue nil
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 2
+        while wait.alive? && Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
+          sleep 0.1
+        end
+        Process.kill("KILL", wait.pid) if wait.alive? rescue nil
+      rescue StandardError
+      end
+    end
+
     exit_status = wait.value.exitstatus || 1
 
     if telemetry_path

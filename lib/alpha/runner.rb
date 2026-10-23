@@ -250,6 +250,17 @@ module Alpha
         }
       end
 
+      def clean_test_output(raw_output, max_lines: 30)
+        return "" if raw_output.nil? || raw_output.empty?
+
+        lines = raw_output.to_s.lines
+        filtered = lines.reject do |line|
+          line.include?("/gems/") || line.include?("/bundle/") || line.include?("/.rbenv/") || line.include?("/mise/")
+        end
+        effective = filtered.empty? ? lines : filtered
+        effective.last(max_lines).join
+      end
+
       def extract_failure_summary(detail)
         return "" unless detail.is_a?(Hash)
 
@@ -268,16 +279,13 @@ module Alpha
           sections << "=== AST / Pattern Deny Violations ===\n#{v_lines.join("\n")}"
         end
         if detail[:rails_output] && !detail[:rails_test]
-          lines = detail[:rails_output].to_s.lines
-          sections << "=== Rails test output ===\n#{lines.last(30).join}"
+          sections << "=== Rails test output ===\n#{clean_test_output(detail[:rails_output])}"
         end
         if detail[:rspec_output] && !detail[:rspec_test]
-          lines = detail[:rspec_output].to_s.lines
-          sections << "=== RSpec output ===\n#{lines.last(30).join}"
+          sections << "=== RSpec output ===\n#{clean_test_output(detail[:rspec_output])}"
         end
         if detail[:verifier_output] && detail[:verifier_ok] == false
-          lines = detail[:verifier_output].to_s.lines
-          sections << "=== Verification test output ===\n#{lines.last(30).join}"
+          sections << "=== Verification test output ===\n#{clean_test_output(detail[:verifier_output])}"
         end
         if detail[:drifted] && Array(detail[:drifted]).any?
           sections << "=== Modified protected/forbidden files ===\n#{detail[:drifted].join(', ')}"

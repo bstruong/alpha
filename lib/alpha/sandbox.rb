@@ -183,11 +183,12 @@ module Alpha
       return { ok: true, errors: [], output: "" } if target_files.empty?
 
       errors = []
+      ruby_bin = RbConfig.ruby
       target_files.each do |rel|
         full_path = File.join(path, rel)
         next unless File.file?(full_path)
 
-        out, status = Open3.capture2e("ruby", "-c", full_path)
+        out, status = Open3.capture2e(child_env, ruby_bin, "-c", full_path)
         unless status.success?
           clean_err = out.gsub("#{path}/", "").strip
           errors << "#{rel}: #{clean_err}"
