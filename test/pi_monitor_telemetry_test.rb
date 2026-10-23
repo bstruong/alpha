@@ -3,7 +3,7 @@
 require "test_helper"
 require "json"
 
-class PiMonitorTelemetryTest < ActiveSupport::TestCase
+class PiMonitorTelemetryTest < AlphaTest
   test "read_telemetry parses JSON telemetry file accurately" do
     executor = Alpha::Executor::PiRpc.new
     temp_dir = Dir.mktmpdir("alpha-telemetry-test")

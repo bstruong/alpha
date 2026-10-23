@@ -2,9 +2,9 @@
 
 require "test_helper"
 
-class SelfRepairFeedbackTest < ActiveSupport::TestCase
+class SelfRepairFeedbackTest < AlphaTest
   test "Task prompt includes repair feedback when present" do
-    task_dir = File.expand_path("../../scenarios/qwen36-daily/tasks/gate-hello", __dir__)
+    task_dir = File.expand_path("../scenarios/qwen36-daily/tasks/gate-hello", __dir__)
     task = Alpha::Task.load(task_dir)
 
     repair_task = task.with_repair_feedback("Expected file HELLO.md to exist, but was not found.")
@@ -15,7 +15,7 @@ class SelfRepairFeedbackTest < ActiveSupport::TestCase
   end
 
   test "Task supports setting and cloning thinking level" do
-    task_dir = File.expand_path("../../scenarios/qwen36-daily/tasks/gate-hello", __dir__)
+    task_dir = File.expand_path("../scenarios/qwen36-daily/tasks/gate-hello", __dir__)
     task = Alpha::Task.load(task_dir)
 
     thinking_task = task.with_thinking("high")

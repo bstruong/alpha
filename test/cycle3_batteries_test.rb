@@ -3,7 +3,7 @@
 require "test_helper"
 require "json"
 
-class Cycle3BatteriesTest < ActiveSupport::TestCase
+class Cycle3BatteriesTest < AlphaTest
   test "PatternDeny detects violations and passes when redacted" do
     grader = Alpha::Grader::PatternDeny.new
     temp_dir = Dir.mktmpdir("pattern-deny-test")

@@ -18,21 +18,11 @@ aider-test/
 engine/run/*.pid
 engine/run/slots/
 scripts/__pycache__/
-# Rails
+# Ruby / Bundler
 /.bundle
 /log/*
 /tmp/*
-!/log/.keep
-!/tmp/.keep
-/storage/*
-!/storage/.keep
-/tmp/storage/*
-!/tmp/storage/.keep
-/public/assets
 .byebug_history
-/config/master.key
-/db/*.sqlite3
-/db/*.sqlite3-*
 
 tests/**/__pycache__/
 .env

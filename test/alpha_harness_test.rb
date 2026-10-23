@@ -1,8 +1,8 @@
 require "test_helper"
 
-class AlphaHarnessTest < ActiveSupport::TestCase
+class AlphaHarnessTest < AlphaTest
   test "loads Task from directory" do
-    task_dir = File.expand_path("../../scenarios/qwen36-daily/tasks/gate-hello", __dir__)
+    task_dir = File.expand_path("../scenarios/qwen36-daily/tasks/gate-hello", __dir__)
     task = Alpha::Task.load(task_dir)
 
     assert_equal "gate-hello", task.name
@@ -66,7 +66,7 @@ class AlphaHarnessTest < ActiveSupport::TestCase
   end
 
   test "InferenceTarget parses engine/models.ini correctly" do
-    ini_path = File.expand_path("../../engine/models.ini", __dir__)
+    ini_path = File.expand_path("../engine/models.ini", __dir__)
     sections = Alpha::InferenceTarget.parse_ini(ini_path)
 
     assert sections.key?("*")
