@@ -93,8 +93,6 @@ module Alpha
         task_records: task_records
       )
 
-      sync_to_database(run_id, report_res[:payload], report_res[:summary_path], report_res[:report_path])
-
       puts ""
       puts "Summary written to: #{report_res[:summary_path]}"
       puts "Report written to:  #{report_res[:report_path]}"

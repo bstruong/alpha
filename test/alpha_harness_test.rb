@@ -75,4 +75,20 @@ class AlphaHarnessTest < AlphaTest
     assert sections.key?("glm47-reap")
     assert_equal "262144", sections["qwen36-coder"]["ctx-size"]
   end
+
+  test "Runner call runs cleanly with dry_run and without ActiveRecord" do
+    scenario = Alpha::Scenario.load("qwen36-daily", only_task: "gate-hello")
+    runner = Alpha::Runner.new(scenario: scenario)
+
+    res = nil
+    assert_output do
+      res = runner.call(dry_run: true)
+    end
+    assert res[:ok]
+    assert File.file?(res[:report][:summary_path])
+
+    # Cleanup artifacts
+    FileUtils.rm_rf(File.dirname(res[:report][:summary_path]))
+    FileUtils.rm_f(res[:report][:report_path])
+  end
 end
