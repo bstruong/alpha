@@ -149,7 +149,7 @@ def extract_action(line)
   nil
 end
 
-def monitor(cmd, log_path, telemetry_path: nil, passthrough: false)
+def monitor(cmd, log_path, telemetry_path: nil, passthrough: false, max_tool_calls: nil)
   FileUtils.mkdir_p(File.dirname(log_path))
   last = nil
   buffer = +""
@@ -157,6 +157,7 @@ def monitor(cmd, log_path, telemetry_path: nil, passthrough: false)
   tool_calls = 0
   prompt_tokens = 0
   completion_tokens = 0
+  tool_budget_exceeded = false
 
   Open3.popen2e(*cmd) do |stdin, out, wait|
     # Pi reads piped stdin to EOF before the first model call. Leaving this
@@ -203,6 +204,16 @@ def monitor(cmd, log_path, telemetry_path: nil, passthrough: false)
             puts action
             $stdout.flush
             last = action
+
+            if max_tool_calls && tool_calls >= max_tool_calls
+              warn "[Pi Monitor] Tool call budget reached (#{tool_calls}/#{max_tool_calls}). Terminating process."
+              tool_budget_exceeded = true
+              begin
+                Process.kill("TERM", wait.pid) rescue nil
+              rescue StandardError
+              end
+              break
+            end
           end
           next
         end
@@ -236,8 +247,31 @@ def monitor(cmd, log_path, telemetry_path: nil, passthrough: false)
         puts action
         $stdout.flush
         last = action
+
+        if max_tool_calls && tool_calls >= max_tool_calls
+          warn "[Pi Monitor] Tool call budget reached (#{tool_calls}/#{max_tool_calls}). Terminating process."
+          tool_budget_exceeded = true
+          begin
+            Process.kill("TERM", wait.pid) rescue nil
+          rescue StandardError
+          end
+          break
+        end
       end
     end
+
+    if tool_budget_exceeded
+      begin
+        Process.kill("TERM", wait.pid) rescue nil
+        deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 2
+        while wait.alive? && Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
+          sleep 0.1
+        end
+        Process.kill("KILL", wait.pid) if wait.alive? rescue nil
+      rescue StandardError
+      end
+    end
+
     exit_status = wait.value.exitstatus || 1
 
     if telemetry_path
@@ -245,7 +279,8 @@ def monitor(cmd, log_path, telemetry_path: nil, passthrough: false)
       File.write(telemetry_path, JSON.pretty_generate({
         "tool_calls" => tool_calls,
         "prompt_tokens" => prompt_tokens,
-        "completion_tokens" => completion_tokens
+        "completion_tokens" => completion_tokens,
+        "tool_budget_exceeded" => tool_budget_exceeded
       }))
     end
 
@@ -288,6 +323,7 @@ def main(argv)
   telemetry_path = ENV["PI_TELEMETRY_FILE"]
   pi_bin = ENV.fetch("PI_BIN", DEFAULT_PI)
   custom = ENV["PI_MONITOR_CMD"]
+  max_tool_calls = ENV["PI_MAX_TOOL_CALLS"] ? ENV["PI_MAX_TOOL_CALLS"].to_i : nil
   dummy_mode = false
   forwarded = []
   index = 0
@@ -302,6 +338,9 @@ def main(argv)
       index += 2
     when "--telemetry-file"
       telemetry_path = argv.fetch(index + 1)
+      index += 2
+    when "--max-tool-calls"
+      max_tool_calls = argv.fetch(index + 1).to_i
       index += 2
     when "--pi-bin"
       pi_bin = argv.fetch(index + 1)
@@ -328,7 +367,7 @@ def main(argv)
     [ pi_bin, *forwarded ]
   end
   info = forwarded.intersect?(%w[--help -h --version -v --list-models])
-  exit monitor(cmd, log_path, telemetry_path: telemetry_path, passthrough: info)
+  exit monitor(cmd, log_path, telemetry_path: telemetry_path, passthrough: info, max_tool_calls: max_tool_calls)
 end
 
 main(ARGV)
