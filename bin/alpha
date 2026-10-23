@@ -241,11 +241,11 @@ when "fixture"
   when "import"
     export_file = ARGV.shift
     unless export_file && File.file?(export_file)
-      warn "Usage: bin/alpha fixture import <path/to/omega_failure_export.json>"
+      warn "Usage: bin/alpha fixture import <path/to/failure_export.json or session.jsonl>"
       exit 1
     end
     res = Alpha::FixtureImporter.import(export_file)
-    puts "✓ Imported failure fixture: #{res[:slug]}"
+    puts "✓ Imported failure fixture: #{res[:slug]} (origin: #{res[:origin]})"
     puts "Draft task created at: #{res[:task_dir]}"
     puts "Status: #{res[:status]} (add verification_test.rb before admitting to active scenarios)"
     exit 0
