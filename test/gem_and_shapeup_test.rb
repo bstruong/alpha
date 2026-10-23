@@ -136,6 +136,74 @@ class GemAndShapeupTest < AlphaTest
     end
   end
 
+  test "Alpha::FixtureImporter ingests native Pi JSONL session transcripts and redacts secrets" do
+    Dir.mktmpdir do |tmpdir|
+      Alpha.configure { |c| c.root = tmpdir }
+
+      pi_session_file = File.join(tmpdir, "2026-10-23_01a16710.jsonl")
+      lines = [
+        JSON.generate({ "type" => "session", "version" => 3, "id" => "01a16710-034c-7310-9ca3-d044fce81c8e", "cwd" => "/tmp/app" }),
+        JSON.generate({ "type" => "model_change", "id" => "m1", "provider" => "openai-compatible", "modelId" => "qwen36-coder-hybrid" }),
+        JSON.generate({ "type" => "message", "id" => "msg1", "message" => { "role" => "system", "content" => "guardrails" } }),
+        JSON.generate({
+          "type" => "message",
+          "id" => "msg2",
+          "message" => {
+            "role" => "user",
+            "content" => [
+              { "type" => "text", "text" => "Fix authentication with api_key=super_secret_pi_key_9999 and contact admin@workstation.local" }
+            ]
+          }
+        }),
+        JSON.generate({
+          "type" => "message",
+          "id" => "msg3",
+          "message" => {
+            "role" => "user",
+            "content" => "Also ensure SSN 987-65-4321 is not printed in logs"
+          }
+        })
+      ]
+      File.write(pi_session_file, lines.join("\n") + "\n")
+
+      res = Alpha::FixtureImporter.import(pi_session_file)
+
+      assert_equal "regression-pi-01a16710", res[:slug]
+      assert_equal "pi_session", res[:origin]
+      assert_equal "draft_needs_grader", res[:status]
+      assert File.directory?(res[:task_dir])
+
+      # Verify instruction file was created and secrets were scrubbed
+      instruction_path = File.join(res[:task_dir], "instruction.md")
+      assert File.file?(instruction_path)
+      content = File.read(instruction_path)
+
+      refute_includes content, "super_secret_pi_key_9999"
+      refute_includes content, "admin@workstation.local"
+      refute_includes content, "987-65-4321"
+      assert_includes content, "[REDACTED]"
+      assert_includes content, "Operator Follow-ups"
+
+      # Verify task metadata
+      task_yml_path = File.join(res[:task_dir], "task.yml")
+      assert File.file?(task_yml_path)
+      meta = YAML.safe_load_file(task_yml_path)
+      assert_equal "regression-pi-01a16710", meta["name"]
+      assert_equal "pi_session", meta["origin"]
+      assert_equal "01a16710-034c-7310-9ca3-d044fce81c8e", meta["session_id"]
+      assert_equal "qwen36-coder-hybrid", meta["failed_model"]
+      assert_equal "/tmp/app", meta["cwd"]
+      assert_equal "draft_needs_grader", meta["status"]
+
+      # Verify workstation_regressions scenario manifest
+      manifest_path = File.join(tmpdir, "scenarios", "workstation_regressions", "scenario.yml")
+      assert File.file?(manifest_path)
+      manifest = YAML.safe_load_file(manifest_path)
+      assert_equal "workstation_regressions", manifest["id"]
+      assert_includes manifest["tasks"], "regression-pi-01a16710"
+    end
+  end
+
   test "alpha.gemspec packages strictly mechanism files and excludes private homelab artifacts" do
     gemspec_path = File.expand_path("../alpha.gemspec", __dir__)
     spec = Gem::Specification.load(gemspec_path)
