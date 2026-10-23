@@ -1,15 +1,12 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative "../config/boot"
-
 require "optparse"
 require "json"
 require "fileutils"
 require "time"
 
-require_relative "../config/environment"
-require_relative "../lib/alpha/qualification_manifest"
+require_relative "../lib/alpha"
 
 def parse_oracle_options(argv)
   options = { scenario: "qwen36-daily", task: nil, keep_sandbox: false }
@@ -228,24 +225,6 @@ when "qualify"
   qual_path = File.join(qual_dir, "#{qual_data["model_id"]}__#{qual_data["role"]}__#{qual_data["prompt_preset"]}.json")
   File.write(qual_path, JSON.pretty_generate(qual_data))
 
-  if defined?(Qualification) && Qualification.respond_to?(:table_exists?) && Qualification.table_exists?
-    q = Qualification.find_or_initialize_by(
-      model_id: qual_data["model_id"],
-      prompt_preset: qual_data["prompt_preset"],
-      scenario_id: qual_data["scenario_id"],
-      role: qual_data["role"]
-    )
-    q.engine_preset = qual_data["engine_preset"]
-    q.role = qual_data["role"]
-    q.alpha_run_id = qual_data["alpha_run_id"]
-    q.pass_at_1 = qual_data["pass_at_1"]
-    q.report_uri = qual_data["report_uri"]
-    q.qualified_at = Time.parse(qual_data["qualified_at"])
-    q.expires_at = Time.parse(qual_data["expires_at"])
-    q.node_class = qual_data["node_class"]
-    q.save!
-  end
-
   if qualified
     puts "✅ QUALIFIED: #{qual_data["model_id"]} (#{qual_data["prompt_preset"]}) Pass@1: #{pass_at_1}"
     puts "Artifact written to: #{qual_path}"
@@ -259,7 +238,7 @@ when "qualify"
 when "doctor"
   puts "=== Alpha Doctor: Environment & Topology Preflight ==="
   puts "Ruby: #{RUBY_VERSION} (target 4.0.7)"
-  puts "Rails: #{Rails.version} (target 8.1.4)"
+  puts "Architecture: Pure Ruby CLI harness (v#{Alpha::VERSION})"
   target = Alpha::InferenceTarget.from_engine(ARGV[0] || "qwen36-coder-hybrid")
   puts "Inference Base URL: #{target.base_url}"
   print "Checking engine connectivity ... "
@@ -277,7 +256,7 @@ when "doctor"
   end
 
 when "version", "-v", "--version"
-  puts "alpha (Rails #{Rails.version} / Ruby #{RUBY_VERSION})"
+  puts "alpha v#{Alpha::VERSION} (Ruby #{RUBY_VERSION})"
 
 when nil, "help", "-h", "--help"
   puts <<~HELP
@@ -289,7 +268,7 @@ when nil, "help", "-h", "--help"
       qualify   Promote an evaluation run to an omega.qualification.v1 artifact
       engine    Manage inference server lifecycle (status, up, down) on Watchtower
       doctor    Check environment, inference target health, and agent binaries
-      version   Print Ruby and Rails versions
+      version   Print Alpha and Ruby versions
 
     Runtime host: AM5 homelab (watchtower). See docs/infrastructure-topology.md
   HELP

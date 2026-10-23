@@ -93,8 +93,6 @@ module Alpha
         task_records: task_records
       )
 
-      sync_to_database(run_id, report_res[:payload], report_res[:summary_path], report_res[:report_path])
-
       puts ""
       puts "Summary written to: #{report_res[:summary_path]}"
       puts "Report written to:  #{report_res[:report_path]}"
@@ -324,36 +322,6 @@ module Alpha
       rescue StandardError => e
         sandbox&.teardown! unless keep_sandbox
         [ false, "exception: #{e.message}" ]
-      end
-
-      def sync_to_database(run_id, payload, summary_path, report_path)
-        return unless defined?(EvalRun) && EvalRun.respond_to?(:table_exists?) && EvalRun.table_exists?
-
-        eval_run = EvalRun.find_or_initialize_by(run_id: run_id)
-        eval_run.scenario_id = payload["scenario"]
-        eval_run.model_id = payload["model_id"]
-        eval_run.prompt_preset = payload["prompt_preset"]
-        eval_run.engine_preset = payload.dig("inference", "preset")
-        eval_run.pass_at_1 = payload.dig("aggregate", "pass_at_1")
-        eval_run.status = eval_run.pass_at_1 && eval_run.pass_at_1 >= 0.7 ? "completed" : "failed"
-        eval_run.summary_path = summary_path
-        eval_run.report_path = report_path
-        eval_run.started_at ||= Time.now.utc
-        eval_run.finished_at = Time.now.utc
-        eval_run.save!
-
-        Array(payload["tasks"]).each do |t|
-          tr = eval_run.task_results.find_or_initialize_by(task_name: t["name"])
-          tr.pass = t["pass"]
-          tr.tool_calls = t["tool_calls"]
-          tr.prompt_tokens = t["prompt_tokens"]
-          tr.completion_tokens = t["completion_tokens"]
-          tr.wall_ms = t["wall_ms"]
-          tr.grader_detail = t["graders"]
-          tr.save!
-        end
-      rescue StandardError => e
-        warn "ActiveRecord DB sync skipped: #{e.message}"
       end
   end
 end

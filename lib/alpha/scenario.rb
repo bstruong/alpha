@@ -38,7 +38,8 @@ module Alpha
       manifest_path = File.join(scenario_dir, "scenario.yml")
       manifest = File.file?(manifest_path) ? (YAML.safe_load_file(manifest_path) || {}) : {}
 
-      order = Array(manifest["tasks"]).presence || DEFAULT_ORDER
+      manifest_tasks = Array(manifest["tasks"])
+      order = manifest_tasks.empty? ? DEFAULT_ORDER : manifest_tasks
       tasks_dir = File.join(scenario_dir, "tasks")
       raise ArgumentError, "Tasks directory not found: #{tasks_dir}" unless File.directory?(tasks_dir)
 

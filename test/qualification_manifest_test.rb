@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require_relative "../../lib/alpha/qualification_manifest"
 
-class QualificationManifestTest < ActiveSupport::TestCase
+class QualificationManifestTest < AlphaTest
   test "loads active qualifications and generates manifest" do
     items = Alpha::QualificationManifest.active
     assert items.size >= 10, "Expected at least 10 active qualifications, got #{items.size}"

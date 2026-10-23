@@ -9,19 +9,19 @@ Formerly the `berserker` lab repo (historical experiments preserved in git histo
 | Piece | Version |
 |-------|---------|
 | Ruby | **4.0.7** (`.ruby-version` / `.mise.toml`) |
-| Rails | **8.1.4** (API mode, SQLite for local learning) |
+| Framework | **Pure Ruby CLI** (Zero runtime gems; Ruby stdlib) |
 | Runtime host | AM5 homelab · Fedora Server · RTX 3060 12GB |
 
 ## Layout
 
 ```
-app/                  # Rails API — EvalRun / TaskResult / Qualification mirror
 lib/alpha/            # Harness domain — Scenario, Task, Sandbox, Grader, Executor, Runner, Report
-bin/alpha             # CLI entrypoint — oracle, run, qualify, version
-scenarios/qwen36-daily/   # Seed scenario (former benchmarks/qwen36-daily)
-engine/               # llama-server presets (AM5 substrate)
+bin/alpha             # CLI entrypoint — oracle, run, qualify, doctor, version
+scenarios/            # Evaluation scenarios (qwen36-daily, scoped-coding, email-triage, etc.)
+engine/               # llama-server presets & lifecycle (AM5 substrate)
 harness/pi/           # Pi coding-agent wiring + pi-monitor.rb
 prompts/              # Prompt presets / batteries
+qualifications/       # Certified Omega model qualification artifacts
 docs/                 # Topology + Shape Up
 results/              # Regenerable run output (gitignored)
 reports/              # Permanent write-ups (tracked when you promote them)
@@ -33,14 +33,13 @@ reports/              # Permanent write-ups (tracked when you promote them)
 # Ruby via mise (recommended)
 mise install          # reads .mise.toml → ruby 4.0.7
 bundle install
-bin/rails db:prepare
 
 bin/alpha help                                                     # CLI commands
+bin/alpha doctor                                                   # environment & substrate preflight
 bin/alpha oracle --scenario qwen36-daily                           # zero-model self-test of tasks & graders
 bin/alpha run --scenario qwen36-daily --model qwen36-coder-hybrid  # run scenario via Pi + llama-server
 bin/alpha qualify --run <run_id>                                   # emit omega.qualification.v1
-bin/rails test                                                     # unit + model tests
-bin/rails s                                                        # optional API — GET /up, /eval_runs
+bundle exec rake test                                              # harness unit test suite
 ```
 
 ## What Alpha is / isn’t
