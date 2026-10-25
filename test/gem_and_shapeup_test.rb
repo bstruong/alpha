@@ -235,6 +235,77 @@ class GemAndShapeupTest < AlphaTest
     end
   end
 
+  test "RSpecSuite supports AST constraint checks and verify_test_fails_on_seed mutation checks" do
+    grader = Alpha::Grader::RSpecSuite.new
+
+    Dir.mktmpdir("rspec_suite_mutation") do |tmpdir|
+      app_dir = File.join(tmpdir, "app")
+      seeded_dir = File.join(tmpdir, "seeded")
+      FileUtils.mkdir_p(File.join(app_dir, "bin"))
+      FileUtils.mkdir_p(File.join(app_dir, "lib"))
+      FileUtils.mkdir_p(File.join(app_dir, "spec"))
+
+      # Minimal bin/rspec stub that runs ruby -Ilib on either the passed spec or all spec/*_spec.rb
+      rspec_bin = File.join(app_dir, "bin", "rspec")
+      File.write(rspec_bin, <<~RUBY)
+        #!/usr/bin/env ruby
+        $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+        files = ARGV.empty? ? Dir.glob(File.expand_path("../spec/*_spec.rb", __dir__)) : ARGV
+        files.each { |f| load File.expand_path(f) }
+      RUBY
+      File.chmod(0o755, rspec_bin)
+
+      File.write(File.join(app_dir, "lib", "rule.rb"), <<~RUBY)
+        class Rule
+          def self.twists
+            8
+          end
+        end
+      RUBY
+      File.write(File.join(app_dir, "spec", "rule_spec.rb"), <<~RUBY)
+        require "rule"
+        abort("expected 8") unless Rule.twists == 8
+      RUBY
+
+      sandbox = Alpha::Sandbox.new(path: app_dir, work_dir: tmpdir, seeded_path: seeded_dir)
+      sandbox.snapshot_seeded!
+
+      task = Struct.new(:verifier_path, :stable_except, :verify_test_fails_on_seed?, :required_calls).new(
+        nil, [], true, [ "with" ]
+      )
+
+      # Case 1: Weak spec passes on unpatched seed AND missing required_calls `with`
+      File.write(File.join(app_dir, "spec", "rule_spec.rb"), <<~RUBY)
+        require "rule"
+        # Weak check that still passes on unpatched seed
+        abort("expected 8") unless Rule.twists == 8
+      RUBY
+      res_weak = grader.call(sandbox: sandbox, task: task)
+      refute res_weak.pass
+      assert_equal false, res_weak.detail[:mutation_ok]
+      assert_includes res_weak.detail[:mutation_output], "passed against unpatched seed code"
+      assert(res_weak.detail[:violations].any? { |v| v[:reason].include?("Required call/mechanism `with`") })
+
+      # Case 2: Strong spec fails on unpatched seed (expects 10) AND code uses `.with`
+      File.write(File.join(app_dir, "lib", "rule.rb"), <<~RUBY)
+        RuleData = Data.define(:twists)
+        class Rule
+          def self.twists
+            RuleData.new(twists: 8).with(twists: 10).twists
+          end
+        end
+      RUBY
+      File.write(File.join(app_dir, "spec", "rule_spec.rb"), <<~RUBY)
+        require "rule"
+        abort("expected 10") unless Rule.twists == 10
+      RUBY
+
+      res_strong = grader.call(sandbox: sandbox, task: task)
+      assert res_strong.pass, "Expected RSpecSuite strong spec + fix to pass, got: #{res_strong.detail.inspect}"
+      assert_equal true, res_strong.detail[:mutation_ok]
+    end
+  end
+
   test "FixtureImporter ingests omega.failure_export.v1, sanitizes secrets, and writes draft task" do
     Dir.mktmpdir("fixture_import_test") do |tmpdir|
       Alpha.configure { |c| c.root = tmpdir }
