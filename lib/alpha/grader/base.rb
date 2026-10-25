@@ -14,12 +14,13 @@ module Alpha
       def run_command_with_timeout(env, *cmd, chdir:, timeout_s: DEFAULT_COMMAND_TIMEOUT)
         Open3.popen2e(env, *cmd, chdir: chdir, pgroup: true) do |stdin, stdout, wait_thr|
           stdin.close
+          reader = Thread.new { stdout.read rescue "" }
           deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout_s
 
           loop do
-            _pid, status = Process.wait2(wait_thr.pid, Process::WNOHANG)
-            if status
-              out = stdout.read rescue ""
+            if wait_thr.join(0.05)
+              status = wait_thr.value
+              out = reader.value
               return { ok: status.success?, output: out, status: status.exitstatus }
             end
 
@@ -27,13 +28,15 @@ module Alpha
               begin
                 pgid = Process.getpgid(wait_thr.pid) rescue wait_thr.pid
                 Process.kill("-TERM", pgid)
-                sleep 0.1
-                Process.kill("-KILL", pgid) if Process.wait2(wait_thr.pid, Process::WNOHANG).nil?
+                unless wait_thr.join(0.1)
+                  Process.kill("-KILL", pgid)
+                  wait_thr.join(0.1)
+                end
               rescue StandardError
               end
+              reader.kill
               break
             end
-            sleep 0.05
           end
 
           { ok: false, output: "Command timed out after #{timeout_s}s: #{cmd.join(' ')}", status: 124 }

@@ -10,6 +10,8 @@ module Alpha
                 :restore, :restore_except, :stable_except,
                 :denied_patterns, :required_markers, :required_json_keys,
                 :expected_json_values, :required_json_markers, :denied_json_patterns, :nested_json_keys,
+                :denied_constants, :denied_keywords, :denied_defs, :required_calls,
+                :verify_test_fails_on_seed,
                 :executor_type, :grader_type, :system_prompt, :max_tool_calls
     attr_accessor :thinking, :repair_feedback
 
@@ -39,6 +41,11 @@ module Alpha
         required_json_markers: Array(data["required_json_markers"]),
         denied_json_patterns: data["denied_json_patterns"] || {},
         nested_json_keys: data["nested_json_keys"] || {},
+        denied_constants: Array(data["denied_constants"]),
+        denied_keywords: Array(data["denied_keywords"]),
+        denied_defs: Array(data["denied_defs"]),
+        required_calls: Array(data["required_calls"]),
+        verify_test_fails_on_seed: data["verify_test_fails_on_seed"] == true,
         executor_type: data["executor"],
         grader_type: data["grader"],
         system_prompt: data["system_prompt"],
@@ -51,6 +58,8 @@ module Alpha
                    restore: [], restore_except: [], stable_except: [], thinking: nil, repair_feedback: nil,
                    denied_patterns: {}, required_markers: [], required_json_keys: [],
                    expected_json_values: {}, required_json_markers: [], denied_json_patterns: {}, nested_json_keys: {},
+                   denied_constants: [], denied_keywords: [], denied_defs: [], required_calls: [],
+                   verify_test_fails_on_seed: false,
                    executor_type: nil, grader_type: nil, system_prompt: nil, json_mode: false,
                    max_tool_calls: nil)
       @name = name
@@ -70,11 +79,20 @@ module Alpha
       @required_json_markers = required_json_markers
       @denied_json_patterns = denied_json_patterns
       @nested_json_keys = nested_json_keys
+      @denied_constants = denied_constants
+      @denied_keywords = denied_keywords
+      @denied_defs = denied_defs
+      @required_calls = required_calls
+      @verify_test_fails_on_seed = verify_test_fails_on_seed
       @executor_type = executor_type
       @grader_type = grader_type
       @system_prompt = system_prompt
       @json_mode = json_mode
       @max_tool_calls = max_tool_calls
+    end
+
+    def verify_test_fails_on_seed?
+      @verify_test_fails_on_seed == true
     end
 
     def json_mode?
