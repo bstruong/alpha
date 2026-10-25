@@ -80,6 +80,9 @@ module Alpha
     end
 
     def prepare_db!
+      rails_bin = File.join(path, "bin", "rails")
+      return [ true, "No bin/rails; skipped db:prepare" ] unless File.file?(rails_bin)
+
       run_in_clean_env do
         out, status = Open3.capture2e(child_env, "bin/rails", "db:prepare", chdir: path)
         [ status.success?, out ]

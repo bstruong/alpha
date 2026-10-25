@@ -287,6 +287,9 @@ module Alpha
         if detail[:verifier_output] && detail[:verifier_ok] == false
           sections << "=== Verification test output ===\n#{clean_test_output(detail[:verifier_output])}"
         end
+        if detail[:mutation_output] && detail[:mutation_ok] == false
+          sections << "=== Test Mutation Check ===\n#{detail[:mutation_output]}"
+        end
         if detail[:drifted] && Array(detail[:drifted]).any?
           sections << "=== Modified protected/forbidden files ===\n#{detail[:drifted].join(', ')}"
         end

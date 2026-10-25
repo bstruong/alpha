@@ -78,6 +78,163 @@ class GemAndShapeupTest < AlphaTest
     end
   end
 
+  test "AstDeny enforces denied_keywords, denied_defs, required_calls, and vacuous Minitest assertions" do
+    grader = Alpha::Grader::AstDeny.new
+    task = Struct.new(:denied_constants, :denied_keywords, :denied_defs, :required_calls).new(
+      [],
+      [ "rescue" ],
+      [ "has_helmet?" ],
+      [ "dig", "method_missing" ]
+    )
+
+    Dir.mktmpdir("ast_structural_test") do |tmpdir|
+      sandbox = Struct.new(:path).new(tmpdir)
+      FileUtils.mkdir_p(File.join(tmpdir, "lib"))
+      FileUtils.mkdir_p(File.join(tmpdir, "test"))
+
+      # 1. Failing code: uses `rescue`, defines hardcoded `def has_helmet?`, omits `method_missing`, and has vacuous `assert true,`
+      File.write(File.join(tmpdir, "lib", "gear.rb"), <<~RUBY)
+        class Gear
+          def lookup(data, idx)
+            data.dig(:items)[idx] rescue nil
+          end
+
+          def has_helmet?
+            true
+          end
+        end
+      RUBY
+      File.write(File.join(tmpdir, "test", "gear_test.rb"), <<~RUBY)
+        class GearTest
+          def test_loadout
+            assert true, Gear.new.has_helmet?
+          end
+        end
+      RUBY
+
+      res = grader.call(sandbox: sandbox, task: task)
+      refute res.pass
+      reasons = res.detail[:violations].map { |v| v[:reason] }
+      assert(reasons.any? { |r| r.include?("Denied keyword rescue found") })
+      assert(reasons.any? { |r| r.include?("Denied method definition `def has_helmet?` found") })
+      assert(reasons.any? { |r| r.include?("Required call/mechanism `method_missing` was not used") })
+      assert(reasons.any? { |r| r.include?("Vacuous Minitest assertion `assert true, expr`") })
+
+      # 2. Passing code: uses `dig` and `method_missing`, no `rescue`, no hardcoded `has_helmet?`, valid assertion
+      File.write(File.join(tmpdir, "lib", "gear.rb"), <<~RUBY)
+        class Gear
+          def lookup(data, idx)
+            data.dig(:items, idx)
+          end
+
+          def method_missing(name, *args)
+            name.to_s.start_with?("has_") ? true : super
+          end
+        end
+      RUBY
+      File.write(File.join(tmpdir, "test", "gear_test.rb"), <<~RUBY)
+        class GearTest
+          def test_loadout
+            assert Gear.new.has_helmet?
+          end
+        end
+      RUBY
+
+      res_ok = grader.call(sandbox: sandbox, task: task)
+      assert res_ok.pass, "Expected AstDeny to pass, got: #{res_ok.detail.inspect}"
+      assert_empty res_ok.detail[:violations]
+    end
+  end
+
+  test "MinitestFile supports pure-Ruby Rakefile projects and verify_test_fails_on_seed mutation checks" do
+    grader = Alpha::Grader::MinitestFile.new
+
+    Dir.mktmpdir("pure_ruby_minitest") do |tmpdir|
+      app_dir = File.join(tmpdir, "app")
+      seeded_dir = File.join(tmpdir, "seeded")
+      FileUtils.mkdir_p(File.join(app_dir, "lib"))
+      FileUtils.mkdir_p(File.join(app_dir, "test"))
+
+      File.write(File.join(app_dir, "Rakefile"), <<~RUBY)
+        task :test do
+          Dir.glob("test/*_test.rb").sort.each do |file|
+            sh RbConfig.ruby, "-Ilib:test", file
+          end
+        end
+      RUBY
+
+      # Seed has a buggy counter that resets to 1 on every instance
+      File.write(File.join(app_dir, "lib", "counter.rb"), <<~RUBY)
+        class Counter
+          def self.count
+            1
+          end
+        end
+      RUBY
+      File.write(File.join(app_dir, "test", "counter_test.rb"), <<~RUBY)
+        require "minitest/autorun"
+        require "counter"
+
+        class CounterTest < Minitest::Test
+          def test_count
+            assert_equal 1, Counter.count
+          end
+        end
+      RUBY
+
+      sandbox = Alpha::Sandbox.new(path: app_dir, work_dir: tmpdir, seeded_path: seeded_dir)
+      sandbox.snapshot_seeded!
+
+      task = Struct.new(:verifier_path, :stable_except, :verify_test_fails_on_seed?).new(nil, [], true)
+
+      # Case 1: Agent fixes code and updates test, but test still only checks `1` (passes on buggy seed!)
+      File.write(File.join(app_dir, "test", "counter_test.rb"), <<~RUBY)
+        require "minitest/autorun"
+        require "counter"
+
+        class CounterTest < Minitest::Test
+          def test_count
+            # Weak test that still passes on seed
+            assert_equal 1, Counter.count
+          end
+        end
+      RUBY
+      res_weak = grader.call(sandbox: sandbox, task: task)
+      refute res_weak.pass
+      assert_equal false, res_weak.detail[:mutation_ok]
+      assert_includes res_weak.detail[:mutation_output], "passed against unpatched seed code"
+
+      # Case 2: Agent fixes code AND writes a test that fails on buggy seed (expects 2 after two increments)
+      File.write(File.join(app_dir, "lib", "counter.rb"), <<~RUBY)
+        class Counter
+          class << self
+            attr_accessor :count
+          end
+          def initialize
+            self.class.count = (self.class.count || 0) + 1
+          end
+        end
+      RUBY
+      File.write(File.join(app_dir, "test", "counter_test.rb"), <<~RUBY)
+        require "minitest/autorun"
+        require "counter"
+
+        class CounterTest < Minitest::Test
+          def test_count
+            Counter.count = 0
+            Counter.new
+            Counter.new
+            assert_equal 2, Counter.count
+          end
+        end
+      RUBY
+
+      res_strong = grader.call(sandbox: sandbox, task: task)
+      assert res_strong.pass, "Expected strong test + fix to pass, got: #{res_strong.detail.inspect}"
+      assert_equal true, res_strong.detail[:mutation_ok]
+    end
+  end
+
   test "FixtureImporter ingests omega.failure_export.v1, sanitizes secrets, and writes draft task" do
     Dir.mktmpdir("fixture_import_test") do |tmpdir|
       Alpha.configure { |c| c.root = tmpdir }
