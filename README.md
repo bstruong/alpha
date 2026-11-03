@@ -60,8 +60,6 @@ Defaults assume a local llama-server on `127.0.0.1:8080`. Do not commit machine-
 
 ## Documentation
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — tests, conventions, PRs
-- [`SECURITY.md`](SECURITY.md) — reporting vulnerabilities
 - [`AGENTS.md`](AGENTS.md) — harness invariants for automated agents
 - [`CONVENTIONS.md`](CONVENTIONS.md) — disposable vs permanent output
 
