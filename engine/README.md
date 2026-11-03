@@ -4,8 +4,7 @@ Alpha is an **HTTP client** of an OpenAI-compatible inference server (commonly
 llama-server / llama.cpp). This directory holds lab tooling and a local
 `models.ini` mirror for starting and stopping servers during evals.
 
-Configure the harness with `OPENAI_BASE_URL` (or `LLAMA_SERVER_URL`). See
-[`docs/infrastructure-topology.md`](../docs/infrastructure-topology.md).
+Configure the harness with `OPENAI_BASE_URL` (or `LLAMA_SERVER_URL`).
 
 Production deployments may centralize presets in a shared inference service
 (for example a k3s ConfigMap); treat this tree as a local mirror and lifecycle

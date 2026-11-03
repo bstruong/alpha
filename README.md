@@ -22,7 +22,6 @@ engine/               # llama-server presets and lifecycle helpers
 harness/pi/           # Pi coding-agent wiring
 prompts/              # Prompt presets
 qualifications/       # Published qualification artifacts
-docs/                 # Design notes and Shape Up pitches
 results/              # Regenerable run output (gitignored)
 reports/              # Permanent write-ups (tracked when promoted)
 ```
@@ -64,7 +63,6 @@ Defaults assume a local llama-server on `127.0.0.1:8080`. Do not commit machine-
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — tests, conventions, PRs
 - [`SECURITY.md`](SECURITY.md) — reporting vulnerabilities
-- [`docs/`](docs/) — topology notes and Shape Up pitches
 - [`AGENTS.md`](AGENTS.md) — harness invariants for automated agents
 - [`CONVENTIONS.md`](CONVENTIONS.md) — disposable vs permanent output
 
