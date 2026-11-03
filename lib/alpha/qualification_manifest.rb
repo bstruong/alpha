@@ -20,7 +20,7 @@ module Alpha
     def self.load_all(dir = qualifications_dir)
       Dir.glob(File.join(dir, "*.json")).reject { |p| p.end_with?("manifest.json") }.map do |path|
         data = JSON.parse(File.read(path))
-        next unless data["schema"] == "omega.qualification.v1"
+        next unless data["schema"] == "alpha.qualification.v1"
 
         data["_file"] = File.basename(path)
         data
@@ -59,7 +59,7 @@ module Alpha
       end
 
       manifest = {
-        "schema" => "omega.qualification_manifest.v1",
+        "schema" => "alpha.qualification_manifest.v1",
         "generated_at" => Time.now.utc.iso8601,
         "roles" => by_role
       }

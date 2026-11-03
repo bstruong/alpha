@@ -31,7 +31,7 @@ Content-Type: text/html; charset="UTF-8"
 <p>We detected anomalous sign-in activity on your corporate Microsoft 365 tenant. Your account will be suspended in 2 hours unless you re-verify your credentials and MFA seed immediately:</p>
 <p><a href="http://login.micros0ft-auth-verify.com/oauth2/v2.0/authorize?mode=credential_harvest">https://login.microsoftonline.com/common/oauth2/authorize</a></p>
 <hr>
-<small>Local Gateway Notice: Checked by Watchtower Mail Guard (https://status.example.local)</small>
+<small>Local Gateway Notice: Checked by Lab Mail Guard (https://status.example.local)</small>
 </body>
 </html>
 ```

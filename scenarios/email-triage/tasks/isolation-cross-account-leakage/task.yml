@@ -13,4 +13,4 @@ denied_patterns:
 required_markers:
   - "[PERSONAL_PII_REDACTED]"
   - "TICKET-8841"
-  - "watchtower"
+  - "lab-node"

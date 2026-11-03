@@ -61,10 +61,10 @@ def parse_qualify_options(argv)
     opts.banner = "Usage: bin/alpha qualify [options]"
     opts.on("-r", "--run ID", "Alpha run ID to qualify") { |v| options[:run_id] = v }
     opts.on("--role ROLE", "Qualification role: coder, scoped_coder, sanitizer, extractor, triager") { |v| options[:role] = v }
-    opts.on("--promote", "Save qualification artifact for Omega") { options[:promote] = true }
-    opts.on("-l", "--list", "List all current qualified models for Omega") { options[:list] = true }
-    opts.on("-m", "--manifest", "Generate qualifications/manifest.json for Omega") { options[:manifest] = true }
-    opts.on("-e", "--export DIR", "Export active qualifications and manifest to Omega directory") { |v| options[:export_dir] = v }
+    opts.on("--promote", "Save qualification artifact") { options[:promote] = true }
+    opts.on("-l", "--list", "List all current qualified models") { options[:list] = true }
+    opts.on("-m", "--manifest", "Generate qualifications/manifest.json") { options[:manifest] = true }
+    opts.on("-e", "--export DIR", "Export active qualifications and manifest to a directory") { |v| options[:export_dir] = v }
   end
   parser.parse!(argv)
   options
@@ -119,31 +119,18 @@ when "engine"
   case subcmd
   when "status"
     st = manager.status
-    puts "=== Alpha Engine Status (Watchtower k3s) ==="
-    puts "Deployment:   #{st[:namespace]}/#{st[:deployment]}"
-    puts "Replicas:     #{st[:ready_replicas]}/#{st[:spec_replicas]}"
-    puts "Running:      #{st[:running] ? "✓ YES" : "✗ NO"}"
-    puts "Healthy:      #{st[:healthy] ? "✓ YES" : "✗ NO"}"
-    puts "Active Preset: #{st[:active_preset]}"
-    puts "Model Path:   #{st[:model_path]}"
-    puts "Alias:        #{st[:alias]}"
-    exit(st[:running] && st[:healthy] ? 0 : 1)
+    puts "=== Alpha Engine Status (HTTP) ==="
+    puts "Base URL:  #{st[:base_url]}"
+    puts "Healthy:   #{st[:healthy] ? "yes" : "no"}"
+    puts "Note:      #{st[:note]}"
+    exit(st[:healthy] ? 0 : 1)
 
-  when "up"
-    preset = ARGV[0] == "--preset" ? ARGV[1] : ARGV[0]
-    puts "Scaling engine up (preset: #{preset || "current"})..."
-    manager.up(preset: preset, wait: true, timeout: 120)
-    puts "✓ Engine is healthy and ready!"
-    exit 0
-
-  when "down"
-    puts "Scaling engine down to zero replicas..."
-    manager.down
-    puts "✓ Engine scaled to 0 (RAM and VRAM reclaimed)."
-    exit 0
+  when "up", "down"
+    warn Alpha::Engine::Manager::OPS_HINT
+    exit 1
 
   else
-    warn "Unknown engine command: #{subcmd.inspect} (use: status, up, down)"
+    warn "Unknown engine command: #{subcmd.inspect} (use: status; up/down → homelab-k3s jarvis-*.sh)"
     exit 1
   end
 
@@ -152,7 +139,7 @@ when "qualify"
 
   if options[:list]
     items = Alpha::QualificationManifest.active
-    puts "=== Alpha Handoff A: Active Omega Qualifications (#{items.size} certified) ==="
+    puts "=== Active qualifications (#{items.size} certified) ==="
     printf "%-12s | %-24s | %-12s | %-8s | %-12s | %s\n", "ROLE", "MODEL", "PRESET", "PASS@1", "EXPIRES IN", "SCENARIO"
     puts "-" * 88
     items.sort_by { |q| [ q["role"].to_s, -q["pass_at_1"].to_f ] }.each do |q|
@@ -166,13 +153,13 @@ when "qualify"
 
   if options[:manifest]
     manifest = Alpha::QualificationManifest.generate
-    puts "✓ Generated qualifications/manifest.json for Omega (#{manifest["roles"].keys.size} roles certified)"
+    puts "✓ Generated qualifications/manifest.json (#{manifest["roles"].keys.size} roles certified)"
     exit 0
   end
 
   if options[:export_dir]
     copied = Alpha::QualificationManifest.export(options[:export_dir])
-    puts "✓ Exported #{copied.size} qualification artifacts to #{options[:export_dir]} for Omega"
+    puts "✓ Exported #{copied.size} qualification artifacts to #{options[:export_dir]}"
     exit 0
   end
 
@@ -206,7 +193,7 @@ when "qualify"
   report_uri = File.file?(report_md) ? "reports/#{options[:run_id]}.md" : "results/runs/#{options[:run_id]}/summary.json"
 
   qual_data = {
-    "schema" => "omega.qualification.v1",
+    "schema" => "alpha.qualification.v1",
     "model_id" => summary["model_id"],
     "engine_preset" => summary.dig("inference", "preset") || summary["model_id"],
     "prompt_preset" => summary["prompt_preset"],
@@ -284,13 +271,13 @@ when nil, "help", "-h", "--help"
     Commands:
       oracle    Zero-model task & grader verification (e.g. bin/alpha oracle --task gate-hello)
       run       Run an evaluation scenario against an inference target
-      qualify   Promote an evaluation run to an omega.qualification.v1 artifact
-      fixture   Ingest Omega failure exports (e.g. bin/alpha fixture import <export.json>)
-      engine    Manage inference server lifecycle (status, up, down) on Watchtower
+      qualify   Promote an evaluation run to an alpha.qualification.v1 artifact
+      fixture   Ingest failure exports (e.g. bin/alpha fixture import <export.json>)
+      engine    Manage inference server lifecycle (status, up, down) on the inference host
       doctor    Check environment, inference target health, and agent binaries
       version   Print Alpha and Ruby versions
 
-    Runtime host: AM5 homelab (watchtower). See docs/infrastructure-topology.md
+    Runtime host: local or remote OpenAI-compatible inference (OPENAI_BASE_URL)
   HELP
 else
   warn "Unknown command: #{command.inspect} (try bin/alpha help)"

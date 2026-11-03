@@ -42,10 +42,12 @@ fragile, easy-to-forget pattern that caused the original problem.
 - **`results/`**: Regenerable trial outputs, intermediate JSON metrics, and ephemeral traces (`results/runs/<run_id>/`). Fully gitignored.
 - **`reports/`**: Promoted permanent benchmark reports, leaderboards, and qualification summaries. Tracked in git.
 - **`scenarios/`**: Standardized evaluation batteries (`qwen36-daily`, `scoped-coding`, `pii-scrubbing`, `ocr-extraction`, `email-triage`).
-- **`qualifications/`**: Formal JSON qualification artifacts (`omega.qualification.v1`). Tracked in git.
+- **`qualifications/`**: Formal JSON qualification artifacts (`alpha.qualification.v1`). Tracked in git.
 
 ### If you're starting a new benchmark project
 
 Put your harness code and regenerable output under `results/` (gitignored,
 as before). Put final write-ups, appendices, and anything else meant to be
 read later under a `reports/` folder next to it. Nothing else to configure.
+
+Published campaign reports and shipping qualification snapshots for this lab live in the public [alpha-lab](https://github.com/bstruong/alpha-lab) repository. Do not commit personal shipping JSON under `qualifications/` in this repo.

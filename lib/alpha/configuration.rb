@@ -18,7 +18,7 @@ module Alpha
                           "http://127.0.0.1:8080/v1"
       @default_model = ENV.fetch("ALPHA_MODEL", "qwen36-coder-hybrid")
       @node_class = ENV.fetch("ALPHA_NODE_CLASS", "lab-gpu-32g")
-      @qualification_schema = ENV.fetch("ALPHA_QUALIFICATION_SCHEMA", "omega.qualification.v1")
+      @qualification_schema = ENV.fetch("ALPHA_QUALIFICATION_SCHEMA", "alpha.qualification.v1")
       @scenarios_dir = nil
       @results_dir = nil
       @reports_dir = nil
