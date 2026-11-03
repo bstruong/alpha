@@ -49,3 +49,5 @@ fragile, easy-to-forget pattern that caused the original problem.
 Put your harness code and regenerable output under `results/` (gitignored,
 as before). Put final write-ups, appendices, and anything else meant to be
 read later under a `reports/` folder next to it. Nothing else to configure.
+
+Homelab-specific evaluation campaigns for this operator are archived in the private `project-notes` repo (`alpha/reports/`), not in this tree by default.

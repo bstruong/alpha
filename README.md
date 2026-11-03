@@ -23,7 +23,7 @@ harness/pi/           # Pi coding-agent wiring
 prompts/              # Prompt presets
 qualifications/       # Published qualification artifacts
 results/              # Regenerable run output (gitignored)
-reports/              # Permanent write-ups (tracked when promoted)
+reports/              # Optional public write-ups (lab reports live in project-notes)
 ```
 
 ## Quick start
