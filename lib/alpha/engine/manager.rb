@@ -10,15 +10,14 @@ require "uri"
 
 module Alpha
   module Engine
-    # Thin client for JARVIS (shared Watchtower inference in homelab-k3s).
+    # Thin client for JARVIS (shared k8s inference Deployment (optional)).
     #
     # Production preset SoT is the JARVIS ConfigMap `jarvis-models` / models.ini
     # in homelab-k3s — not this repo's engine/models.ini. Alpha wakes/scales
     # JARVIS, checks health, and optionally holds a lease. Model selection is
     # the OpenAI `model` id on chat completions (router `--models-max 1`).
     #
-    # See https://github.com/bstruong/homelab-k3s/blob/main/docs/jarvis.md
-    class Manager
+    #     class Manager
       DEFAULT_HOST = "user@homelab.local"
       DEFAULT_NAMESPACE = "jarvis"
       DEFAULT_DEPLOYMENT = "jarvis"

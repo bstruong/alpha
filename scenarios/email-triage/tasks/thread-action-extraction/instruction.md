@@ -27,7 +27,7 @@ Team, before Monday's cutover we need to track these items:
 Update on item #1: I already rotated and verified the staging TLS certificate this morning. That item is 100% done and closed—remove it from the open action list.
 
 **[Message 3 — From: Marcus Vance <marcus@example.local> | Date: 2026-10-16 10:15 UTC]**
-Got it. On the homelab side, I (Marcus Vance) will apply the k3s NetworkPolicy egress lock for namespace `alpha` on `watchtower` by `2026-10-18`.
+Got it. On the homelab side, I (Marcus Vance) will apply the k3s NetworkPolicy egress lock for namespace `alpha` on `lab-node` by `2026-10-18`.
 
 **[Message 4 — From: Devon Brooks <devon@apex-consulting.io> | Date: 2026-10-16 11:05 UTC]**
 We also need someone to run the billing webhook replay load test against the Acme staging tenant and send the latency sign-off. Should I take that for Tuesday?

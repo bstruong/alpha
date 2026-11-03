@@ -52,7 +52,7 @@ cleanup() {
     # Unarm traps to avoid re-entrant calls
     trap - EXIT INT TERM HUP
 
-    # Remote inference (Watchtower) or explicit persist flag: do not shut down remote engine
+    # Remote inference host or explicit persist flag: do not shut down remote engine
     if [[ "${LLAMA_SERVER_URL}" != *"127.0.0.1"* && "${LLAMA_SERVER_URL}" != *"localhost"* ]]; then
         : # Remote server, keep running on host
     elif [[ "${ALPHA_PERSIST_ENGINE:-0}" == "1" || "${PERSIST_ENGINE:-0}" == "1" ]]; then
@@ -137,7 +137,7 @@ ensure_engine_ready() {
     else
         if [[ "${LLAMA_SERVER_URL}" != *"127.0.0.1"* && "${LLAMA_SERVER_URL}" != *"localhost"* ]]; then
             echo "[pi-monitored] Error: Remote llama-server is not reachable at ${LLAMA_SERVER_URL}." >&2
-            echo "[pi-monitored] Please verify service status on Watchtower: 'ssh watchtower systemctl --user status alpha-llama.service'" >&2
+            echo "[pi-monitored] Please verify llama-server / alpha-llama.service on your inference host" >&2
             exit 1
         fi
         local model_preset

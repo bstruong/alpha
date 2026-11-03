@@ -25,7 +25,7 @@ weaker hosts; larger contexts need more VRAM or heavier quantization.
 
 ```
 engine/
-├── models.ini                  # Local mirror of JARVIS presets (homelab-k3s is SoT)
+├── models.ini                  # Local llama-server preset mirror
 ├── workstation.env              # Environment variable defaults (paths, port, default preset)
 ├── bin/
 │   ├── ini2args.py             # Parses models.ini sections into CLI arguments

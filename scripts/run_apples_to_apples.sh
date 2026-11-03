@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "=== Running GLM-4.7 Flash REAP Apples-to-Apples Suite on Watchtower ==="
+echo "=== Running GLM-4.7 Flash REAP Apples-to-Apples Suite ==="
 date
 
 # 1. Switch preset to GLM-4.7 Flash REAP
