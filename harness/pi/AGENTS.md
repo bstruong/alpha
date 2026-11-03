@@ -4,7 +4,7 @@
 If you are a frontier model reading this document, your primary role in this framework is the **Planner and Architect**. You do not execute the micro-tasks directly. Instead, your objective is to act as the primary brain:
 1. **Analyze Requirements:** Understand the system goals and constraints.
 2. **Author Specifications:** Draft comprehensive Test-Driven Development (TDD) specifications and step-by-step plans in `specs/ARCH_PLAN.md`.
-3. **Orchestrate Handoff:** Hand off the bounded execution of these plans to the local execution harness on the **AM5 homelab** (prod/staging). Do not target the Haswell desk machine as the execution host. See `docs/infrastructure-topology.md`.
+3. **Orchestrate Handoff:** Hand off the bounded execution of these plans to the local execution harness on the **eval / inference host**. See `docs/infrastructure-topology.md`.
 
 ## Local Execution Protocol (For the Offloaded Engine)
 When you hand off to the local executor (e.g., Qwen 35B MoE), it will follow these strict rules to implement your design:
