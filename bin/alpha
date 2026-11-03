@@ -61,10 +61,10 @@ def parse_qualify_options(argv)
     opts.banner = "Usage: bin/alpha qualify [options]"
     opts.on("-r", "--run ID", "Alpha run ID to qualify") { |v| options[:run_id] = v }
     opts.on("--role ROLE", "Qualification role: coder, scoped_coder, sanitizer, extractor, triager") { |v| options[:role] = v }
-    opts.on("--promote", "Save qualification artifact for Omega") { options[:promote] = true }
-    opts.on("-l", "--list", "List all current qualified models for Omega") { options[:list] = true }
-    opts.on("-m", "--manifest", "Generate qualifications/manifest.json for Omega") { options[:manifest] = true }
-    opts.on("-e", "--export DIR", "Export active qualifications and manifest to Omega directory") { |v| options[:export_dir] = v }
+    opts.on("--promote", "Save qualification artifact") { options[:promote] = true }
+    opts.on("-l", "--list", "List all current qualified models") { options[:list] = true }
+    opts.on("-m", "--manifest", "Generate qualifications/manifest.json") { options[:manifest] = true }
+    opts.on("-e", "--export DIR", "Export active qualifications and manifest to a directory") { |v| options[:export_dir] = v }
   end
   parser.parse!(argv)
   options
@@ -139,7 +139,7 @@ when "qualify"
 
   if options[:list]
     items = Alpha::QualificationManifest.active
-    puts "=== Alpha Handoff A: Active Omega Qualifications (#{items.size} certified) ==="
+    puts "=== Active qualifications (#{items.size} certified) ==="
     printf "%-12s | %-24s | %-12s | %-8s | %-12s | %s\n", "ROLE", "MODEL", "PRESET", "PASS@1", "EXPIRES IN", "SCENARIO"
     puts "-" * 88
     items.sort_by { |q| [ q["role"].to_s, -q["pass_at_1"].to_f ] }.each do |q|
@@ -153,13 +153,13 @@ when "qualify"
 
   if options[:manifest]
     manifest = Alpha::QualificationManifest.generate
-    puts "✓ Generated qualifications/manifest.json for Omega (#{manifest["roles"].keys.size} roles certified)"
+    puts "✓ Generated qualifications/manifest.json (#{manifest["roles"].keys.size} roles certified)"
     exit 0
   end
 
   if options[:export_dir]
     copied = Alpha::QualificationManifest.export(options[:export_dir])
-    puts "✓ Exported #{copied.size} qualification artifacts to #{options[:export_dir]} for Omega"
+    puts "✓ Exported #{copied.size} qualification artifacts to #{options[:export_dir]}"
     exit 0
   end
 
@@ -193,7 +193,7 @@ when "qualify"
   report_uri = File.file?(report_md) ? "reports/#{options[:run_id]}.md" : "results/runs/#{options[:run_id]}/summary.json"
 
   qual_data = {
-    "schema" => "omega.qualification.v1",
+    "schema" => "alpha.qualification.v1",
     "model_id" => summary["model_id"],
     "engine_preset" => summary.dig("inference", "preset") || summary["model_id"],
     "prompt_preset" => summary["prompt_preset"],
@@ -271,8 +271,8 @@ when nil, "help", "-h", "--help"
     Commands:
       oracle    Zero-model task & grader verification (e.g. bin/alpha oracle --task gate-hello)
       run       Run an evaluation scenario against an inference target
-      qualify   Promote an evaluation run to an omega.qualification.v1 artifact
-      fixture   Ingest Omega failure exports (e.g. bin/alpha fixture import <export.json>)
+      qualify   Promote an evaluation run to an alpha.qualification.v1 artifact
+      fixture   Ingest failure exports (e.g. bin/alpha fixture import <export.json>)
       engine    Manage inference server lifecycle (status, up, down) on the inference host
       doctor    Check environment, inference target health, and agent binaries
       version   Print Alpha and Ruby versions

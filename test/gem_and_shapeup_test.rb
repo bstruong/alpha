@@ -306,13 +306,13 @@ class GemAndShapeupTest < AlphaTest
     end
   end
 
-  test "FixtureImporter ingests omega.failure_export.v1, sanitizes secrets, and writes draft task" do
+  test "FixtureImporter ingests alpha.failure_export.v1, sanitizes secrets, and writes draft task" do
     Dir.mktmpdir("fixture_import_test") do |tmpdir|
       Alpha.configure { |c| c.root = tmpdir }
 
       export_payload = {
-        "schema" => "omega.failure_export.v1",
-        "omega_session_id" => "8f3c1234-abcd-5678-ef01-999988887777",
+        "schema" => "alpha.failure_export.v1",
+        "session_id" => "8f3c1234-abcd-5678-ef01-999988887777",
         "model_id" => "qwen36-coder-hybrid",
         "prompt_preset" => "omega-default",
         "repo_fingerprint" => {
@@ -357,7 +357,7 @@ class GemAndShapeupTest < AlphaTest
       assert_equal "draft_needs_grader", meta["status"]
 
       # Verify scenario manifest registration
-      manifest_path = File.join(tmpdir, "scenarios", "omega_regressions", "scenario.yml")
+      manifest_path = File.join(tmpdir, "scenarios", "alpha_regressions", "scenario.yml")
       assert File.file?(manifest_path)
       manifest = YAML.safe_load_file(manifest_path)
       assert_includes manifest["tasks"], "regression-8f3c1234"
