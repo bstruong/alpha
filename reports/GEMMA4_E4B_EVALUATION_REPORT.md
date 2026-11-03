@@ -35,7 +35,7 @@ Google's **Gemma 4 E4B Instruct** was evaluated against the standardized 4-task 
 * **Output Sample:**
   ```json
   {
-    "account": "homelab-alerts@watchtower.local",
+    "account": "homelab-alerts@example.local",
     "category": "production_alert",
     "urgency": "P1",
     "action_required": true,
@@ -65,7 +65,7 @@ Google's **Gemma 4 E4B Instruct** was evaluated against the standardized 4-task 
     "recommended_action": "quarantine_and_block_sender"
   }
   ```
-* **Verdict:** ✅ **PASS**. Flawless detection of technical envelope anomalies (`SPF`, `DKIM`, lookalike typosquatting, `Reply-To` mismatch) with **zero false positives** against the benign internal homelab gateway URL (`status.watchtower.local`).
+* **Verdict:** ✅ **PASS**. Flawless detection of technical envelope anomalies (`SPF`, `DKIM`, lookalike typosquatting, `Reply-To` mismatch) with **zero false positives** against the benign internal homelab gateway URL (`status.example.local`).
 
 ---
 

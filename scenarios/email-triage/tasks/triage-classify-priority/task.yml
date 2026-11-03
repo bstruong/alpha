@@ -14,7 +14,7 @@ required_json_keys:
   - tags
 expected_json_values:
   account:
-    - "homelab-alerts@watchtower.local"
+    - "homelab-alerts@example.local"
     - "homelab"
     - "homelab/alerts"
   category:

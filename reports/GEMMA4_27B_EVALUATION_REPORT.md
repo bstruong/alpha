@@ -39,7 +39,7 @@ By utilizing `--cpu-moe` hybrid offloading, the model placed its 4B active atten
 * **Output Sample:**
   ```json
   {
-    "account": "homelab-alerts@watchtower.local",
+    "account": "homelab-alerts@example.local",
     "category": "production_alert",
     "urgency": "P1",
     "action_required": true,
@@ -79,7 +79,7 @@ By utilizing `--cpu-moe` hybrid offloading, the model placed its 4B active atten
 * **Verdict:** ✅ **PASS**. Demonstrated forensic inspection capability:
   - Specifically correlated the visual hyperlink text (`login.microsoftonline.com`) against the hidden `href` target (`micros0ft-auth-verify.com`).
   - Cataloged technical header authentication failures (SPF IP failure, DKIM failure, Russian Reply-To mismatch).
-  - Zero false-positive alerts on internal homelab domain links (`status.watchtower.local`).
+  - Zero false-positive alerts on internal homelab domain links (`status.example.local`).
 
 ---
 

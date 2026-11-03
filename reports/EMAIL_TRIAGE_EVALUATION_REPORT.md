@@ -68,7 +68,7 @@ The suite evaluates multi-account email priority classification, phishing/header
   - `glm47-reap`: **5.410s** (639 prompt / 164 completion, **30.2 tok/s**) — ✅ PASS.
 - **Forensic Reasoning Distinction:**
   - `gemma4-12b` and `gemma4-27b` demonstrated outstanding qualitative depth: `12b` extracted the sender IP (`185.220.101.44`) and evaluated DMARC policy enforcement (`p=quarantine`); `27b` discovered the hidden HTML `href` vs anchor text mismatch (`login.microsoftonline.com` vs `micros0ft-auth-verify.com`).
-  - Zero false positives on `status.watchtower.local` across all 6 models.
+  - Zero false positives on `status.example.local` across all 6 models.
 
 ---
 

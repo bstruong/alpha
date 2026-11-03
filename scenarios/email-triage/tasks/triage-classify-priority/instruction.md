@@ -2,7 +2,7 @@ You are triaging a multi-account inbox batch across three accounts (`personal`, 
 Review the four incoming emails below, rank their urgency from `P1` (critical infrastructure/production outage) to `P4` (spam/promotional), and output a single JSON object representing the triage classification for the **highest-urgency (`P1`) email only**.
 
 The JSON object must strictly adhere to this schema:
-- `"account"`: `"homelab-alerts@watchtower.local"`
+- `"account"`: `"homelab-alerts@example.local"`
 - `"category"`: `"production_alert"`
 - `"urgency"`: `"P1"` (one of `"P1"`, `"P2"`, `"P3"`, `"P4"`)
 - `"action_required"`: `true` (boolean)
@@ -26,7 +26,7 @@ From: Sarah Jenkins <s.jenkins@acmecorp.example>
 Subject: Urgent Calendar Conflict: Q4 Architecture Review Tomorrow
 Body: Hi Alex, our VP has a hard conflict with tomorrow's 10:00 AM PT Q4 Architecture Review. Can we move the session to 2:00 PM PT tomorrow? Please confirm today.
 
-**[Email 4 — Account: `homelab-alerts@watchtower.local`]**
-From: Alertmanager <alertmanager@watchtower.local>
+**[Email 4 — Account: `homelab-alerts@example.local`]**
+From: Alertmanager <alertmanager@example.local>
 Subject: [FIRING:1] NodeStorageAndGPUCritical on watchtower (10.0.0.92)
 Body: CRITICAL P1 PRODUCTION ALERT: k3s node `watchtower` (10.0.0.92) NVMe pool `/mnt/models` is at 98.4% capacity and RTX 3060 GPU reported a PCIe bus reset causing `alpha-llama` deployment crash-loop. Immediate intervention required.

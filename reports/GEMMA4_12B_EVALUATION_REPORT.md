@@ -38,7 +38,7 @@ While Gemma 4 E4B remains the pure throughput champion (~0.52s/email), Gemma 4 1
 * **Output Sample:**
   ```json
   {
-    "account": "homelab-alerts@watchtower.local",
+    "account": "homelab-alerts@example.local",
     "category": "production_alert",
     "urgency": "P1",
     "action_required": true,
@@ -81,7 +81,7 @@ While Gemma 4 E4B remains the pure throughput champion (~0.52s/email), Gemma 4 1
   - Specifically parsed and correlated sender IP (`185.220.101.44`) against domain SPF records.
   - Identified DKIM signature failures and explicitly referenced DMARC policy enforcement (`p=quarantine`).
   - Separately cataloged typosquatted sender domain and hyperlink targets.
-  - Zero false positives against benign local homelab links (`status.watchtower.local`).
+  - Zero false positives against benign local homelab links (`status.example.local`).
 
 ---
 

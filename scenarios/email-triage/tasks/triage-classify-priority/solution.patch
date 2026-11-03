@@ -2,7 +2,7 @@
 +++ b/output.txt
 @@ -0,0 +1,8 @@
 +{
-+  "account": "homelab-alerts@watchtower.local",
++  "account": "homelab-alerts@example.local",
 +  "category": "production_alert",
 +  "urgency": "P1",
 +  "action_required": true,

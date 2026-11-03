@@ -1,36 +1,29 @@
 # Infrastructure Topology
 
-Canonical roles for the machines involved in Project Alpha / Project Omega.
-Older docs may say “Workstation” — that name means the **AM5 homelab node** below, not the Haswell desk machine.
+Canonical roles for running Alpha (and optionally Omega). Adapt hostnames and hardware to your environment.
 
 ---
 
-## Machines
+## Roles
 
-| Name | Hardware (summary) | OS (target) | Role |
-|------|--------------------|-------------|------|
-| **AM5 homelab** | AMD Ryzen 7 9700X, RTX 3060 12 GB, 32 GB DDR5-6000, Samsung 990 Pro NVMe | **Fedora Server** | **Production and staging/test.** **JARVIS** (k3s `jarvis`/`jarvis`) owns GPU inference; Alpha/Omega/others are HTTP clients. Alpha graded benchmarks, Omega-supervised Pi sessions. On the Tailscale mesh. |
-| **Haswell workstation** | Intel Haswell-era desk machine (operator seat) | Operator’s local OS | **Not** an Alpha/Omega eval or staging host. Used for browsing, Tailscale access, and light operator tasks. Does not run model benchmarks or staging deployments. |
-| **Cursor cloud agents** | Managed cloud VMs | Cursor environment | **Primary software development** for Alpha/Omega (design, implementation, PRs). Do not treat cloud agent disks as the model test bed. |
-
-Historical notes in `reports/` may still say “Arch Linux LTS” or label the AM5 box only as “Workstation.” Treat those as point-in-time lab notes; **this file wins** for current topology and OS target.
+| Role | Purpose |
+|------|---------|
+| **Inference host** | GPU (or CPU) machine running an OpenAI-compatible server (e.g. llama-server). Alpha is an HTTP client; it does not own model weights. |
+| **Eval host** | Where `bin/alpha run` / sandboxes execute. Often the same machine as inference, or a networked client pointed at `OPENAI_BASE_URL`. |
+| **Operator workstation** | Day-to-day development and Tailscale/SSH access. Not required to run benchmarks. |
+| **Cloud / CI agents** | Optional for developing harness code and opening PRs. Do not treat cloud disks as the model test bed unless you intentionally wire inference there. |
 
 ---
 
 ## Workflow
 
 ```
-Cursor cloud agents          Haswell desk              AM5 homelab (Fedora Server)
-(develop Alpha/Omega)   →    (operator / Tailscale) →  prod + staging/test
-     code & PRs                                         • engine / inference
-                                                        • alpha run (evals)
-                                                        • Omega Pi sessions
+Develop harness (local or CI)  →  Deploy to eval host  →  Wake inference  →  alpha run / qualify
 ```
 
-1. **Develop** harness and cockpit code with Cursor cloud agents (and frontier planners for specs).
-2. **Deploy / pull** to the AM5 homelab over Tailscale.
-3. **Stage and produce** on AM5: wake JARVIS → run Alpha scenarios → publish qualifications → Omega only defaults to Alpha-qualified presets.
-4. **Haswell** is never the `InferenceTarget` and never the Alpha sandbox host.
+1. Develop harness and scenario code locally or in CI.
+2. Point `OPENAI_BASE_URL` at your inference server.
+3. Run scenarios, publish qualifications, and (optionally) import them into Omega.
 
 ---
 
@@ -38,24 +31,20 @@ Cursor cloud agents          Haswell desk              AM5 homelab (Fedora Serve
 
 | Legacy string | Means |
 |---------------|--------|
-| `Workstation`, `workstation.env`, `node_class: workstation-32g-3060` | AM5 homelab |
-| Prefer going forward | `am5-homelab`, `node_class: am5-homelab-32g-3060` |
-
-The Haswell desk machine must not appear as an Alpha `InferenceTarget` or Omega `Node` with role `workstation|lab` unless explicitly added later for a non-eval purpose (not planned).
+| `Workstation`, `workstation.env`, `node_class: workstation-32g-3060` | Historical name for a 32 GB / RTX 3060-class inference lab host |
+| Prefer going forward | Env-based paths; `node_class` values that describe resources, not private hostnames |
 
 ---
 
 ## Related docs
 
-- [`engine/README.md`](../engine/README.md) — Alpha as JARVIS client; local lab mirror
-- homelab-k3s `docs/jarvis.md` — production inference SoT (presets, wake, leases)
-- [`docs/workstation-ai-stack.md`](workstation-ai-stack.md) — stack diagram (AM5 = local execution)
+- [`engine/README.md`](../engine/README.md) — local llama-server helpers and `models.ini`
+- [`docs/workstation-ai-stack.md`](workstation-ai-stack.md) — stack diagram
 - [`docs/shape-up/`](shape-up/) — Alpha / Omega Shape Up pitches
-- `hyperbolic-time-chamber/ruby-rails/` — Parallel Ruby 4.0.7 / Rails 8.1.4 hand-coding drill lane (migrated out of Alpha)
 
 ## Alpha software pins
 
 | Tool | Pin |
 |------|-----|
 | Ruby | 4.0.7 (`.ruby-version`, `.mise.toml`) |
-| Rails | ~> 8.1.4 (API mode) |
+| Rails (scenario apps) | ~> 8.1.4 where applicable |
