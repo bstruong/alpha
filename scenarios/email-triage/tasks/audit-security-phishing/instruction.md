@@ -8,7 +8,7 @@ Output a single JSON object adhering strictly to this schema:
 - `"risk_indicators"`: Non-empty array of strings listing the specific technical indicators detected (must explicitly mention the `SPF` fail, `DKIM` fail, the typosquatted lookalike sender/link domain `micros0ft-auth-verify.com`, and the mismatched `Reply-To` address `support-desk@credential-update-portal.ru`).
 - `"recommended_action"`: Specific remediation action (e.g., `"quarantine_and_block_sender"`)
 
-Note: The internal homelab status link `https://status.watchtower.local` appended by the local gateway footer is a known benign internal URL and must NOT be flagged as malicious.
+Note: The internal homelab status link `https://status.example.local` appended by the local gateway footer is a known benign internal URL and must NOT be flagged as malicious.
 
 ### Raw Email Under Audit
 
@@ -31,7 +31,7 @@ Content-Type: text/html; charset="UTF-8"
 <p>We detected anomalous sign-in activity on your corporate Microsoft 365 tenant. Your account will be suspended in 2 hours unless you re-verify your credentials and MFA seed immediately:</p>
 <p><a href="http://login.micros0ft-auth-verify.com/oauth2/v2.0/authorize?mode=credential_harvest">https://login.microsoftonline.com/common/oauth2/authorize</a></p>
 <hr>
-<small>Local Gateway Notice: Checked by Watchtower Mail Guard (https://status.watchtower.local)</small>
+<small>Local Gateway Notice: Checked by Lab Mail Guard (https://status.example.local)</small>
 </body>
 </html>
 ```

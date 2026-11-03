@@ -8,7 +8,7 @@ module Alpha
   # Ingests failure sessions into draft Alpha regression tasks under
   # scenarios/<scenario>/tasks/<slug>/.
   # Supports:
-  #   1. Omega failure exports (omega.failure_export.v1)
+  #   1. failure exports (alpha.failure_export.v1)
   #   2. Native Pi session transcripts (*.jsonl from ~/.pi/agent/sessions/)
   # Enforces mandatory PII/secret scrubbing and the human/frontier grader gate.
   class FixtureImporter
@@ -31,35 +31,35 @@ module Alpha
       if export_path.end_with?(".jsonl") || first_line.start_with?('{"type":"session"')
         import_pi_session(raw, export_path, destination_dir: destination_dir)
       else
-        import_omega_export(raw, destination_dir: destination_dir)
+        import_failure_export(raw, destination_dir: destination_dir)
       end
     end
 
     private
-      def import_omega_export(raw, destination_dir: nil)
+      def import_failure_export(raw, destination_dir: nil)
         data = JSON.parse(raw)
-        unless data["schema"] == "omega.failure_export.v1"
-          raise ArgumentError, "Unsupported export schema: #{data["schema"].inspect} (expected omega.failure_export.v1)"
+        unless data["schema"] == "alpha.failure_export.v1"
+          raise ArgumentError, "Unsupported export schema: #{data["schema"].inspect} (expected alpha.failure_export.v1)"
         end
 
-        session_id = data.fetch("omega_session_id")
+        session_id = data["session_id"] || data.fetch("omega_session_id")
         slug = "regression-#{session_id[0..7]}"
-        scenario_dir = destination_dir || File.join(Alpha.config.scenarios_dir, "omega_regressions")
+        scenario_dir = destination_dir || File.join(Alpha.config.scenarios_dir, "alpha_regressions")
         tasks_dir = File.join(scenario_dir, "tasks")
         task_dir = File.join(tasks_dir, slug)
 
         FileUtils.mkdir_p(task_dir)
 
         # 1. Build and sanitize instruction markdown
-        instruction_content = build_omega_instruction(data)
+        instruction_content = build_failure_instruction(data)
         File.write(File.join(task_dir, "instruction.md"), instruction_content)
 
         # 2. Write task.yml metadata
         task_meta = {
           "name" => slug,
           "kind" => "graded",
-          "origin" => "omega",
-          "omega_session_id" => session_id,
+          "origin" => "failure_export",
+          "session_id" => session_id,
           "failed_model" => data["model_id"],
           "prompt_preset" => data["prompt_preset"],
           "exit_reason" => data["exit_reason"],
@@ -70,13 +70,13 @@ module Alpha
         File.write(File.join(task_dir, "task.yml"), YAML.dump(task_meta))
 
         # 3. Ensure scenario.yml exists
-        ensure_scenario_manifest(scenario_dir, slug, id: "omega_regressions", description: "Regression tasks extracted from failed Omega production sessions.")
+        ensure_scenario_manifest(scenario_dir, slug, id: "alpha_regressions", description: "Regression tasks extracted from failed production sessions.")
 
         {
           slug: slug,
           task_dir: task_dir,
           status: "draft_needs_grader",
-          origin: "omega"
+          origin: "failure_export"
         }
       end
 
@@ -153,9 +153,10 @@ module Alpha
         }
       end
 
-      def build_omega_instruction(data)
+      def build_failure_instruction(data)
+        sid = (data["session_id"] || data["omega_session_id"]).to_s
         sections = []
-        sections << "# Task: Replicate & Fix Failure from Omega Session #{data["omega_session_id"][0..7]}"
+        sections << "# Task: Replicate & Fix Failure from Session #{sid[0..7]}"
         sections << ""
         sections << "## Initial Request"
         sections << sanitize(data["initial_prompt"].to_s.strip)
@@ -216,7 +217,7 @@ module Alpha
         cleaned
       end
 
-      def ensure_scenario_manifest(scenario_dir, new_slug, id: "omega_regressions", description: "Regression tasks extracted from failed Omega production sessions.")
+      def ensure_scenario_manifest(scenario_dir, new_slug, id: "alpha_regressions", description: "Regression tasks extracted from failed production sessions.")
         manifest_path = File.join(scenario_dir, "scenario.yml")
         manifest = File.file?(manifest_path) ? (YAML.safe_load_file(manifest_path) || {}) : {}
 

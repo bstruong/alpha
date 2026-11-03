@@ -1,27 +1,23 @@
-# AM5 Homelab Local AI Engine (`engine/`)
+# Local AI Engine helpers (`engine/`)
 
-Alpha is a **client of JARVIS**, the shared Watchtower inference engine in
-[`homelab-k3s`](https://github.com/bstruong/homelab-k3s) (`manifests/watchtower/jarvis/`).
-Production presets live in ConfigMap `jarvis-models` — see
-[docs/jarvis.md](https://github.com/bstruong/homelab-k3s/blob/main/docs/jarvis.md).
-This directory is lab tooling and a local `models.ini` **mirror**, not the
-substrate owner.
+Alpha is an **HTTP client** of an OpenAI-compatible inference server (commonly
+llama-server / llama.cpp). This directory holds lab tooling and a local
+`models.ini` mirror for starting and stopping servers during evals.
 
-**Topology:** Graded evals run on the **AM5 homelab** against JARVIS
-(`OPENAI_BASE_URL`, `Alpha::Engine::Manager` → namespace/deployment `jarvis`/`jarvis`).
-It is **not** the Haswell desk machine. Primary software development happens via
-Cursor cloud agents. See [`docs/infrastructure-topology.md`](../docs/infrastructure-topology.md).
+Configure the harness with `OPENAI_BASE_URL` (or `LLAMA_SERVER_URL`).
+
+Production deployments may centralize presets in a shared inference service
+(for example a k3s ConfigMap); treat this tree as a local mirror and lifecycle
+helper, not the sole source of truth for weights.
 
 ---
 
-## 1. AM5 Homelab Hardware Profile
+## 1. Suggested lab profile
 
-* **CPU:** AMD Ryzen 7 9700X (8 Cores, 16 Threads, Single CCD, 32 MiB L3 Cache)
-* **System RAM:** 32 GB DDR5-6000 CL36 (2 × 16 GB dual-channel, ~60–65 GB/s Infinity Fabric read ceiling)
-* **Discrete GPU:** NVIDIA GeForce RTX 3060 12 GB GDDR6 (headless, dedicated compute on PCIe 4.0 x16)
-* **Display Output:** AMD Ryzen RDNA2 iGPU (`/dev/dri/card1`, DP-2) when a display is attached; Fedora Server deployments are typically headless
-* **Storage & Swap:** Samsung 990 Pro NVMe (Btrfs, zstd:3) with a dedicated 33 GB NVMe swap partition
-* **Software Stack (target):** **Fedora Server**, NVIDIA proprietary driver + CUDA, `llama-server` (llama.cpp CUDA build). Older lab notes may cite Arch Linux LTS kernel/driver pins — treat those as historical; retune memlock/systemd paths for Fedora.
+Presets below are tuned for a discrete NVIDIA GPU with roughly **12 GB VRAM**
+and **32 GB** system RAM (8-core class CPU). Adjust `models.ini`, thread
+counts, and memlock/swap guidance for your hardware. Smaller GGUFs work on
+weaker hosts; larger contexts need more VRAM or heavier quantization.
 
 ---
 
@@ -29,7 +25,7 @@ Cursor cloud agents. See [`docs/infrastructure-topology.md`](../docs/infrastruct
 
 ```
 engine/
-├── models.ini                  # Local mirror of JARVIS presets (homelab-k3s is SoT)
+├── models.ini                  # Local llama-server preset mirror
 ├── workstation.env              # Environment variable defaults (paths, port, default preset)
 ├── bin/
 │   ├── ini2args.py             # Parses models.ini sections into CLI arguments
@@ -50,10 +46,10 @@ engine/
 
 ## 3. Flag Rationale & Technical Deep-Dive
 
-All presets in `models.ini` inherit from global section `[*]`. Each non-obvious flag addresses specific hardware and algorithmic constraints of the AM5 homelab:
+All presets in `models.ini` inherit from global section `[*]`. Each non-obvious flag addresses specific hardware and algorithmic constraints of a 32 GB / 12 GB VRAM lab host:
 
 ### Threads (`threads = 7`, `threads-batch = 7`)
-The Ryzen 7 9700X is a single-CCD 8-core CPU. CPU MoE expert matrix multiplications are strictly memory-bandwidth bound. On dual-channel DDR5-6000, read bandwidth caps at ~60–65 GB/s. Active expert weights take ~0.6 GB per token:
+On a typical 8-core single-CCD desktop CPU, CPU MoE expert matrix multiplications are strictly memory-bandwidth bound. On dual-channel DDR5-6000, read bandwidth caps at ~60–65 GB/s. Active expert weights take ~0.6 GB per token:
 $$\text{Theoretical decode ceiling} \approx \frac{60\text{ GB/s}}{0.6\text{ GB/token}} \approx 100\text{ tok/s}$$
 In practice, 7 physical threads saturate the Infinity Fabric memory interface (~50–65 tok/s). SMT siblings add cache contention without increasing memory bandwidth. Allocating 7 threads on 7 physical cores reserves 1 full core and all SMT threads for OS services, CUDA driver submission, and HTTP worker threads.
 
@@ -102,7 +98,7 @@ Coding tasks require `repeat-penalty = 1.0`. The running server had `repeat-pena
 
 | Model Preset | Model File Size | GPU Layers / Placement | VRAM Usage (Weights + q8_0 KV) | DDR5 Host RAM (Experts + Cache) | NVMe Swap Risk | Target Tok/s (Decode) |
 |---|---|---|---|---|---|---|
-| **Running Baseline** (PID 337100) | 22.1 GB | All non-expert on GPU | 8.4 GB (f16 KV, 3 threads) | ~19.5 GB pinned | High (8.8 GB in swap) | ~30 tok/s |
+| **Running Baseline** (example) | 22.1 GB | All non-expert on GPU | 8.4 GB (f16 KV, 3 threads) | ~19.5 GB pinned | High (8.8 GB in swap) | ~30 tok/s |
 | **`[qwen36-coder]`** (Default) | 20.6 GiB (22.1 GB) | `cpu-moe` (non-expert on GPU) | ~6.3 GiB (q8_0 KV + 1 GiB headroom) | ~19.5 GiB experts + 2.0 GiB cache | Low-Medium | ~50–65 tok/s |
 | **`[qwen36-coder-hybrid]`** (Candidate) | 20.6 GiB (22.1 GB) | `n-cpu-moe 32` (8 expert layers on GPU) | ~10.2 GiB (fits in 12 GiB VRAM) | ~15.6 GiB experts + 2.0 GiB cache | Very Low (frees 3.9 GiB DDR5) | ~60–75 tok/s |
 | **`[glm47-reap]`** (Alternative) | 13.1 GiB (14.1 GB) | `cpu-moe` (MLA attention on GPU) | ~4.7 GiB (128k ctx q8_0) | ~13.0 GiB experts + 2.0 GiB cache | Minimal (safest for heavy Docker) | ~65–80 tok/s |
@@ -129,7 +125,7 @@ If TurboQuant KV is required for larger dense models or full-attention 512k cont
 ## 6. System Limit Configurations (mlock, Swappiness, Ollama)
 
 ### 1. Memory Locking (RLIMIT_MEMLOCK)
-The AM5 host’s default limit is often `ulimit -l = 8192 KB` (8 MiB) until raised. When `llama-server --load-mode mlock` runs under this limit, the `mlock()` syscall fails with `ENOMEM`, printing a warning and leaving `VmLck: 0 kB`.
+Many Linux hosts’ default limit is often `ulimit -l = 8192 KB` (8 MiB) until raised. When `llama-server --load-mode mlock` runs under this limit, the `mlock()` syscall fails with `ENOMEM`, printing a warning and leaving `VmLck: 0 kB`.
 
 To configure unlimited memory locking:
 Run the diagnostic and installer helper:
@@ -148,7 +144,7 @@ Files provided:
 * `engine/system/user@.service.d/memlock.conf` -> `/etc/systemd/system/user@.service.d/memlock.conf`
 
 ### 2. Swappiness Tuning (`vm.swappiness = 10`)
-The AM5 homelab has a 33 GB NVMe swap partition; with a default-like `vm.swappiness = 60`, the kernel aggressively pages out inactive anonymous memory even when NVMe read bandwidth is high. To reduce swap thrashing:
+If the host has a large NVMe swap partition and a default-like `vm.swappiness = 60`, the kernel aggressively pages out inactive anonymous memory even when NVMe read bandwidth is high. To reduce swap thrashing:
 ```bash
 sudo sysctl vm.swappiness=10
 echo "vm.swappiness = 10" | sudo tee /etc/sysctl.d/99-hybrid-ai-harness-swap.conf
@@ -176,8 +172,8 @@ Before starting or switching presets, run `preflight.sh` to check hardware readi
 engine/bin/preflight.sh --preset qwen36-coder
 ```
 
-### Migrating the Running Server (PID 337100)
-To migrate from the old configuration (PID 337100: 3 threads, repeat-penalty 1.1, f16 KV) to the tuned preset:
+### Migrating a Running Server
+To migrate from an older configuration (e.g. few threads, repeat-penalty 1.1, f16 KV) to a tuned preset:
 
 1. **Stop the running server:**
    ```bash

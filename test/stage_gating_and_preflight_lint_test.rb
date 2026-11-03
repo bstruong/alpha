@@ -113,8 +113,8 @@ class StageGatingAndPreflightLintTest < AlphaTest
       Failure:
       BooksControllerTest#test_destroy [test/controllers/books_controller_test.rb:42]:
       Expected response to be <302>, but was <403>.
-      /home/brian/.local/share/mise/installs/ruby/3.2.2/lib/ruby/gems/3.2.0/gems/actionpack-7.2.1/lib/action_dispatch/testing/assertions/response.rb:42:in `assert_response'
-      /home/brian/bundle/ruby/3.2.0/gems/railties-7.2.1/lib/rails/test_unit/line_filtering.rb:10:in `run'
+      /home/user/.local/share/mise/installs/ruby/3.2.2/lib/ruby/gems/3.2.0/gems/actionpack-7.2.1/lib/action_dispatch/testing/assertions/response.rb:42:in `assert_response'
+      /home/user/bundle/ruby/3.2.0/gems/railties-7.2.1/lib/rails/test_unit/line_filtering.rb:10:in `run'
       test/controllers/books_controller_test.rb:42:in `block in <class:BooksControllerTest>'
     OUTPUT
 

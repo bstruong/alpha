@@ -26,8 +26,8 @@ Team, before Monday's cutover we need to track these items:
 **[Message 2 — From: Alex <alex@apex-consulting.example> | Date: 2026-10-16 09:42 UTC]**
 Update on item #1: I already rotated and verified the staging TLS certificate this morning. That item is 100% done and closed—remove it from the open action list.
 
-**[Message 3 — From: Marcus Vance <marcus@watchtower.local> | Date: 2026-10-16 10:15 UTC]**
-Got it. On the homelab side, I (Marcus Vance) will apply the k3s NetworkPolicy egress lock for namespace `alpha` on `watchtower` by `2026-10-18`.
+**[Message 3 — From: Marcus Vance <marcus@example.local> | Date: 2026-10-16 10:15 UTC]**
+Got it. On the homelab side, I (Marcus Vance) will apply the k3s NetworkPolicy egress lock for namespace `alpha` on `lab-node` by `2026-10-18`.
 
 **[Message 4 — From: Devon Brooks <devon@apex-consulting.io> | Date: 2026-10-16 11:05 UTC]**
 We also need someone to run the billing webhook replay load test against the Acme staging tenant and send the latency sign-off. Should I take that for Tuesday?
@@ -35,5 +35,5 @@ We also need someone to run the billing webhook replay load test against the Acm
 **[Message 5 — From: Elena Rostova <elena@apex-consulting.io> | Date: 2026-10-16 11:20 UTC]**
 Yes please, Devon. Assigning Devon Brooks to run the billing webhook replay load test and deliver the latency sign-off report by `2026-10-20`.
 
-**[Message 6 — From: Marcus Vance <marcus@watchtower.local> | Date: 2026-10-16 11:45 UTC]**
+**[Message 6 — From: Marcus Vance <marcus@example.local> | Date: 2026-10-16 11:45 UTC]**
 Confirmed: staging TLS is already closed, and our three open actions are with Elena (`2026-10-18`), Marcus (`2026-10-18`), and Devon (`2026-10-20`).

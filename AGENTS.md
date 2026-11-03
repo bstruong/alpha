@@ -1,12 +1,12 @@
 # Alpha — Agent & Harness Conventions
 
-Headless evaluation & benchmarking harness for self-hosted open-weights LLMs on **Watchtower** (AM5 homelab).
+Headless evaluation and benchmarking harness for self-hosted open-weight LLMs (Ruby/Rails coding focus).
 
 ## Stack & Commands
 - **Runtime:** Pure Ruby 4.0.7 CLI (`mise exec -- ruby ...`, zero runtime gems).
-- **Preflight & Health Check:** `mise exec -- bin/alpha doctor`
-- **Zero-Model Task/Grader Self-Test:** `mise exec -- bin/alpha oracle --scenario qwen36-daily` (or `--task <name>`)
-- **Unit Test Suite:** `mise exec -- bundle exec rake test`
+- **Preflight:** `mise exec -- bin/alpha doctor`
+- **Zero-model self-test:** `mise exec -- bin/alpha oracle --scenario qwen36-daily` (or `--task <name>`)
+- **Unit tests:** `mise exec -- bundle exec rake test`
 - **Lint:** `mise exec -- bundle exec rubocop`
 
 ## Core Invariants
@@ -14,7 +14,7 @@ Headless evaluation & benchmarking harness for self-hosted open-weights LLMs on 
 2. **Disposable vs. Permanent Output (`CONVENTIONS.md`):**
    - `results/` is strictly for regenerable trial outputs and intermediate traces (gitignored).
    - `reports/` and `qualifications/` are permanent, git-tracked deliverables.
-3. **JARVIS Inference Endpoint:**
-   - LAN / Operator access uses `http://ai.watchtower.local/v1` (or `http://127.0.0.1:8080/v1` when running directly on Watchtower).
-   - Never hardcode `192.168.1.92:8080` (`hostPort` 8080 is bound to `127.0.0.1` only).
+3. **Inference Endpoint:**
+   - Configure via `OPENAI_BASE_URL` or `LLAMA_SERVER_URL` (OpenAI-compatible HTTP API).
+   - Default for local scripts is `http://127.0.0.1:8080`. Never hardcode LAN IPs or private hostnames in tracked code.
 4. **Sandbox Isolation:** Sandboxes under `lib/alpha/sandbox.rb` copy the target app without `.git` history so the evaluated agent cannot inspect `solution.patch` or `verification_test.rb`.

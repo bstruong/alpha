@@ -12,8 +12,8 @@ try:
 except ImportError:
     requests = None
 
-# Base URL resolution: checks OPENAI_BASE_URL, LLAMA_SERVER_URL, or defaults to Watchtower / local
-RAW_BASE = os.getenv("OPENAI_BASE_URL") or os.getenv("LLAMA_SERVER_URL") or "http://192.168.1.92:8080"
+# Base URL resolution: OPENAI_BASE_URL, LLAMA_SERVER_URL, or local llama-server default
+RAW_BASE = os.getenv("OPENAI_BASE_URL") or os.getenv("LLAMA_SERVER_URL") or "http://127.0.0.1:8080"
 if RAW_BASE.endswith("/v1"):
     BASE_URL = RAW_BASE[:-3].rstrip("/")
 else:

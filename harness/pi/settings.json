@@ -10,8 +10,8 @@
     "servers": [
       {
         "url": "http://127.0.0.1:8080",
-        "id": "watchtower",
-        "name": "Watchtower AM5"
+        "id": "local-lab",
+        "name": "Local lab"
       }
     ]
   },

@@ -24,4 +24,4 @@ required_json_markers:
   - "credential-update-portal\\.ru|reply-to"
 denied_json_patterns:
   false_negative_threat: '"is_threat"\s*:\s*false'
-  false_positive_internal_domain: 'status\.watchtower\.local.*malicious|malicious.*status\.watchtower\.local'
+  false_positive_internal_domain: 'status\.example\.local.*malicious|malicious.*status\.example\.local'
