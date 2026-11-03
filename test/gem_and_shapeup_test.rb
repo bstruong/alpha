@@ -353,7 +353,7 @@ class GemAndShapeupTest < AlphaTest
       assert File.file?(task_yml_path)
       meta = YAML.safe_load_file(task_yml_path)
       assert_equal "regression-8f3c1234", meta["name"]
-      assert_equal "omega", meta["origin"]
+      assert_equal "failure_export", meta["origin"]
       assert_equal "draft_needs_grader", meta["status"]
 
       # Verify scenario manifest registration

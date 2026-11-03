@@ -154,8 +154,9 @@ module Alpha
       end
 
       def build_failure_instruction(data)
+        sid = (data["session_id"] || data["omega_session_id"]).to_s
         sections = []
-        sections << "# Task: Replicate & Fix Failure from Session #{session_id[0..7]}"
+        sections << "# Task: Replicate & Fix Failure from Session #{sid[0..7]}"
         sections << ""
         sections << "## Initial Request"
         sections << sanitize(data["initial_prompt"].to_s.strip)
