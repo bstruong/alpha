@@ -21,7 +21,7 @@ scenarios/            # Evaluation scenarios (scoped-coding, email-triage, etc.)
 engine/               # llama-server presets and lifecycle helpers
 harness/pi/           # Pi coding-agent wiring
 prompts/              # Prompt presets
-qualifications/       # Published qualification artifacts
+qualifications/       # Local qualify output (gitignored JSON; publish campaigns in alpha-lab)
 results/              # Regenerable run output (gitignored)
 ```
 

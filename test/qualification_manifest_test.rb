@@ -14,7 +14,7 @@ class QualificationManifestTest < AlphaTest
     assert_includes roles, "extractor"
 
     manifest = Alpha::QualificationManifest.generate
-    assert_equal "omega.qualification_manifest.v1", manifest["schema"]
+    assert_equal "alpha.qualification_manifest.v1", manifest["schema"]
     assert_equal "qwen36-coder-hybrid", manifest["roles"]["coder"]["primary_model"]
     assert_equal "gemma4-4b", manifest["roles"]["triager"]["primary_model"]
     assert_equal "qwen25-coder-14b", manifest["roles"]["sanitizer"]["primary_model"]
@@ -31,7 +31,7 @@ class QualificationManifestTest < AlphaTest
       manifest_file = File.join(tmpdir, "manifest.json")
       assert File.file?(manifest_file)
       manifest = JSON.parse(File.read(manifest_file))
-      assert_equal "omega.qualification_manifest.v1", manifest["schema"]
+      assert_equal "alpha.qualification_manifest.v1", manifest["schema"]
     end
   end
 end
