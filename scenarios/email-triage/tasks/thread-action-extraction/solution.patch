@@ -10,10 +10,10 @@
 +      "context": "Q4 database cutover preparation"
 +    },
 +    {
-+      "task": "Apply the k3s NetworkPolicy egress lock for namespace alpha on watchtower",
++      "task": "Apply the k3s NetworkPolicy egress lock for namespace alpha on lab-node",
 +      "owner": "Marcus Vance",
 +      "deadline": "2026-10-18",
-+      "context": "Homelab watchtower k3s cluster security"
++      "context": "Homelab lab-node k3s cluster security"
 +    },
 +    {
 +      "task": "Run billing webhook replay load test and deliver latency sign-off report",

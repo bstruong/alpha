@@ -119,7 +119,7 @@ when "engine"
   case subcmd
   when "status"
     st = manager.status
-    puts "=== Alpha Engine Status (Watchtower k3s) ==="
+    puts "=== Alpha Engine Status ==="
     puts "Deployment:   #{st[:namespace]}/#{st[:deployment]}"
     puts "Replicas:     #{st[:ready_replicas]}/#{st[:spec_replicas]}"
     puts "Running:      #{st[:running] ? "✓ YES" : "✗ NO"}"
@@ -286,11 +286,11 @@ when nil, "help", "-h", "--help"
       run       Run an evaluation scenario against an inference target
       qualify   Promote an evaluation run to an omega.qualification.v1 artifact
       fixture   Ingest Omega failure exports (e.g. bin/alpha fixture import <export.json>)
-      engine    Manage inference server lifecycle (status, up, down) on Watchtower
+      engine    Manage inference server lifecycle (status, up, down) on the inference host
       doctor    Check environment, inference target health, and agent binaries
       version   Print Alpha and Ruby versions
 
-    Runtime host: AM5 homelab (watchtower). See docs/infrastructure-topology.md
+    Runtime host: local or remote OpenAI-compatible inference (OPENAI_BASE_URL)
   HELP
 else
   warn "Unknown command: #{command.inspect} (try bin/alpha help)"

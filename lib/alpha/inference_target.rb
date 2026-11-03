@@ -6,10 +6,10 @@ require "uri"
 require_relative "engine/manager"
 
 module Alpha
-  # Points at the OpenAI-compatible JARVIS endpoint (or a local lab server).
+  # Points at an OpenAI-compatible inference endpoint.
   # Defaults to http://127.0.0.1:8080 or ENV["LLAMA_SERVER_URL"].
   # Preset metadata may be read from engine/models.ini as a mirror; production
-  # SoT is the JARVIS ConfigMap in homelab-k3s.
+  # Preset source of truth may be a shared ConfigMap when using the k8s helper.
   class InferenceTarget
     DEFAULT_HOST_URL = ENV.fetch("LLAMA_SERVER_URL", "http://127.0.0.1:8080")
 
