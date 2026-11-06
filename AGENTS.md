@@ -13,7 +13,7 @@ Headless evaluation and benchmarking harness for self-hosted open-weight LLMs (R
 1. **Deterministic Graders Only:** Never use an LLM to judge whether a task passed. All graders (`lib/alpha/grader/`) must use deterministic exit codes, Minitest/RSpec assertions, AST checks, or JSON schema validation.
 2. **Disposable vs. Permanent Output (`CONVENTIONS.md`):**
    - `results/` is strictly for regenerable trial outputs and intermediate traces (gitignored).
-   - `reports/` and `qualifications/` are permanent, git-tracked deliverables.
+   - Local `qualifications/*.json` is gitignored scratch from `bin/alpha qualify`; publish shipping campaigns in [alpha-lab](https://github.com/bstruong/alpha-lab).
 3. **Inference Endpoint:**
    - Configure via `OPENAI_BASE_URL` or `LLAMA_SERVER_URL` (OpenAI-compatible HTTP API).
    - Default for local scripts is `http://127.0.0.1:8080`. Never hardcode LAN IPs or private hostnames in tracked code.

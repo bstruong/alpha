@@ -30,6 +30,8 @@ module Alpha
     def self.active(dir = qualifications_dir)
       now = Time.now.utc
       load_all(dir).select do |q|
+        next false if q.key?("qualified") && q["qualified"] != true
+
         exp = Time.parse(q["expires_at"]) rescue nil
         exp && exp > now
       end

@@ -173,21 +173,12 @@ when "qualify"
   abort "Error: summary.json not found for run #{options[:run_id]}" unless File.file?(summary_file)
 
   summary = JSON.parse(File.read(summary_file))
-  pass_at_1 = summary.dig("aggregate", "pass_at_1").to_f
-
-  target_role = options[:role] || (
-    case summary["scenario"].to_s
-    when /scoped/i then "scoped_coder"
-    when /pii/i then "sanitizer"
-    when /ocr|extract/i then "extractor"
-    when /triage|email/i then "triager"
-    else "coder"
-    end
-  )
-
-  threshold = target_role == "triager" ? 0.75 : 0.70
-  gates_passed = summary["tasks"].select { |t| t["kind"] == "gate" }.all? { |t| t["pass"] }
-  qualified = gates_passed && pass_at_1 >= threshold
+  scenario = begin
+    Alpha::Scenario.load(summary["scenario"])
+  rescue ArgumentError
+    nil
+  end
+  verdict = Alpha::Qualifier.evaluate(summary, scenario: scenario, role: options[:role])
 
   report_md = File.join(Alpha.config.reports_dir, "#{options[:run_id]}.md")
   report_uri = File.file?(report_md) ? "reports/#{options[:run_id]}.md" : "results/runs/#{options[:run_id]}/summary.json"
@@ -197,30 +188,39 @@ when "qualify"
     "model_id" => summary["model_id"],
     "engine_preset" => summary.dig("inference", "preset") || summary["model_id"],
     "prompt_preset" => summary["prompt_preset"],
-    "role" => target_role,
-    "alpha_run_id" => summary["run_id"],
-    "scenario_id" => summary["scenario"],
-    "pass_at_1" => pass_at_1,
+    "role" => verdict.role,
+    "alpha_run_id" => summary["run_id"] || options[:run_id],
+    "scenario_id" => verdict.scenario_id,
+    "pass_at_1" => verdict.graded_pass_at_1,
+    "gate_pass_at_1" => verdict.gate_pass_at_1,
+    "graded_pass_at_1" => verdict.graded_pass_at_1,
+    "qualified" => verdict.qualified,
     "report_uri" => report_uri,
     "qualified_at" => Time.now.utc.iso8601,
     "expires_at" => (Time.now.utc + (30 * 86_400)).iso8601,
     "node_class" => "lab-gpu-32g"
   }
+  qual_data["reason"] = verdict.reason unless verdict.qualified
 
   qual_dir = Alpha.config.qualifications_dir
   FileUtils.mkdir_p(qual_dir)
   qual_path = File.join(qual_dir, "#{qual_data["model_id"]}__#{qual_data["role"]}__#{qual_data["prompt_preset"]}.json")
-  File.write(qual_path, JSON.pretty_generate(qual_data))
 
-  if qualified
-    puts "✅ QUALIFIED: #{qual_data["model_id"]} (#{qual_data["prompt_preset"]}) Pass@1: #{pass_at_1}"
+  if verdict.qualified || options[:promote]
+    File.write(qual_path, JSON.pretty_generate(qual_data) + "\n")
+  end
+
+  if verdict.qualified
+    puts "✅ QUALIFIED: #{qual_data["model_id"]} (#{qual_data["prompt_preset"]}) " \
+         "gate Pass@1 #{verdict.gate_pass_at_1} / graded Pass@1 #{verdict.graded_pass_at_1}"
     puts "Artifact written to: #{qual_path}"
     exit 0
   else
-    puts "❌ NOT QUALIFIED: Pass@1 #{pass_at_1} < 0.70 or gate failure"
-    puts "Artifact written to: #{qual_path}"
+    puts "❌ NOT QUALIFIED: #{verdict.reason}"
+    puts "Artifact written to: #{qual_path}" if options[:promote]
     exit 1
   end
+
 
 when "fixture"
   subcmd = ARGV.shift
