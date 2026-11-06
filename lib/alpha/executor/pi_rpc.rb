@@ -42,65 +42,112 @@ module Alpha
         resolved_telemetry = telemetry_path || File.join(sandbox.work_dir, "telemetry.json")
         FileUtils.mkdir_p(File.dirname(resolved_log))
 
-        cmd, env = build_command(
-          task, sandbox, inference_target, profile, resolved_log, resolved_telemetry,
-          max_tool_calls: max_tool_calls
-        )
+        overlay = nil
+        begin
+          overlay = materialize_harness_overlay(inference_target)
+          cmd, env = build_command(
+            task, sandbox, inference_target, profile, resolved_log, resolved_telemetry,
+            runtime_harness_dir: overlay,
+            max_tool_calls: max_tool_calls
+          )
 
-        start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        pid = Process.spawn(env, *cmd, chdir: sandbox.path, pgroup: true)
-        deadline = start_time + timeout_s
-        timed_out = false
+          start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+          pid = Process.spawn(env, *cmd, chdir: sandbox.path, pgroup: true)
+          deadline = start_time + timeout_s
+          timed_out = false
 
-        loop do
-          _pid, status = Process.wait2(pid, Process::WNOHANG)
-          break if status
+          loop do
+            _pid, status = Process.wait2(pid, Process::WNOHANG)
+            break if status
 
-          if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
-            timed_out = true
-            begin
-              pgid = Process.getpgid(pid) rescue pid
-              Process.kill("-TERM", pgid)
-              sleep 1
-              Process.kill("-KILL", pgid) if Process.wait2(pid, Process::WNOHANG).nil?
-            rescue StandardError
-              # Ignore process termination errors
+            if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+              timed_out = true
+              begin
+                pgid = Process.getpgid(pid) rescue pid
+                Process.kill("-TERM", pgid)
+                sleep 1
+                Process.kill("-KILL", pgid) if Process.wait2(pid, Process::WNOHANG).nil?
+              rescue StandardError
+                # Ignore process termination errors
+              end
+              break
             end
-            break
+            sleep 0.5
           end
-          sleep 0.5
+
+          wall_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time) * 1000).round
+
+          telemetry = read_telemetry(resolved_telemetry, resolved_log)
+          exit_reason = if timed_out
+            "timeout"
+          elsif telemetry["tool_budget_exceeded"] || (max_tool_calls && telemetry["tool_calls"] >= max_tool_calls)
+            "tool_budget_exceeded"
+          else
+            telemetry["tool_calls"].positive? ? "completed" : "no_tools_called"
+          end
+
+          Result.new(
+            exit_reason: exit_reason,
+            timed_out: timed_out,
+            wall_ms: wall_ms,
+            tool_calls: telemetry["tool_calls"],
+            prompt_tokens: telemetry["prompt_tokens"],
+            completion_tokens: telemetry["completion_tokens"],
+            log_path: resolved_log
+          )
+        ensure
+          FileUtils.remove_entry(overlay) if overlay && File.directory?(overlay)
         end
-
-        wall_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time) * 1000).round
-
-        telemetry = read_telemetry(resolved_telemetry, resolved_log)
-        exit_reason = if timed_out
-          "timeout"
-        elsif telemetry["tool_budget_exceeded"] || (max_tool_calls && telemetry["tool_calls"] >= max_tool_calls)
-          "tool_budget_exceeded"
-        else
-          telemetry["tool_calls"].positive? ? "completed" : "no_tools_called"
-        end
-
-        Result.new(
-          exit_reason: exit_reason,
-          timed_out: timed_out,
-          wall_ms: wall_ms,
-          tool_calls: telemetry["tool_calls"],
-          prompt_tokens: telemetry["prompt_tokens"],
-          completion_tokens: telemetry["completion_tokens"],
-          log_path: resolved_log
-        )
       end
 
       private
-        def build_command(task, sandbox, inference_target, profile, log_path, telemetry_path, max_tool_calls: nil)
+        # Per-run harness overlay so Pi uses InferenceTarget's URL instead of
+        # the checked-in localhost defaults in models.json / settings.json.
+        def materialize_harness_overlay(inference_target)
+          overlay = Dir.mktmpdir("alpha-pi-harness-")
+          %w[node_modules SYSTEM.md package.json package-lock.json auth.json bin].each do |entry|
+            src = File.join(harness_dir, entry)
+            next unless File.exist?(src)
+
+            FileUtils.ln_s(src, File.join(overlay, entry))
+          end
+
+          models_src = File.join(harness_dir, "models.json")
+          models = File.file?(models_src) ? JSON.parse(File.read(models_src)) : { "providers" => {} }
+          provider = models.fetch("providers")["openai-compatible"] || {}
+          provider = provider.merge(
+            "name" => provider["name"] || "Alpha inference",
+            "baseUrl" => inference_target.base_url,
+            "api" => provider["api"] || "openai-completions",
+            "apiKey" => provider["apiKey"] || "ignored",
+            "models" => provider["models"] || []
+          )
+          models["providers"] = (models["providers"] || {}).merge("openai-compatible" => provider)
+          File.write(File.join(overlay, "models.json"), JSON.pretty_generate(models) + "\n")
+
+          settings_src = File.join(harness_dir, "settings.json")
+          settings = File.file?(settings_src) ? JSON.parse(File.read(settings_src)) : {}
+          root = inference_target.server_root_url
+          servers = Array(settings.dig("llamaSettings", "servers"))
+          if servers.empty?
+            servers = [ { "url" => root, "id" => "alpha-runtime", "name" => "Alpha runtime" } ]
+          else
+            servers = servers.map { |s| s.merge("url" => root) }
+          end
+          settings["llamaSettings"] = (settings["llamaSettings"] || {}).merge("servers" => servers)
+          File.write(File.join(overlay, "settings.json"), JSON.pretty_generate(settings) + "\n")
+
+          overlay
+        end
+
+        def build_command(task, sandbox, inference_target, profile, log_path, telemetry_path,
+                          runtime_harness_dir:, max_tool_calls: nil)
           prompt_text = task.prompt(profile)
           server_url = inference_target.server_root_url
           openai_base = inference_target.base_url
 
           env = sandbox.child_env.merge(
-            "PI_CODING_AGENT_DIR" => harness_dir,
+            "PI_CODING_AGENT_DIR" => runtime_harness_dir,
             "LLAMA_SERVER_URL" => server_url,
             "LLAMA_BASE_URL" => server_url,
             "OPENAI_BASE_URL" => openai_base,
@@ -110,14 +157,13 @@ module Alpha
           )
 
           profile_name = profile.respond_to?(:name) ? profile.name : profile.to_s
-          monitor_script = if File.file?(File.join(harness_dir, "bin", "pi-monitor.rb"))
-            File.join(harness_dir, "bin", "pi-monitor.rb")
-          else
-            File.expand_path("pi_monitor.rb", __dir__)
-          end
+          # Always use the gem/lib monitor — harness/bin is a thin load wrapper.
+          monitor_script = File.expand_path("pi_monitor.rb", __dir__)
 
           if profile_name == "shipping"
-            system_prompt = if File.file?(File.join(harness_dir, "SYSTEM.md"))
+            system_prompt = if File.file?(File.join(runtime_harness_dir, "SYSTEM.md"))
+              File.join(runtime_harness_dir, "SYSTEM.md")
+            elsif File.file?(File.join(harness_dir, "SYSTEM.md"))
               File.join(harness_dir, "SYSTEM.md")
             elsif File.file?(File.expand_path("~/.pi/agent/SYSTEM.md"))
               File.expand_path("~/.pi/agent/SYSTEM.md")

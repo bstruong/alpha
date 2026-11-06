@@ -165,13 +165,19 @@ module Alpha
           detail: grader_res.detail
         }
 
-        # Multi-Turn Self-Repair (Turn 2)
-        if !grader_res.pass && max_turns > 1 && !exec_res.timed_out
+        # Multi-Turn Self-Repair (Turn 2) — only when budget remains for another turn.
+        remaining_tool_calls = if task_max_tool_calls
+          [task_max_tool_calls - total_tool_calls, 0].max
+        end
+        can_repair = !grader_res.pass && max_turns > 1 && !exec_res.timed_out &&
+                     exec_res.exit_reason != "tool_budget_exceeded" &&
+                     (remaining_tool_calls.nil? || remaining_tool_calls.positive?)
+
+        if can_repair
           current_turn = 2
           failure_feedback = extract_failure_summary(grader_res.detail)
           repair_task = active_task.with_repair_feedback(failure_feedback)
 
-          remaining_tool_calls = task_max_tool_calls ? [task_max_tool_calls - total_tool_calls, 1].max : nil
           exec_res_2 = active_executor.call(
             task: repair_task,
             sandbox: sandbox,

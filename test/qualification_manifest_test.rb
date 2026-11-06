@@ -82,4 +82,31 @@ class QualificationManifestTest < AlphaTest
       end
     end
   end
+
+  test "excludes failed qualifications from active set and generated manifest" do
+    Dir.mktmpdir("alpha_qual_failed") do |tmpdir|
+      File.write(
+        File.join(tmpdir, "glm47-reap__coder__shipping.json"),
+        JSON.pretty_generate(shipping_fixture(model_id: "glm47-reap", role: "coder").merge("qualified" => true)) + "\n"
+      )
+      File.write(
+        File.join(tmpdir, "glm47-reap__sanitizer__shipping.json"),
+        JSON.pretty_generate(
+          shipping_fixture(model_id: "glm47-reap", role: "sanitizer", pass_at_1: 0.0).merge(
+            "qualified" => false,
+            "reason" => "graded Pass@1 0.00 < 0.90"
+          )
+        ) + "\n"
+      )
+
+      active = Alpha::QualificationManifest.active(tmpdir)
+      assert_equal 1, active.size
+      assert_equal "coder", active.first["role"]
+
+      manifest = Alpha::QualificationManifest.generate(tmpdir)
+      assert manifest["roles"].key?("coder")
+      refute manifest["roles"].key?("sanitizer")
+    end
+  end
 end
+

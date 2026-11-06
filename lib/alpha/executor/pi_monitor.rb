@@ -10,8 +10,17 @@ require "open3"
 require "shellwords"
 
 SCRIPT_DIR = __dir__
-HARNESS_DIR = File.expand_path("..", SCRIPT_DIR)
-ENV["PI_CODING_AGENT_DIR"] ||= HARNESS_DIR
+# Prefer an explicit agent dir (PiRpc / pi-up set this). Fall back to the
+# in-repo harness when this file is executed from harness/pi/bin via wrapper.
+HARNESS_DIR = ENV["PI_CODING_AGENT_DIR"] || begin
+  sibling = File.expand_path("..", SCRIPT_DIR)
+  if File.basename(File.dirname(SCRIPT_DIR)) == "bin" && File.directory?(File.join(sibling, "node_modules"))
+    sibling
+  else
+    File.expand_path("../../../harness/pi", SCRIPT_DIR)
+  end
+end
+ENV["PI_CODING_AGENT_DIR"] = HARNESS_DIR
 SESSIONS_DIR = File.join(HARNESS_DIR, "sessions")
 DEFAULT_LOG = File.join(SESSIONS_DIR, "current_run.log")
 DEFAULT_PI = File.join(HARNESS_DIR, "node_modules", ".bin", "pi")

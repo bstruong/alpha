@@ -40,9 +40,9 @@ fragile, easy-to-forget pattern that caused the original problem.
 ### Alpha Project Layout
 
 - **`results/`**: Regenerable trial outputs, intermediate JSON metrics, and ephemeral traces (`results/runs/<run_id>/`). Fully gitignored.
-- **`reports/`**: Promoted permanent benchmark reports, leaderboards, and qualification summaries. Tracked in git.
+- **`reports/`**: Local promoted Markdown from `bin/alpha run` (optional; not the public campaign archive). Prefer publishing durable campaign write-ups to [alpha-lab](https://github.com/bstruong/alpha-lab).
 - **`scenarios/`**: Standardized evaluation batteries (`qwen36-daily`, `scoped-coding`, `pii-scrubbing`, `ocr-extraction`, `email-triage`).
-- **`qualifications/`**: Formal JSON qualification artifacts (`alpha.qualification.v1`). Tracked in git.
+- **`qualifications/`**: Local `bin/alpha qualify` output only (`qualifications/*.json` gitignored; keep `.gitkeep`). Publish shipping snapshots in alpha-lab.
 
 ### If you're starting a new benchmark project
 
@@ -50,4 +50,4 @@ Put your harness code and regenerable output under `results/` (gitignored,
 as before). Put final write-ups, appendices, and anything else meant to be
 read later under a `reports/` folder next to it. Nothing else to configure.
 
-Published campaign reports and shipping qualification snapshots for this lab live in the public [alpha-lab](https://github.com/bstruong/alpha-lab) repository. Do not commit personal shipping JSON under `qualifications/` in this repo.
+**Campaign publication:** sanitized reports and shipping qualification JSON for this lab live in the public [alpha-lab](https://github.com/bstruong/alpha-lab) repository. Do not commit personal shipping JSON under `qualifications/` in this repo. `bin/alpha qualify` only writes an artifact when the run meets the scenario’s gate / graded Pass@1 thresholds (use `--promote` to force-write a `qualified: false` record for debugging).

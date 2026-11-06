@@ -14,7 +14,10 @@ module Alpha
       DEFAULT_TIMEOUT = 60
 
       def call(task:, sandbox:, inference_target:, profile: "shipping",
-               log_path: nil, telemetry_path: nil, timeout_s: DEFAULT_TIMEOUT)
+               log_path: nil, telemetry_path: nil, timeout_s: DEFAULT_TIMEOUT,
+               max_tool_calls: nil)
+        # Accepted for Runner/PiRpc call parity; chat completions are tool-free.
+        _ = max_tool_calls
         start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         resolved_log = log_path || File.join(sandbox.work_dir, "agent.log")
         resolved_telemetry = telemetry_path || File.join(sandbox.work_dir, "telemetry.json")
