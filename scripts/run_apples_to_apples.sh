@@ -1,48 +1,74 @@
 #!/usr/bin/env bash
+# GLM-4.7 REAP apples-to-apples campaign against a live OpenAI-compatible endpoint.
+# Prefer homelab-k3s JARVIS wake/lease; fall back to an already-running OPENAI_BASE_URL.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "=== Running GLM-4.7 Flash REAP Apples-to-Apples Suite ==="
-date
+ROOT="$(pwd)"
+HOMELAB_K3S="${HOMELAB_K3S:-${HOME}/Projects/homelab-k3s}"
+JARVIS_UP="${HOMELAB_K3S}/scripts/jarvis-up.sh"
+JARVIS_DOWN="${HOMELAB_K3S}/scripts/jarvis-down.sh"
+JARVIS_LEASE="${HOMELAB_K3S}/scripts/jarvis-lease.sh"
+LEASE_HOLDER="${JARVIS_LEASE_HOLDER:-alpha-lab}"
+LEASE_MINUTES="${JARVIS_LEASE_MINUTES:-180}"
+MODEL="${BENCH_MODEL:-glm47-reap}"
+PRESET="${BENCH_PRESET:-${MODEL}}"
 
-# 1. Switch preset to GLM-4.7 Flash REAP
-echo "--- Switching preset to GLM-4.7 Flash REAP ---"
-bin/alpha engine down || true
-sleep 3
-bin/alpha engine up --preset glm47-reap
+if [[ -f .env ]]; then
+  # shellcheck disable=SC1091
+  set -a && source .env && set +a
+fi
+export OPENAI_BASE_URL="${OPENAI_BASE_URL:-http://127.0.0.1:8080/v1}"
 
-# 2. Run pii-scrubbing
-echo "--- Running GLM-4.7: pii-scrubbing ---"
-bin/alpha run --scenario pii-scrubbing --model glm47-reap --preset glm47-reap || true
-RUN_ID=$(ls -td results/runs/*-pii-scrubbing 2>/dev/null | head -n 1 | xargs -n 1 basename || true)
-if [ -n "$RUN_ID" ]; then
-  bin/alpha qualify --run "$RUN_ID" || true
+echo "=== Running ${MODEL} Apples-to-Apples Suite ==="
+echo "OPENAI_BASE_URL=${OPENAI_BASE_URL}"
+date -u
+
+cleanup() {
+  if [[ -x "${JARVIS_LEASE}" ]]; then
+    "${JARVIS_LEASE}" release || true
+  fi
+  if [[ "${ALPHA_JARVIS_DOWN_AFTER:-1}" == "1" && -x "${JARVIS_DOWN}" ]]; then
+    echo "--- Scaling JARVIS down ---"
+    "${JARVIS_DOWN}" --force || "${JARVIS_DOWN}" || true
+  fi
+}
+trap cleanup EXIT
+
+if [[ -x "${JARVIS_UP}" ]]; then
+  echo "--- Waking JARVIS ---"
+  "${JARVIS_UP}"
+  if [[ -x "${JARVIS_LEASE}" ]]; then
+    "${JARVIS_LEASE}" acquire "${LEASE_HOLDER}" "${LEASE_MINUTES}"
+  fi
+else
+  echo "WARN: ${JARVIS_UP} not found; assuming inference is already reachable at ${OPENAI_BASE_URL}"
 fi
 
-# 3. Run ocr-extraction
-echo "--- Running GLM-4.7: ocr-extraction ---"
-bin/alpha run --scenario ocr-extraction --model glm47-reap --preset glm47-reap || true
-RUN_ID=$(ls -td results/runs/*-ocr-extraction 2>/dev/null | head -n 1 | xargs -n 1 basename || true)
-if [ -n "$RUN_ID" ]; then
-  bin/alpha qualify --run "$RUN_ID" || true
-fi
+run_and_qualify() {
+  local scenario="$1"
+  shift
+  echo "--- Running ${MODEL}: ${scenario} $* ---"
+  date -u
+  # Refresh lease activity between long scenarios when JARVIS is in use.
+  if [[ -x "${JARVIS_LEASE}" ]]; then
+    "${JARVIS_LEASE}" acquire "${LEASE_HOLDER}" "${LEASE_MINUTES}" || true
+  fi
+  mise exec -- bin/alpha run --scenario "${scenario}" --model "${MODEL}" --preset "${PRESET}" "$@" || true
+  local run_id
+  run_id="$(ls -td "${ROOT}/results/runs/"*-"${scenario}" 2>/dev/null | head -n 1 | xargs -n 1 basename || true)"
+  if [[ -n "${run_id}" ]]; then
+    echo "RUN_ID=${run_id}"
+    mise exec -- bin/alpha qualify --run "${run_id}" || true
+  else
+    echo "WARN: no run directory found for ${scenario}"
+  fi
+}
 
-# 4. Run scoped-coding (decomposed tasks with self-repair)
-echo "--- Running GLM-4.7: scoped-coding ---"
-bin/alpha run --scenario scoped-coding --model glm47-reap --preset glm47-reap --repair --no-gate-halt || true
+run_and_qualify pii-scrubbing
+run_and_qualify ocr-extraction
+run_and_qualify scoped-coding --repair --no-gate-halt
+run_and_qualify qwen36-daily --repair --no-gate-halt
 
-# 5. Run qwen36-daily (canonical 9 tasks with self-repair)
-echo "--- Running GLM-4.7: qwen36-daily ---"
-bin/alpha run --scenario qwen36-daily --model glm47-reap --preset glm47-reap --repair --no-gate-halt || true
-RUN_ID=$(ls -td results/runs/*-qwen36-daily 2>/dev/null | head -n 1 | xargs -n 1 basename || true)
-if [ -n "$RUN_ID" ]; then
-  bin/alpha qualify --run "$RUN_ID" || true
-fi
-
-# 6. Scale engine down to zero
-echo "--- Scaling engine to zero ---"
-bin/alpha engine down
-bin/alpha engine status || true
-
-echo "=== GLM-4.7 Suite execution finished! ==="
-date
+echo "=== ${MODEL} Suite execution finished! ==="
+date -u
