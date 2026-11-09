@@ -27,6 +27,11 @@ MODE="${ALPHA_CAMPAIGN_MODE:-full}"
 ARTIFACT_ROOT="${ALPHA_ARTIFACT_ROOT:-${ROOT}}"
 PROMOTE_LAB="${ALPHA_PROMOTE_LAB:-1}"
 FROM="${ALPHA_CAMPAIGN_FROM:-all}"
+# When set by the Watchtower Job entrypoint, jarvis-session owns begin/heartbeat/end.
+SESSION_OWNED=0
+if [[ -n "${JARVIS_SESSION_RUN_ID:-}" ]]; then
+  SESSION_OWNED=1
+fi
 
 case "${MODE}" in
   full)
@@ -97,6 +102,7 @@ echo "ALPHA_CAMPAIGN_FROM=${FROM}" | tee -a "$LOG"
 echo "ALPHA_ARTIFACT_ROOT=${ARTIFACT_ROOT}" | tee -a "$LOG"
 echo "ALPHA_PROMOTE_LAB=${PROMOTE_LAB}" | tee -a "$LOG"
 echo "ALPHA_LAB_ROOT=${LAB}" | tee -a "$LOG"
+echo "JARVIS_SESSION_RUN_ID=${JARVIS_SESSION_RUN_ID:-}" | tee -a "$LOG"
 echo "LOG=${LOG}" | tee -a "$LOG"
 date -u | tee -a "$LOG"
 
@@ -149,6 +155,9 @@ safe_cp() {
 }
 
 cleanup() {
+  if [[ "${SESSION_OWNED}" -eq 1 ]]; then
+    return 0
+  fi
   if [[ -x "${JARVIS_LEASE}" ]]; then
     "${JARVIS_LEASE}" release || true
   fi
@@ -160,6 +169,9 @@ cleanup() {
 trap cleanup EXIT
 
 touch_lease() {
+  if [[ "${SESSION_OWNED}" -eq 1 ]]; then
+    return 0
+  fi
   if [[ -x "${JARVIS_LEASE}" ]]; then
     "${JARVIS_LEASE}" acquire "${LEASE_HOLDER}" "${LEASE_MINUTES}" || true
   fi
@@ -180,11 +192,17 @@ jarvis_healthy() {
   return 1
 }
 
-if jarvis_healthy; then
+if [[ "${SESSION_OWNED}" -eq 1 ]]; then
+  echo "--- JARVIS session owned by Watchtower Job (run-id=${JARVIS_SESSION_RUN_ID}); skipping local wake/lease ---" | tee -a "$LOG"
+  if ! jarvis_healthy; then
+    echo "fail: JARVIS unhealthy after Job session begin" | tee -a "$LOG"
+    exit 1
+  fi
+elif jarvis_healthy; then
   echo "--- JARVIS already healthy at ${OPENAI_BASE_URL} ---" | tee -a "$LOG"
   touch_lease
 elif [[ -x "${JARVIS_UP}" ]]; then
-  echo "--- Waking JARVIS (ssh → watchtower kubectl) ---" | tee -a "$LOG"
+  echo "--- Waking JARVIS (local diagnostic path; not graded evidence) ---" | tee -a "$LOG"
   if ! "${JARVIS_UP}" 2>&1 | tee -a "$LOG"; then
     if jarvis_healthy; then
       echo "WARN: jarvis-up failed but health OK; continuing" | tee -a "$LOG"
