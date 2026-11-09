@@ -13,7 +13,9 @@ module Alpha
       /\boom\b/i,
       /out of memory/i,
       /cuda/i,
-      /inference.*(down|unreachable|unavailable)/i
+      /inference.*(down|unreachable|unavailable)/i,
+      /namespace sandbox unavailable/i,
+      /must not run unsandboxed/i
     ].freeze
 
     module_function
