@@ -41,8 +41,8 @@ the fragile, easy-to-forget pattern that caused the original problem.
 
 ### Alpha Project Layout
 
-- **`results/`**: Regenerable trial outputs, intermediate JSON metrics, and ephemeral traces (`results/runs/<run_id>/`). Fully gitignored.
-- **`reports/`**: Local scratch Markdown from `bin/alpha run` / campaign Jobs. Gitignored. Never the public campaign archive.
+- **`results/`**: Regenerable trial outputs, intermediate JSON metrics, and ephemeral traces (`results/runs/<run_id>/`). Fully gitignored. Each graded run keeps `run_manifest.json` (created at start, finalized at completion) plus `summary.json` and per-trial `result.json` under this tree. Publish only sanitized bundles to alpha-lab — never commit raw traces here.
+- **`reports/`**: Local scratch Markdown from `bin/alpha run` / campaign Jobs. Gitignored. Never the public campaign archive. Re-render deterministically with `bin/alpha render-report --run <id>` from the retained summary + run manifest.
 - **`scenarios/`**: Harness-owned evaluation batteries in this repo. Lab-owned scenarios (currently `ikigai-dot`) live only under [alpha-lab](https://github.com/bstruong/alpha-lab) and are reached with `ALPHA_ROOT=/home/brian/Projects/alpha-lab` (or `$ALPHA_LAB_ROOT`).
 - **`qualifications/`**: Local `bin/alpha qualify` scratch only (`alpha.qualification.v2`; directory gitignored except `.gitignore` / `.gitkeep`). Alpha must not publish shipping qualifications. Legacy v1 artifacts are obsolete and ignored by the manifest loader.
 - **`notes/OPS_TRUST.md`**: Not generated or tracked in Alpha. Active/disabled trust views live in alpha-lab only (Phase 0 disabled; Phase 7 regenerates).

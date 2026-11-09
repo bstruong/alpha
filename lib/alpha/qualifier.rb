@@ -152,6 +152,21 @@ module Alpha
         reasons << "max_rung #{max_rung || "none"} < min_rung #{Alpha::Rung.normalize(min_rung)}"
       end
 
+      # Phase 5: promotable campaigns fail closed without immutable provenance.
+      # Local/dev score qualification remains available; it never grants routing.
+      provenance = summary["provenance"].is_a?(Hash) ? summary["provenance"] : {}
+      require_promotable = ENV["ALPHA_REQUIRE_PROMOTABLE"] == "1" ||
+                           summary["require_promotable"] == true ||
+                           graded_host_promotable_context?(summary)
+      if require_promotable
+        blockers = if provenance.empty?
+          ["missing provenance block on summary"]
+        else
+          Provenance.promotable_blockers(provenance)
+        end
+        blockers.each { |b| reasons << "provenance: #{b}" }
+      end
+
       status = summary["status"].is_a?(Hash) ? summary["status"] : {}
       execution_health = status["execution_health"] || (infra_invalid.any? ? "infrastructure_invalid" : "ok")
       gate_status = status["gate_status"] || (gate_rate >= gate_threshold ? "passed" : "failed")
@@ -182,6 +197,12 @@ module Alpha
         reason: reasons.empty? ? nil : reasons.uniq.join("; ")
       )
     end
+
+    def self.graded_host_promotable_context?(summary)
+      host = summary.dig("provenance", "graded_host") || {}
+      host["watchtower_job"] == true
+    end
+    private_class_method :graded_host_promotable_context?
 
     def self.infer_role(scenario_id)
       case scenario_id.to_s

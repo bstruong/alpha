@@ -16,7 +16,7 @@ module Alpha
     end
 
     def self.build(run_id, scenario:, model_id:, prompt_preset:, inference_target:, task_records:,
-                   suite_complete: true, dry_run: false)
+                   suite_complete: true, dry_run: false, provenance: nil, generation_params: nil)
       scored = task_records.select { |t| t[:scored] != false && t[:invalid] != true }
       invalid = task_records.select { |t| t[:invalid] == true }
       tasks_total = scored.size
@@ -39,6 +39,8 @@ module Alpha
         fc = (t[:failure_class] || "unknown").to_s
         histogram[fc] += 1
       end
+      # Deterministic key order for byte-stable report regeneration.
+      histogram = histogram.sort_by { |k, _| k.to_s }.to_h
 
       passed_rungs = scored.select { |t| truthy_pass_at_1?(t[:pass_at_1]) && t[:rung] }.map { |t| t[:rung] }
       highest = passed_rungs.empty? ? nil : Alpha::Rung.max(*passed_rungs)
@@ -54,6 +56,14 @@ module Alpha
         prompt_preset: prompt_preset
       )
 
+      provenance_payload = provenance || Provenance.collect(
+        run_id: run_id,
+        scenario: scenario.is_a?(String) ? nil : scenario,
+        inference_target: inference_target.respond_to?(:model_id) ? inference_target : nil,
+        generation_params: generation_params,
+        seed: scenario.respond_to?(:seed) ? scenario.seed : nil
+      )
+
       summary_payload = {
         "schema" => "alpha.report.v2",
         "run_id" => run_id,
@@ -63,11 +73,18 @@ module Alpha
         "suite_complete" => suite_complete,
         "dry_run" => dry_run,
         "qualification_eligible" => status["qualification_eligible"],
+        "promotable" => provenance_payload["promotable"] == true && status["qualification_eligible"],
+        "run_manifest_uri" => "results/runs/#{run_id}/#{RunManifest::FILENAME}",
         "status" => status,
         "inference" => {
-          "base_url" => inference_target.respond_to?(:base_url) ? inference_target.base_url : inference_target.to_s,
+          "base_url" => if inference_target.respond_to?(:base_url)
+                          Provenance.sanitize_url(inference_target.base_url)
+                        else
+                          Provenance.sanitize_url(inference_target.to_s)
+                        end,
           "preset" => inference_target.respond_to?(:engine_preset) ? inference_target.engine_preset : nil
         },
+        "provenance" => provenance_payload,
         "aggregate" => {
           "pass_at_1" => pass_at_1,
           "first_attempt_success" => pass_at_1,
@@ -96,7 +113,7 @@ module Alpha
       run_results_dir = File.join(results_dir, "runs", run_id)
       FileUtils.mkdir_p(run_results_dir)
       summary_path = File.join(run_results_dir, "summary.json")
-      File.write(summary_path, JSON.pretty_generate(summary_payload))
+      File.write(summary_path, JSON.pretty_generate(summary_payload) + "\n")
 
       FileUtils.mkdir_p(reports_dir)
       report_path = File.join(reports_dir, "#{run_id}.md")
@@ -109,6 +126,22 @@ module Alpha
       }
     end
 
+    # Regenerate Markdown byte-for-byte from a retained summary bundle (plus optional manifest).
+    def self.render_from_bundle(summary_payload, run_manifest: nil)
+      data = summary_payload.dup
+      if run_manifest
+        data = data.merge(
+          "run_manifest" => {
+            "schema" => run_manifest["schema"],
+            "status" => run_manifest["status"],
+            "terminal_status" => run_manifest["terminal_status"],
+            "artifact_hashes" => run_manifest["artifact_hashes"]
+          }
+        )
+      end
+      render_markdown(data)
+    end
+
     def self.task_payload(t)
       {
         "name" => t[:task_name],
@@ -118,6 +151,7 @@ module Alpha
         "scaffold" => t[:scaffold],
         "trial" => t[:trial],
         "trial_id" => t[:trial_id],
+        "seed" => t[:seed],
         "pass" => t[:pass],
         "pass_at_1" => t[:pass_at_1],
         "credit" => t[:credit],
@@ -133,10 +167,21 @@ module Alpha
         "latency_budget_ms" => t[:latency_budget_ms],
         "workflow_tier" => t[:workflow_tier],
         "within_budget" => t[:within_budget],
+        "evidence_uri" => t[:evidence_uri] || evidence_uri_for(t),
         "graders" => t[:graders] || []
       }
     end
     private_class_method :task_payload
+
+    def self.evidence_uri_for(t)
+      run_id = t[:run_id]
+      task = t[:task_name]
+      trial = t[:trial] || 1
+      return nil unless run_id && task
+
+      "results/runs/#{run_id}/#{task}/trial-#{trial}/result.json"
+    end
+    private_class_method :evidence_uri_for
 
     def self.build_status(task_records:, scored:, invalid:, suite_complete:, dry_run:, pass_at_1:,
                           scenario:, prompt_preset:)
@@ -210,12 +255,103 @@ module Alpha
     private_class_method :build_status
 
     def self.render_markdown(data)
-      agg = data["aggregate"]
+      agg = data["aggregate"] || {}
       status = data["status"] || {}
+      provenance = data["provenance"] || {}
       lines = []
       lines << "# Alpha Evaluation Report: #{data["run_id"]}"
       lines << ""
       lines << "## Capability summary"
+      lines << ""
+      lines.concat(capability_summary_lines(data, agg, status, provenance))
+      lines << ""
+      hist = agg["failure_class_histogram"] || {}
+      if hist.any?
+        lines << "### Failure-class histogram"
+        lines << ""
+        lines << "| Class | Count |"
+        lines << "|---|---|"
+        hist.sort_by { |k, _| k.to_s }.each do |klass, count|
+          lines << "| `#{klass}` | #{count} |"
+        end
+        lines << ""
+      end
+      lines << "## Task Breakdown"
+      lines << ""
+      lines << "| Task | Kind | Rung | First-attempt | Credit | Failure | Scored | Wall (s) | Evidence | Verdict |"
+      lines << "|---|---|---|---|---|---|---|---|---|---|"
+
+      Array(data["tasks"]).each do |t|
+        verdict = if t["invalid"]
+          "⚠ Not evaluated: infrastructure failure"
+        elsif t["pass_at_1"]
+          "✅ PASS"
+        else
+          "❌ FAIL"
+        end
+        wall_s = (t["wall_ms"].to_i / 1000.0).round(1)
+        credit = t["credit"].nil? ? "—" : format("%.2f", t["credit"].to_f)
+        first = t["pass_at_1"] ? "1.0" : "0.0"
+        evidence = t["evidence_uri"] || t["trial_id"] || "—"
+        lines << "| `#{t["name"]}` | #{t["kind"]} | #{t["rung"] || "—"} | #{first} | #{credit} | #{t["failure_class"] || "—"} | #{t["scored"] == false ? "no" : "yes"} | #{wall_s} | `#{evidence}` | #{verdict} |"
+      end
+
+      if Array(data["tasks"]).empty? && data["dry_run"]
+        lines << ""
+        lines << "_Planning-only dry run: no scored trial rows._"
+      end
+
+      lines << ""
+      lines.concat(evidence_boundary_lines(data, provenance))
+      lines << ""
+      lines << "---"
+      lines << "*Generated by Project Alpha (`alpha.report.v2`) from retained run bundle*"
+      lines << ""
+      lines.join("\n")
+    end
+
+    def self.capability_summary_lines(data, agg, status, provenance)
+      can_do, cannot, not_eval = partition_outcome_tasks(data)
+      model_identity = [
+        data["model_id"],
+        provenance.dig("model", "quantization"),
+        provenance.dig("model", "model_sha256")
+      ].compact.join(" / ")
+      runtime_identity = [
+        provenance.dig("runner", "image_digest"),
+        provenance.dig("jarvis", "image_digest"),
+        provenance.dig("repositories", "alpha", "commit")
+      ].compact.join(" · ")
+
+      lines = []
+      lines << "Model: `#{model_identity.empty? ? data["model_id"] : model_identity}`"
+      lines << "Evaluated for: `#{data["scenario"]}` / `#{data["prompt_preset"]}`"
+      lines << ""
+      lines << "### Can do"
+      if can_do.empty?
+        lines << "- _(none)_"
+      else
+        can_do.each { |row| lines << "- #{row}" }
+      end
+      lines << ""
+      lines << "### Cannot reliably do"
+      if cannot.empty?
+        lines << "- _(none)_"
+      else
+        cannot.each { |row| lines << "- #{row}" }
+      end
+      lines << ""
+      lines << "### Not evaluated"
+      if not_eval.empty?
+        lines << "- _(none)_"
+      else
+        not_eval.each { |row| lines << "- #{row}" }
+      end
+      lines << ""
+      lines << "### Delegation decision"
+      lines << "- Unattended: none (Phase 7 required; Alpha never grants routing authority)"
+      lines << "- Review required: all scored tasks with incomplete provenance or below policy"
+      lines << "- Do not delegate: tasks with observed critical/scored failures"
       lines << ""
       lines << "| Metric | Value |"
       lines << "|---|---|"
@@ -234,7 +370,10 @@ module Alpha
       lines << "| **Benchmark verdict** | #{status["benchmark_verdict"] || "—"} |"
       lines << "| **Statistical sufficiency** | #{status["statistical_sufficiency"] || "—"} |"
       lines << "| **Meets delegation policy** | #{data["qualification_eligible"] ? "eligible evidence" : "no"} |"
+      lines << "| **Promotable** | #{data["promotable"] ? "yes" : "no"} |"
       lines << "| **Routing authority** | #{status["routing_authority"] || "none"} |"
+      lines << "| **Runtime identity** | `#{runtime_identity.empty? ? "—" : runtime_identity}` |"
+      lines << "| **Machine-readable evidence index** | `#{data["run_manifest_uri"] || "results/runs/#{data["run_id"]}/run_manifest.json"}` |"
       lines << "| **Mean Tool Calls** | #{agg["tool_calls_mean"]} |"
       lines << "| **Total Wall Time** | #{(agg["wall_ms_total"].to_i / 1000.0).round(1)}s |"
       lines << "| **Total Tokens** | #{agg["prompt_tokens_total"]} prompt / #{agg["completion_tokens_total"]} completion |"
@@ -243,48 +382,56 @@ module Alpha
         fit = agg["workflow_fit"] || {}
         lines << "| **Workflow fit** | interactive=#{fit["interactive"] || 0}, assistive=#{fit["assistive"] || 0}, batch=#{fit["batch"] || 0}, unusable=#{fit["unusable"] || 0} |"
       end
-      lines << ""
-      hist = agg["failure_class_histogram"] || {}
-      if hist.any?
-        lines << "### Failure-class histogram"
-        lines << ""
-        lines << "| Class | Count |"
-        lines << "|---|---|"
-        hist.sort_by { |k, _| k.to_s }.each do |klass, count|
-          lines << "| `#{klass}` | #{count} |"
-        end
-        lines << ""
-      end
-      lines << "## Task Breakdown"
-      lines << ""
-      lines << "| Task | Kind | Rung | First-attempt | Credit | Failure | Scored | Wall (s) | Verdict |"
-      lines << "|---|---|---|---|---|---|---|---|---|"
-
-      Array(data["tasks"]).each do |t|
-        verdict = if t["invalid"]
-          "⚠ Not evaluated: infrastructure failure"
-        elsif t["pass_at_1"]
-          "✅ PASS"
-        else
-          "❌ FAIL"
-        end
-        wall_s = (t["wall_ms"].to_i / 1000.0).round(1)
-        credit = t["credit"].nil? ? "—" : format("%.2f", t["credit"].to_f)
-        first = t["pass_at_1"] ? "1.0" : "0.0"
-        lines << "| `#{t["name"]}` | #{t["kind"]} | #{t["rung"] || "—"} | #{first} | #{credit} | #{t["failure_class"] || "—"} | #{t["scored"] == false ? "no" : "yes"} | #{wall_s} | #{verdict} |"
-      end
-
-      if Array(data["tasks"]).empty? && data["dry_run"]
-        lines << ""
-        lines << "_Planning-only dry run: no scored trial rows._"
-      end
-
-      lines << ""
-      lines << "---"
-      lines << "*Generated by Project Alpha (`alpha.report.v2`)*"
-      lines << ""
-      lines.join("\n")
+      lines
     end
+    private_class_method :capability_summary_lines
+
+    def self.partition_outcome_tasks(data)
+      can_do = []
+      cannot = []
+      not_eval = []
+      Array(data["tasks"]).each do |t|
+        label = "`#{t["name"]}`"
+        evidence = t["evidence_uri"] || t["trial_id"]
+        if t["invalid"] || t["scored"] == false
+          reason = t["invalid_reason"] || "not scored"
+          not_eval << "#{label}: Not evaluated: #{reason} (evidence `#{evidence}`)"
+        elsif t["pass_at_1"]
+          can_do << "#{label}: 1/1 passed (evidence `#{evidence}`)"
+        else
+          cannot << "#{label}: 0/1 passed; failure_class=#{t["failure_class"] || "unknown"} (evidence `#{evidence}`)"
+        end
+      end
+      [can_do, cannot, not_eval]
+    end
+    private_class_method :partition_outcome_tasks
+
+    def self.evidence_boundary_lines(data, provenance)
+      lines = []
+      lines << "## Evidence limits"
+      lines << ""
+      repos = provenance["repositories"] || {}
+      lines << "- Valid trials: #{data.dig("aggregate", "pass_at_1_denominator") || data.dig("aggregate", "tasks_total") || 0}; " \
+               "invalid trials: #{data.dig("aggregate", "invalid_trials") || 0}"
+      lines << "- Uncertainty: single_trial_evidence (Phase 7 adds intervals)"
+      lines << "- Runtime identity: runner=#{provenance.dig("runner", "image_digest") || "—"}, " \
+               "jarvis=#{provenance.dig("jarvis", "image_digest") || "—"}"
+      lines << "- Source identity: alpha=#{repos.dig("alpha", "commit") || "—"} " \
+               "(dirty=#{repos.dig("alpha", "dirty").inspect}), " \
+               "alpha-lab=#{repos.dig("alpha_lab", "commit") || "—"}, " \
+               "homelab=#{repos.dig("homelab_k3s", "commit") || "—"}"
+      lines << "- Lease: holder=#{provenance.dig("lease", "holder") || "—"} " \
+               "run_id=#{provenance.dig("lease", "run_id") || "—"}"
+      lines << "- Evidence index: `#{data["run_manifest_uri"] || "results/runs/#{data["run_id"]}/run_manifest.json"}`"
+      lines << "- Evidence expires when: model/runtime/source/fixture hashes change, or qualification TTL elapses"
+      lines << "- Promotable blockers: #{Array(provenance["promotable_blockers"]).empty? ? "none" : provenance["promotable_blockers"].join("; ")}"
+      if (manifest = data["run_manifest"])
+        lines << "- Terminal status: #{manifest["terminal_status"] || "—"}"
+        lines << "- Artifact hashes retained: #{(manifest["artifact_hashes"] || {}).size}"
+      end
+      lines
+    end
+    private_class_method :evidence_boundary_lines
 
     def self.workflow_fit_summary(task_records)
       counts = { "interactive" => 0, "assistive" => 0, "batch" => 0, "unusable" => 0 }

@@ -228,6 +228,9 @@ when "qualify"
     end
   end
 
+  run_manifest_uri = summary["run_manifest_uri"] || "results/runs/#{options[:run_id]}/run_manifest.json"
+  provenance = summary["provenance"]
+  promotable = summary["promotable"] == true && verdict.qualified
   qual_data = {
     "schema" => Alpha.config.qualification_schema,
     "model_id" => summary["model_id"],
@@ -245,6 +248,7 @@ when "qualify"
     "failure_class_histogram" => verdict.failure_class_histogram,
     "ship_skills" => verdict.ship_skills,
     "qualified" => verdict.qualified,
+    "promotable" => promotable,
     "execution_health" => verdict.execution_health,
     "gate_status" => verdict.gate_status,
     "benchmark_verdict" => verdict.benchmark_verdict,
@@ -252,10 +256,12 @@ when "qualify"
     "qualification_eligible" => verdict.qualification_eligible,
     "routing_authority" => verdict.routing_authority,
     "report_uri" => report_uri,
+    "run_manifest_uri" => run_manifest_uri,
     "qualified_at" => Time.now.utc.iso8601,
     "expires_at" => (Time.now.utc + (30 * 86_400)).iso8601,
     "node_class" => Alpha.config.node_class
   }
+  qual_data["provenance"] = provenance if provenance.is_a?(Hash)
   qual_data["measurement_run_id"] = options[:measurement_run_id] if options[:measurement_run_id]
   if agg["latency_budgeted_tasks"].to_i.positive?
     qual_data["latency"] = {
@@ -318,6 +324,27 @@ when "capability-map"
   else
     puts md
   end
+
+when "render-report"
+  run_id = nil
+  out_path = nil
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: bin/alpha render-report --run ID [--out PATH]"
+    opts.on("-r", "--run ID", "Run id whose retained bundle should be rendered") { |v| run_id = v }
+    opts.on("--out PATH", "Write markdown to PATH (default: reports/<run>.md)") { |v| out_path = v }
+  end
+  parser.parse!(ARGV)
+  abort "Error: --run is required" if run_id.nil? || run_id.empty?
+
+  summary_path = File.join(Alpha.config.results_dir, "runs", run_id, "summary.json")
+  abort "Error: missing #{summary_path}" unless File.file?(summary_path)
+  summary = JSON.parse(File.read(summary_path))
+  manifest = Alpha::RunManifest.load(run_id)
+  md = Alpha::Report.render_from_bundle(summary, run_manifest: manifest)
+  out_path ||= File.join(Alpha.config.reports_dir, "#{run_id}.md")
+  FileUtils.mkdir_p(File.dirname(out_path))
+  File.write(out_path, md)
+  puts "✓ Rendered deterministic report to #{out_path}"
   exit 0
 
 
@@ -394,6 +421,7 @@ when nil, "help", "-h", "--help"
       run             Run an evaluation scenario (--executor nop for integrity; --profile shipping|measurement)
       qualify         Promote a run to an alpha.qualification.v2 artifact
       capability-map  Summarize one or more runs as a role × rung capability table
+      render-report   Deterministically re-render reports/<run>.md from retained summary + run_manifest
       fixture         Ingest failure exports (e.g. bin/alpha fixture import <export.json>)
       engine          Manage inference server lifecycle (status, up, down) on the inference host
       doctor          Check environment, inference target health, and agent binaries

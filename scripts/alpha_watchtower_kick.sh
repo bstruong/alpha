@@ -6,13 +6,16 @@
 # owns Lease, wake, heartbeat, graded execution, and GPU release via
 # homelab-k3s `scripts/jarvis-session.sh` (begin → heartbeat-loop → end).
 #
-# Deploy dependency: merge + deploy homelab-k3s PR #41 (native Lease session
-# interface + campaign entrypoint) before relying on this cutover.
+# Phase 5: promotable graded campaigns require immutable pins:
+#   ALPHA_RUNNER_IMAGE      image@sha256:... (no :latest)
+#   ALPHA_GIT_SHA / ALPHA_LAB_GIT_SHA / HOMELAB_GIT_SHA   full 40-char commits
+# Dev/diagnostic submits may set ALPHA_ALLOW_MOVING_REFS=1 (not promotable).
 #
 # Usage:
-#   ./scripts/alpha_watchtower_kick.sh
+#   ALPHA_RUNNER_IMAGE=registry.watchtower.local/alpha-runner@sha256:... \
+#   ALPHA_GIT_SHA=... ALPHA_LAB_GIT_SHA=... HOMELAB_GIT_SHA=... \
+#     ./scripts/alpha_watchtower_kick.sh
 #   ALPHA_CAMPAIGN_FROM=ruby ./scripts/alpha_watchtower_kick.sh
-#   ALPHA_CAMPAIGN_SCRIPT=scripts/run_ops_capability_map.sh ./scripts/alpha_watchtower_kick.sh
 set -euo pipefail
 
 NS="${ALPHA_K8S_NAMESPACE:-alpha}"
@@ -22,6 +25,7 @@ WATCHTOWER_SSH="${WATCHTOWER_SSH:-watchtower}"
 CONTEXT="${KUBE_CONTEXT:-}"
 LEASE_NS="${JARVIS_K8S_NAMESPACE:-jarvis}"
 LEASE_NAME="${JARVIS_LEASE_NAME:-jarvis-gpu}"
+ALLOW_MOVING="${ALPHA_ALLOW_MOVING_REFS:-0}"
 
 k() {
   if [[ -n "${CONTEXT}" ]]; then
@@ -45,6 +49,51 @@ k_apply_file() {
   fi
 }
 
+is_full_sha() {
+  [[ "${1:-}" =~ ^[0-9a-fA-F]{40}$ ]]
+}
+
+is_digest_image() {
+  local img="${1:-}"
+  [[ "${img}" == *"@sha256:"* ]] || [[ "${img}" =~ ^sha256:[0-9a-fA-F]{64}$ ]]
+}
+
+require_promotable_pins() {
+  local missing=0
+  if [[ -z "${ALPHA_RUNNER_IMAGE:-}" ]] || ! is_digest_image "${ALPHA_RUNNER_IMAGE}"; then
+    echo "fail: ALPHA_RUNNER_IMAGE must be digest-pinned (image@sha256:...) for graded campaigns" >&2
+    missing=1
+  fi
+  if [[ "${ALPHA_RUNNER_IMAGE:-}" == *":latest"* ]]; then
+    echo "fail: ALPHA_RUNNER_IMAGE must not use :latest" >&2
+    missing=1
+  fi
+  for var in ALPHA_GIT_SHA ALPHA_LAB_GIT_SHA HOMELAB_GIT_SHA; do
+    local val="${!var:-}"
+    if ! is_full_sha "${val}"; then
+      echo "fail: ${var} must be a full 40-char commit SHA (got '${val:-empty}')" >&2
+      missing=1
+    fi
+  done
+  for var in ALPHA_GIT_REF ALPHA_LAB_GIT_REF HOMELAB_GIT_REF; do
+    local val="${!var:-}"
+    if [[ -n "${val}" ]] && [[ "${val}" == "main" || "${val}" == "master" || "${val}" == "latest" || "${val}" == "HEAD" ]]; then
+      echo "fail: ${var}=${val} is a moving ref — pass the commit SHA via *_GIT_SHA / *_GIT_REF" >&2
+      missing=1
+    fi
+  done
+  if [[ "${missing}" -ne 0 ]]; then
+    echo "hint: set ALPHA_ALLOW_MOVING_REFS=1 only for non-promotable diagnostics" >&2
+    exit 1
+  fi
+}
+
+if [[ "${ALLOW_MOVING}" != "1" ]]; then
+  require_promotable_pins
+else
+  echo "warn: ALPHA_ALLOW_MOVING_REFS=1 — Job is not promotable (Phase 5)" >&2
+fi
+
 # Job names must be RFC 1123 (lowercase). Avoid %Y%m%dT…Z.
 stamp="$(date -u +%Y%m%d-%H%M%S)"
 job="alpha-campaign-${stamp}"
@@ -59,7 +108,6 @@ fi
 
 if ! k -n "${NS}" get cronjob "${TEMPLATE}" >/dev/null 2>&1; then
   echo "fail: CronJob ${NS}/${TEMPLATE} missing — deploy homelab-k3s manifests/watchtower/alpha first" >&2
-  echo "      (Phase 4 session cutover requires homelab-k3s PR #41 deployed)" >&2
   exit 1
 fi
 
@@ -82,27 +130,52 @@ k -n "${NS}" create job "${job}" --from="cronjob/${TEMPLATE}" --dry-run=client -
 
 JOB_NAME="${job}" FROM="${FROM}" \
 ALPHA_CAMPAIGN_SCRIPT="${ALPHA_CAMPAIGN_SCRIPT:-}" \
-ALPHA_GIT_REF="${ALPHA_GIT_REF:-}" \
-ALPHA_LAB_GIT_REF="${ALPHA_LAB_GIT_REF:-}" \
-HOMELAB_GIT_REF="${HOMELAB_GIT_REF:-}" \
+ALPHA_GIT_REF="${ALPHA_GIT_REF:-${ALPHA_GIT_SHA:-}}" \
+ALPHA_LAB_GIT_REF="${ALPHA_LAB_GIT_REF:-${ALPHA_LAB_GIT_SHA:-}}" \
+HOMELAB_GIT_REF="${HOMELAB_GIT_REF:-${HOMELAB_GIT_SHA:-}}" \
+ALPHA_GIT_SHA="${ALPHA_GIT_SHA:-}" \
+ALPHA_LAB_GIT_SHA="${ALPHA_LAB_GIT_SHA:-}" \
+HOMELAB_GIT_SHA="${HOMELAB_GIT_SHA:-}" \
+ALPHA_RUNNER_IMAGE="${ALPHA_RUNNER_IMAGE:-}" \
+ALPHA_RUNNER_IMAGE_DIGEST="${ALPHA_RUNNER_IMAGE_DIGEST:-}" \
+ALPHA_ALLOW_MOVING_REFS="${ALLOW_MOVING}" \
 python3 - "${tmp}" <<'PY'
-import json, os, sys
+import json, os, sys, re
 path = sys.argv[1]
 doc = json.load(open(path))
-envs = doc["spec"]["template"]["spec"]["containers"][0].setdefault("env", [])
+container = doc["spec"]["template"]["spec"]["containers"][0]
+envs = container.setdefault("env", [])
 wanted = {
     "ALPHA_CAMPAIGN_FROM": os.environ["FROM"],
     "JOB_NAME": os.environ["JOB_NAME"],
-    # Entrypoint sets JARVIS_SESSION_RUN_ID from JOB_NAME when unset; bake it
-    # so campaign scripts can detect Job-owned session without racing.
     "JARVIS_SESSION_RUN_ID": os.environ["JOB_NAME"],
-    # Entrypoint owns scale-down via jarvis-session end.
     "ALPHA_JARVIS_DOWN_AFTER": "0",
+    "ALPHA_ALLOW_MOVING_REFS": os.environ.get("ALPHA_ALLOW_MOVING_REFS") or "0",
 }
-for key in ("ALPHA_CAMPAIGN_SCRIPT", "ALPHA_GIT_REF", "ALPHA_LAB_GIT_REF", "HOMELAB_GIT_REF"):
+for key in (
+    "ALPHA_CAMPAIGN_SCRIPT",
+    "ALPHA_GIT_REF",
+    "ALPHA_LAB_GIT_REF",
+    "HOMELAB_GIT_REF",
+    "ALPHA_GIT_SHA",
+    "ALPHA_LAB_GIT_SHA",
+    "HOMELAB_GIT_SHA",
+    "ALPHA_RUNNER_IMAGE",
+    "ALPHA_RUNNER_IMAGE_DIGEST",
+):
     val = os.environ.get(key) or ""
     if val:
         wanted[key] = val
+
+image = os.environ.get("ALPHA_RUNNER_IMAGE") or ""
+if image:
+    container["image"] = image
+    container["imagePullPolicy"] = "IfNotPresent"
+    # Prefer digest form already in image; also export digest env for provenance.
+    m = re.search(r"@(sha256:[0-9a-fA-F]{64})$", image)
+    if m and not wanted.get("ALPHA_RUNNER_IMAGE_DIGEST"):
+        wanted["ALPHA_RUNNER_IMAGE_DIGEST"] = m.group(1)
+
 by_name = {e["name"]: e for e in envs if "name" in e}
 for k, v in wanted.items():
     if k in by_name:
@@ -118,8 +191,10 @@ k_apply_file "${tmp}" >/dev/null
 echo ""
 echo "ok  Job ${job} created in namespace ${NS}"
 echo "    run-id / JARVIS_SESSION_RUN_ID=${job}"
+echo "    runner_image=${ALPHA_RUNNER_IMAGE:-from-cronjob-template}"
+echo "    alpha_sha=${ALPHA_GIT_SHA:-${ALPHA_GIT_REF:-unset}}"
 echo "    Safe to power off this machine — campaign runs on Watchtower."
-echo "    Job owns jarvis-session begin/heartbeat/end (homelab-k3s PR #41)."
+echo "    Job owns jarvis-session begin/heartbeat/end."
 echo "    Phone: subscribe ntfy topic 'alpha-campaigns' (server ntfy.watchtower.local)."
 echo "    Status: ./scripts/alpha_watchtower_status.sh"
 echo "    Review: ./scripts/alpha_watchtower_review.sh"
