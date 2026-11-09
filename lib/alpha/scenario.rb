@@ -19,7 +19,9 @@ module Alpha
           new(
             "shipping",
             profile_cfg.fetch("bullet_cap", true),
-            profile_cfg.fetch("include_invariant", true),
+            # Phase 3 default: evaluated shipping prompts omit answer-bearing invariants
+            # unless a scenario explicitly opts in (lab sets false).
+            profile_cfg.fetch("include_invariant", false),
             max_rung || Alpha::Rung.normalize(profile_cfg.fetch("max_rung", "L2"))
           )
         when "measurement"
@@ -29,8 +31,15 @@ module Alpha
             profile_cfg.fetch("include_invariant", false),
             max_rung || Alpha::Rung.normalize(profile_cfg.fetch("max_rung", "L4"))
           )
+        when "oracle", "debug"
+          new(
+            name.to_s,
+            profile_cfg.fetch("bullet_cap", false),
+            profile_cfg.fetch("include_invariant", true),
+            max_rung || Alpha::Rung.normalize(profile_cfg.fetch("max_rung", "L4"))
+          )
         else
-          raise ArgumentError, "Unknown profile #{name.inspect} (expected shipping or measurement)"
+          raise ArgumentError, "Unknown profile #{name.inspect} (expected shipping, measurement, oracle, or debug)"
         end
       end
     end
@@ -84,7 +93,8 @@ module Alpha
         gate_pass_at_1: manifest.dig("qualification", "gate_pass_at_1") || 1.0,
         graded_pass_at_1: manifest.dig("qualification", "graded_pass_at_1") || 0.70,
         min_rung: manifest.dig("qualification", "min_rung"),
-        skill_pass_at_1: manifest.dig("qualification", "skill_pass_at_1")
+        skill_pass_at_1: manifest.dig("qualification", "skill_pass_at_1"),
+        require_baselines: manifest.dig("qualification", "require_baselines") == true
       }
 
       new(

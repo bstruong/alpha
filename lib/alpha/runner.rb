@@ -119,7 +119,7 @@ module Alpha
         puts "DRY RUN (planning only — no scored trials, not qualification-eligible)"
         scenario.tasks.each_with_index do |task, idx|
           puts "[#{idx + 1}/#{scenario.tasks.size}] #{task.name} (#{task.kind}) — prompt verified " \
-               "(#{task.prompt(scenario.profile.name).bytesize} bytes)"
+               "(#{task.prompt(scenario.profile).bytesize} bytes)"
         end
 
         report_res = Report.build(

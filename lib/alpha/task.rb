@@ -158,11 +158,7 @@ module Alpha
     end
 
     def prompt(profile = "shipping", include_invariant: nil)
-      use_invariant = if include_invariant.nil?
-        profile.to_s == "shipping"
-      else
-        include_invariant
-      end
+      use_invariant = self.class.resolve_include_invariant(profile, include_invariant)
 
       parts = [ instruction.strip ]
       parts << invariant.strip if use_invariant && invariant
@@ -174,6 +170,20 @@ module Alpha
       end
 
       parts.join("\n\n")
+    end
+
+    # Answer-bearing invariant.md is reserved for oracle/debug (or an explicit
+    # Profile#include_invariant). Evaluated shipping/measurement must opt in via
+    # the Profile object from scenario.yml — string "shipping" alone does not
+    # inject invariants (Phase 3).
+    def self.resolve_include_invariant(profile, override = nil)
+      return override unless override.nil?
+      return profile.include_invariant if profile.respond_to?(:include_invariant)
+
+      case profile.to_s
+      when "oracle", "debug" then true
+      else false
+      end
     end
 
     private

@@ -14,7 +14,7 @@ qualification:
 profiles:
   shipping:
     bullet_cap: true
-    include_invariant: true
+    include_invariant: false
     max_rung: L2
   measurement:
     bullet_cap: false

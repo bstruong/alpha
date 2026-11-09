@@ -29,6 +29,11 @@ module Alpha
         return outcome(invalid: true, reason: "infra_exit:#{reason}")
       end
 
+      # Integrity nop: empty agent work is a scored model/control failure, not infra.
+      if reason == "nop"
+        return outcome(invalid: false, reason: nil)
+      end
+
       if detail[:error].to_s.match?(/Missing output\.txt|sandbox|provision/i) && agent_patch_empty
         return outcome(invalid: true, reason: "sandbox_or_missing_output")
       end

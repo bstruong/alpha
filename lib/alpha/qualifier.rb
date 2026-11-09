@@ -152,6 +152,11 @@ module Alpha
         reasons << "max_rung #{max_rung || "none"} < min_rung #{Alpha::Rung.normalize(min_rung)}"
       end
 
+      if scenario&.qualification&.fetch(:require_baselines, false)
+        baseline_reason = missing_baseline_reason(scenario.id)
+        reasons << baseline_reason if baseline_reason
+      end
+
       status = summary["status"].is_a?(Hash) ? summary["status"] : {}
       execution_health = status["execution_health"] || (infra_invalid.any? ? "infrastructure_invalid" : "ok")
       gate_status = status["gate_status"] || (gate_rate >= gate_threshold ? "passed" : "failed")
@@ -207,6 +212,44 @@ module Alpha
       return false if task["dry_run"] == true
 
       true
+    end
+
+    # Phase 3: lab scenarios may require matching oracle-pass + nop-fail artifacts
+    # under ALPHA_ROOT/baselines/<scenario_id>/ before qualification can succeed.
+    def self.missing_baseline_reason(scenario_id)
+      require "json"
+      dir = File.join(Alpha.config.root, "baselines", scenario_id.to_s)
+      unless File.directory?(dir)
+        return "require_baselines: missing baselines/#{scenario_id}/ (oracle-pass + nop-fail)"
+      end
+
+      oracles = Dir[File.join(dir, "oracle-pass__*.json")]
+      nops = Dir[File.join(dir, "nop-fail__*.json")]
+      return "require_baselines: no oracle-pass/nop-fail artifacts under baselines/#{scenario_id}/" if oracles.empty? || nops.empty?
+
+      ok_pair = false
+      oracles.each do |opath|
+        key = File.basename(opath).sub(/\Aoracle-pass__/, "")
+        npath = File.join(dir, "nop-fail__#{key}")
+        next unless File.file?(npath)
+
+        begin
+          od = JSON.parse(File.read(opath))
+          nd = JSON.parse(File.read(npath))
+        rescue JSON::ParserError
+          next
+        end
+        next unless od["observed_ok"] == true && nd["observed_ok"] == true
+        next unless od["scenario_hash"].to_s == nd["scenario_hash"].to_s
+        next unless od["harness_rev"].to_s == nd["harness_rev"].to_s
+
+        ok_pair = true
+        break
+      end
+
+      return nil if ok_pair
+
+      "require_baselines: no matching observed_ok oracle-pass + nop-fail pair for #{scenario_id}"
     end
 
     def self.pass_at_1_rate(tasks, kind:)
