@@ -1,4 +1,7 @@
 results/
+# Alpha local scratch only — durable campaign evidence is published in alpha-lab.
+/reports/
+/notes/OPS_TRUST.md
 scenarios/qwen36-daily/library/config/master.key
 scenarios/qwen36-daily/library/storage/*.sqlite3
 scenarios/qwen36-daily/library/tmp/

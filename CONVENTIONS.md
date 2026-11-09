@@ -26,28 +26,33 @@ during review before the archive commit — not by anything structural.
 - **Permanent deliverables** — final reports, appendices, anything a reader
   would open later rather than a script regenerating — live in a sibling
   **`reports/`** folder instead, at the project's top level (`<project>/reports/`,
-  not nested inside `results/`). `reports/` is never covered by any pattern
-  in the root `.gitignore`, so nothing needs a per-project exception to keep
-  it tracked — the safety is structural, not something to remember.
+  not nested inside `results/`). Outside Alpha, `reports/` is not covered by
+  root ignore patterns so publication stays structural. **Alpha is the
+  exception:** Alpha `reports/` and local qualifications are scratch-only
+  (gitignored here); durable campaign evidence is published only in
+  [alpha-lab](https://github.com/bstruong/alpha-lab).
 
-A folder named `reports/` was chosen deliberately: it was never referenced
-by any existing ignore pattern, so introducing it required zero new rules
-and zero risk to already-working projects. Nesting a `reports/` folder
-*inside* `results/` was considered and rejected — that would need a
-`.gitignore` negation exception per project, which is exactly the
-fragile, easy-to-forget pattern that caused the original problem.
+A folder named `reports/` was chosen deliberately for non-Alpha projects: it
+was never referenced by any existing ignore pattern, so introducing it
+required zero new rules and zero risk to already-working projects. Nesting a
+`reports/` folder *inside* `results/` was considered and rejected — that
+would need a `.gitignore` negation exception per project, which is exactly
+the fragile, easy-to-forget pattern that caused the original problem.
 
 ### Alpha Project Layout
 
 - **`results/`**: Regenerable trial outputs, intermediate JSON metrics, and ephemeral traces (`results/runs/<run_id>/`). Fully gitignored.
-- **`reports/`**: Local promoted Markdown from `bin/alpha run` (optional; not the public campaign archive). Prefer publishing durable campaign write-ups to [alpha-lab](https://github.com/bstruong/alpha-lab).
-- **`scenarios/`**: Standardized evaluation batteries (`qwen36-daily`, `scoped-coding`, `pii-scrubbing`, `ocr-extraction`, `email-triage`).
-- **`qualifications/`**: Local `bin/alpha qualify` output only (`qualifications/*.json` gitignored; keep `.gitkeep`). Publish shipping snapshots in alpha-lab.
+- **`reports/`**: Local scratch Markdown from `bin/alpha run` / campaign Jobs. Gitignored. Never the public campaign archive.
+- **`scenarios/`**: Harness-owned evaluation batteries in this repo. Lab-owned scenarios (currently `ikigai-dot`) live only under [alpha-lab](https://github.com/bstruong/alpha-lab) and are reached with `ALPHA_ROOT=/home/brian/Projects/alpha-lab` (or `$ALPHA_LAB_ROOT`).
+- **`qualifications/`**: Local `bin/alpha qualify` scratch only (`alpha.qualification.v2`; directory gitignored except `.gitignore` / `.gitkeep`). Alpha must not publish shipping qualifications. Legacy v1 artifacts are obsolete and ignored by the manifest loader.
+- **`notes/OPS_TRUST.md`**: Not generated or tracked in Alpha. Active/disabled trust views live in alpha-lab only (Phase 0 disabled; Phase 7 regenerates).
 
 ### If you're starting a new benchmark project
 
 Put your harness code and regenerable output under `results/` (gitignored,
 as before). Put final write-ups, appendices, and anything else meant to be
-read later under a `reports/` folder next to it. Nothing else to configure.
+read later under a `reports/` folder next to it — unless you are Alpha, in
+which case keep reports/qualifications as local scratch and publish durable
+evidence in alpha-lab.
 
-**Campaign publication:** sanitized reports and shipping qualification JSON for this lab live in the public [alpha-lab](https://github.com/bstruong/alpha-lab) repository. Do not commit personal shipping JSON under `qualifications/` in this repo. `bin/alpha qualify` only writes an artifact when the run meets the scenario’s gate / graded Pass@1 thresholds (use `--promote` to force-write a `qualified: false` record for debugging).
+**Campaign publication:** sanitized reports and shipping qualification JSON for this lab live only in the public [alpha-lab](https://github.com/bstruong/alpha-lab) repository. Do not commit reports or shipping JSON under Alpha. Graded suites run as Watchtower campaign Jobs only; laptops submit/monitor. `bin/alpha qualify` writes local scratch `alpha.qualification.v2` when a run meets the scenario’s gate / graded Pass@1 thresholds on **scored** shipping-band tasks (use `--promote` to force-write a `qualified: false` record for debugging). Pair measurement runs via `--measurement-run` for ceiling. Campaign driver: `scripts/run_capability_map.sh` (`ALPHA_CAMPAIGN_MODE=full|ops`).
