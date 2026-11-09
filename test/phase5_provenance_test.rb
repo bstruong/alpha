@@ -132,8 +132,11 @@ class Phase5ProvenanceTest < AlphaTest
       assert_equal "alpha.provenance.v1", payload.dig("provenance", "schema")
       assert payload.key?("run_manifest_uri")
       assert_includes payload.dig("tasks", 0, "evidence_uri"), "result.json"
-      assert_includes File.read(res[:report_path]), "### Can do"
-      assert_includes File.read(res[:report_path]), "Machine-readable evidence index"
+      md = File.read(res[:report_path])
+      assert_includes md, "## Can do"
+      assert_includes md, "## Supporting evidence"
+      assert_includes md, "Machine-readable evidence index"
+      assert_operator md.index("## Can do"), :<, md.index("## Supporting evidence")
 
       Alpha::RunManifest.finalize!(
         "phase5-report",
