@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "json"
-require "net/http"
 require "uri"
+require_relative "http"
 require_relative "engine/manager"
 
 module Alpha
@@ -131,13 +131,13 @@ module Alpha
 
     private
       def http_get(uri)
-        Net::HTTP.start(uri.host, uri.port, open_timeout: 3, read_timeout: 5) do |http|
+        Alpha::Http.start(uri, open_timeout: 3, read_timeout: 5) do |http|
           http.request(Net::HTTP::Get.new(uri))
         end
       end
 
       def http_post(uri)
-        Net::HTTP.start(uri.host, uri.port, open_timeout: 3, read_timeout: 5) do |http|
+        Alpha::Http.start(uri, open_timeout: 3, read_timeout: 5) do |http|
           http.request(Net::HTTP::Post.new(uri))
         end
       end

@@ -1,8 +1,12 @@
 name: empty-card
 kind: graded
 expected_seed: 0
-anchor: '\|\| \[\]'
+anchor: "\\|\\| \\[\\]"
 restore:
-  - test
-  - bin
-  - config/environments/test.rb
+- test
+- bin
+- config/environments/test.rb
+skill: rails_model_edge
+rung: L2
+scaffold: symptom
+wall_seconds: 300

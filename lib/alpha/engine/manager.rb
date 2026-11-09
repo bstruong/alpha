@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "json"
-require "net/http"
 require "uri"
+require_relative "../http"
 
 module Alpha
   module Engine
@@ -32,13 +32,13 @@ module Alpha
 
       def healthy?(expected_preset: nil)
         uri = URI.parse("#{server_root_url}/health")
-        res = Net::HTTP.start(uri.host, uri.port, open_timeout: 2, read_timeout: 3) do |http|
+        res = Alpha::Http.start(uri, open_timeout: 2, read_timeout: 3) do |http|
           http.request(Net::HTTP::Get.new(uri))
         end
         return false unless res.is_a?(Net::HTTPSuccess)
 
         models_uri = URI.parse("#{base_url}/models")
-        res2 = Net::HTTP.start(models_uri.host, models_uri.port, open_timeout: 2, read_timeout: 3) do |http|
+        res2 = Alpha::Http.start(models_uri, open_timeout: 2, read_timeout: 3) do |http|
           http.request(Net::HTTP::Get.new(models_uri))
         end
         return false unless res2.is_a?(Net::HTTPSuccess)

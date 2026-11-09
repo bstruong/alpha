@@ -1,0 +1,23 @@
+name: triage-fill-template
+kind: graded
+expected_seed: 0
+executor: openai_chat_completions
+grader: json_schema
+thinking_level: none
+json_mode: true
+skill: triage_priority
+rung: L0
+scaffold: recipe
+required_json_keys:
+- account
+- category
+- urgency
+- action_required
+- summary
+- tags
+expected_json_values:
+  urgency: P1
+  action_required: true
+required_json_markers:
+- lab-node
+- nvme|disk|gpu|k3s

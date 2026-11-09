@@ -2,13 +2,24 @@ id: scoped-coding
 base_app: ../qwen36-daily/library
 role: scoped_coder
 default_model: qwen36-coder-hybrid
-tasks:
-  - audit-role-escalation
-  - audit-book-destroy
-  - audit-sql-like-escape
 budget:
   wall_seconds: 360
   max_tool_calls: 20
 qualification:
   gate_pass_at_1: 1.0
   graded_pass_at_1: 0.80
+profiles:
+  shipping:
+    bullet_cap: true
+    include_invariant: true
+    max_rung: L1
+  measurement:
+    bullet_cap: false
+    include_invariant: false
+    max_rung: L4
+tasks:
+  - recipe-sql-like-escape
+  - audit-role-escalation
+  - audit-book-destroy
+  - audit-sql-like-escape
+  - symptom-sql-like-escape

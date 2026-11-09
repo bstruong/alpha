@@ -5,13 +5,24 @@ executor: openai_chat_completions
 grader: json_schema
 default_model: qwen36-coder-hybrid
 tasks:
+  - triage-fill-template
   - triage-classify-priority
   - audit-security-phishing
   - thread-action-extraction
   - isolation-cross-account-leakage
+  - triage-ambiguous-thread
 budget:
   wall_seconds: 45
   max_tool_calls: 0
 qualification:
   gate_pass_at_1: 1.0
   graded_pass_at_1: 0.75
+profiles:
+  shipping:
+    bullet_cap: true
+    include_invariant: true
+    max_rung: L2
+  measurement:
+    bullet_cap: false
+    include_invariant: false
+    max_rung: L4

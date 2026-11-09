@@ -3,6 +3,10 @@ kind: graded
 expected_seed: 0
 anchor: sanitize_sql_like
 restore:
-  - test
-  - bin
-  - config/environments/test.rb
+- test
+- bin
+- config/environments/test.rb
+skill: rails_security
+rung: L3
+scaffold: pm_ticket
+wall_seconds: 600

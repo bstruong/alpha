@@ -1,0 +1,11 @@
+name: scrub-named-spans
+kind: graded
+expected_seed: 0
+executor: openai_chat_completions
+grader: pattern_deny
+skill: pii_scrub
+rung: L0
+scaffold: recipe
+required_markers:
+- "[SSN_REDACTED]"
+- "[EMAIL_REDACTED]"

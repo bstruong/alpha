@@ -3,8 +3,12 @@ kind: gate
 expected_seed: 0
 anchor:
 restore:
-  - test
-  - bin
-  - config/environments/test.rb
+- test
+- bin
+- config/environments/test.rb
 stable_except:
-  - app/models/book.rb
+- app/models/book.rb
+skill: rails_model_fix
+rung: L1
+scaffold: named_file
+wall_seconds: 180

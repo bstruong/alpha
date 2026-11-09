@@ -2,7 +2,11 @@ name: audit-book-destroy
 kind: graded
 expected_seed: 0
 restore:
-  - test
-  - bin
+- test
+- bin
 stable_except:
-  - app/controllers/books_controller.rb
+- app/controllers/books_controller.rb
+skill: rails_security
+rung: L1
+scaffold: named_file
+wall_seconds: 240
