@@ -1,8 +1,12 @@
 name: erase-account
 kind: graded
 expected_seed: 0
-anchor: 'find_each\(&:destroy\)'
+anchor: find_each\(&:destroy\)
 restore:
-  - test
-  - bin
-  - config/environments/test.rb
+- test
+- bin
+- config/environments/test.rb
+skill: rails_data_lifecycle
+rung: L2
+scaffold: symptom
+wall_seconds: 420

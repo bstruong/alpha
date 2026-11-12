@@ -2,8 +2,8 @@
 
 require "fileutils"
 require "json"
-require "net/http"
 require "uri"
+require_relative "../http"
 
 module Alpha
   module Executor
@@ -68,7 +68,7 @@ module Alpha
         exit_reason = "completed"
 
         begin
-          res = Net::HTTP.start(uri.host, uri.port, open_timeout: 5, read_timeout: timeout_s) do |http|
+          res = Alpha::Http.start(uri, open_timeout: 5, read_timeout: timeout_s) do |http|
             http.request(req)
           end
 

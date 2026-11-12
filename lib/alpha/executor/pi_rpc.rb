@@ -156,51 +156,46 @@ module Alpha
             "PI_BIN" => Alpha.config.pi_bin
           )
 
-          profile_name = profile.respond_to?(:name) ? profile.name : profile.to_s
-          # Always use the gem/lib monitor — harness/bin is a thin load wrapper.
+          # Shipping and measurement both use Pi; profiles differ via task filter /
+          # prompt scaffolding, not via a separate agent binary (miniswen removed).
           monitor_script = File.expand_path("pi_monitor.rb", __dir__)
 
-          if profile_name == "shipping"
-            system_prompt = if File.file?(File.join(runtime_harness_dir, "SYSTEM.md"))
-              File.join(runtime_harness_dir, "SYSTEM.md")
-            elsif File.file?(File.join(harness_dir, "SYSTEM.md"))
-              File.join(harness_dir, "SYSTEM.md")
-            elsif File.file?(File.expand_path("~/.pi/agent/SYSTEM.md"))
-              File.expand_path("~/.pi/agent/SYSTEM.md")
-            else
-              File.join(harness_dir, "SYSTEM.md")
-            end
-            model_supports_reasoning = !inference_target.model_id.to_s.match?(/14b/i)
-            thinking_level = if model_supports_reasoning
-              (task.respond_to?(:thinking) && task.thinking) ? task.thinking : "low"
-            else
-              "off"
-            end
-            monitor_args = [
-              "--log-file", log_path,
-              "--telemetry-file", telemetry_path
-            ]
-            monitor_args.concat(["--max-tool-calls", max_tool_calls.to_s]) if max_tool_calls
-
-            cmd = [
-              RbConfig.ruby, monitor_script,
-              *monitor_args,
-              "--",
-              "--mode", "json",
-              "-p",
-              "--provider", "openai-compatible",
-              "--model", inference_target.model_id,
-              "--thinking", thinking_level,
-              "--no-context-files",
-              "--approve",
-              "--no-session",
-              "--append-system-prompt", system_prompt,
-              prompt_text
-            ]
+          system_prompt = if File.file?(File.join(runtime_harness_dir, "SYSTEM.md"))
+            File.join(runtime_harness_dir, "SYSTEM.md")
+          elsif File.file?(File.join(harness_dir, "SYSTEM.md"))
+            File.join(harness_dir, "SYSTEM.md")
+          elsif File.file?(File.expand_path("~/.pi/agent/SYSTEM.md"))
+            File.expand_path("~/.pi/agent/SYSTEM.md")
           else
-            env["BENCH_MODEL"] = inference_target.model_id
-            cmd = [ "miniswen", "-p", prompt_text ]
+            File.join(harness_dir, "SYSTEM.md")
           end
+          model_supports_reasoning = !inference_target.model_id.to_s.match?(/14b/i)
+          thinking_level = if model_supports_reasoning
+            (task.respond_to?(:thinking) && task.thinking) ? task.thinking : "low"
+          else
+            "off"
+          end
+          monitor_args = [
+            "--log-file", log_path,
+            "--telemetry-file", telemetry_path
+          ]
+          monitor_args.concat(["--max-tool-calls", max_tool_calls.to_s]) if max_tool_calls
+
+          cmd = [
+            RbConfig.ruby, monitor_script,
+            *monitor_args,
+            "--",
+            "--mode", "json",
+            "-p",
+            "--provider", "openai-compatible",
+            "--model", inference_target.model_id,
+            "--thinking", thinking_level,
+            "--no-context-files",
+            "--approve",
+            "--no-session",
+            "--append-system-prompt", system_prompt,
+            prompt_text
+          ]
 
           [ cmd, env ]
         end

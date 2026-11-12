@@ -32,8 +32,8 @@ def parse_run_options(argv)
     dry_run: false,
     no_gate_halt: false,
     auto_lifecycle: false,
-    max_turns: 1,
-    thinking: "low"
+    thinking: "low",
+    executor: nil
   }
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: bin/alpha run [options]"
@@ -41,13 +41,12 @@ def parse_run_options(argv)
     opts.on("-m", "--model ID", "Model ID / alias") { |v| options[:model] = v }
     opts.on("-p", "--preset NAME", "Engine preset name in engine/models.ini") { |v| options[:preset] = v }
     opts.on("--profile NAME", "Prompt/execution profile: shipping or measurement (default: shipping)") { |v| options[:profile] = v }
-    opts.on("-t", "--task NAME", "Run only a specific task") { |v| options[:task] = v }
+    opts.on("-t", "--task NAME", "Run only a specific task (marks suite_complete=false; not qualification-eligible)") { |v| options[:task] = v }
+    opts.on("--executor NAME", "Force executor (pi, openai_chat_completions, nop)") { |v| options[:executor] = v }
     opts.on("--trials N", Integer, "Number of trials per task (default: 1)") { |v| options[:trials] = v }
-    opts.on("--max-turns N", Integer, "Maximum interaction turns per task (default: 1)") { |v| options[:max_turns] = v }
-    opts.on("--repair", "Enable multi-turn test-driven repair (alias for --max-turns 2)") { options[:max_turns] = 2 }
     opts.on("--thinking LEVEL", "Model thinking budget: off, minimal, low, medium, high, xhigh, max (default: low)") { |v| options[:thinking] = v }
     opts.on("--keep-sandbox", "Do not remove the temporary sandbox directory") { options[:keep_sandbox] = true }
-    opts.on("--dry-run", "Verify prompt and sandbox preparation without executing model") { options[:dry_run] = true }
+    opts.on("--dry-run", "Planning only: verify prompts; no scored trials; not qualification-eligible") { options[:dry_run] = true }
     opts.on("--no-gate-halt", "Continue running subsequent tasks even if a gate fails") { options[:no_gate_halt] = true }
     opts.on("--wake", "--auto-lifecycle", "Wake inference engine on demand and sleep after run") { options[:auto_lifecycle] = true }
   end
@@ -56,11 +55,12 @@ def parse_run_options(argv)
 end
 
 def parse_qualify_options(argv)
-  options = { run_id: nil, promote: false, role: nil, list: false, manifest: false, export_dir: nil }
+  options = { run_id: nil, promote: false, role: nil, list: false, manifest: false, export_dir: nil, measurement_run_id: nil }
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: bin/alpha qualify [options]"
     opts.on("-r", "--run ID", "Alpha run ID to qualify") { |v| options[:run_id] = v }
-    opts.on("--role ROLE", "Qualification role: coder, scoped_coder, sanitizer, extractor, triager") { |v| options[:role] = v }
+    opts.on("--role ROLE", "Qualification role (coder, scoped_coder, sanitizer, extractor, triager, crm_ops, vault_*, ledger_coder)") { |v| options[:role] = v }
+    opts.on("--measurement-run ID", "Paired measurement run id for ceiling_rung") { |v| options[:measurement_run_id] = v }
     opts.on("--promote", "Save qualification artifact") { options[:promote] = true }
     opts.on("-l", "--list", "List all current qualified models") { options[:list] = true }
     opts.on("-m", "--manifest", "Generate qualifications/manifest.json") { options[:manifest] = true }
@@ -75,40 +75,65 @@ command = ARGV.shift
 case command
 when "oracle"
   options = parse_oracle_options(ARGV)
-  scenario = Alpha::Scenario.load(options[:scenario], only_task: options[:task])
+  # measurement profile includes the full ladder (ceiling rungs) for integrity checks
+  scenario = Alpha::Scenario.load(options[:scenario], profile: "measurement", only_task: options[:task])
   runner = Alpha::Runner.new(scenario: scenario)
   success = runner.oracle(only_task: options[:task], keep_sandbox: options[:keep_sandbox])
   exit(success ? 0 : 1)
 
 when "run"
   options = parse_run_options(ARGV)
+  suite_complete = options[:task].nil?
   scenario = Alpha::Scenario.load(options[:scenario], profile: options[:profile], only_task: options[:task])
-  target_model = options[:model] || scenario.default_model
-  target_preset = options[:preset] || target_model
+  begin
+    forced_executor = options[:executor] ? Alpha::Executor.resolve(options[:executor]) : nil
+  rescue ArgumentError => e
+    warn "Error: #{e.message}"
+    exit 1
+  end
+  nop_run = forced_executor.is_a?(Alpha::Executor::Nop)
 
-  inference_target = Alpha::InferenceTarget.from_engine(target_preset)
+  inference_target = nil
+  unless nop_run || options[:dry_run]
+    target_model = options[:model] || scenario.default_model
+    target_preset = options[:preset] || target_model
+    inference_target = Alpha::InferenceTarget.from_engine(target_preset)
+  end
 
-  if options[:auto_lifecycle]
-    puts "Waking engine on demand for preset #{target_preset} ..."
-    inference_target.wake!(wait: true, timeout: 60)
+  if options[:auto_lifecycle] && inference_target
+    puts "Waking engine on demand for preset #{inference_target.engine_preset} ..."
+    begin
+      inference_target.wake!(wait: true, timeout: 60)
+    rescue StandardError => e
+      warn e.message
+      exit 1
+    end
   end
 
   begin
-    runner = Alpha::Runner.new(scenario: scenario, inference_target: inference_target)
+    runner = Alpha::Runner.new(
+      scenario: scenario,
+      inference_target: inference_target,
+      executor: forced_executor,
+      suite_complete: suite_complete
+    )
 
     result = runner.call(
       trials: options[:trials],
       keep_sandbox: options[:keep_sandbox],
       dry_run: options[:dry_run],
       no_gate_halt: options[:no_gate_halt],
-      max_turns: options[:max_turns],
       thinking: options[:thinking]
     )
     exit(result[:ok] ? 0 : 1)
   ensure
-    if options[:auto_lifecycle]
+    if options[:auto_lifecycle] && inference_target
       puts "Putting engine to sleep (scale-to-zero) ..."
-      inference_target.sleep!
+      begin
+        inference_target.sleep!
+      rescue StandardError => e
+        warn e.message
+      end
     end
   end
 
@@ -173,8 +198,18 @@ when "qualify"
   abort "Error: summary.json not found for run #{options[:run_id]}" unless File.file?(summary_file)
 
   summary = JSON.parse(File.read(summary_file))
+  if summary["dry_run"] == true
+    warn "Error: dry-run summaries are not qualification-eligible"
+    exit 1
+  end
+  if summary["suite_complete"] == false
+    warn "Error: partial suites (--task / suite_complete=false) are rejected during qualification"
+    exit 1
+  end
+
+  profile_name = summary["prompt_preset"] || "shipping"
   scenario = begin
-    Alpha::Scenario.load(summary["scenario"])
+    Alpha::Scenario.load(summary["scenario"], profile: profile_name)
   rescue ArgumentError
     nil
   end
@@ -183,8 +218,18 @@ when "qualify"
   report_md = File.join(Alpha.config.reports_dir, "#{options[:run_id]}.md")
   report_uri = File.file?(report_md) ? "reports/#{options[:run_id]}.md" : "results/runs/#{options[:run_id]}/summary.json"
 
+  agg = summary["aggregate"] || {}
+  ceiling_rung = agg["ceiling_rung"] || agg["highest_rung_passed"]
+  if options[:measurement_run_id]
+    meas_path = File.join(Alpha.config.results_dir, "runs", options[:measurement_run_id], "summary.json")
+    if File.file?(meas_path)
+      meas = JSON.parse(File.read(meas_path))
+      ceiling_rung = meas.dig("aggregate", "highest_rung_passed") || ceiling_rung
+    end
+  end
+
   qual_data = {
-    "schema" => "alpha.qualification.v1",
+    "schema" => Alpha.config.qualification_schema,
     "model_id" => summary["model_id"],
     "engine_preset" => summary.dig("inference", "preset") || summary["model_id"],
     "prompt_preset" => summary["prompt_preset"],
@@ -194,12 +239,43 @@ when "qualify"
     "pass_at_1" => verdict.graded_pass_at_1,
     "gate_pass_at_1" => verdict.gate_pass_at_1,
     "graded_pass_at_1" => verdict.graded_pass_at_1,
+    "max_rung" => verdict.max_rung,
+    "ceiling_rung" => ceiling_rung,
+    "credit_mean" => verdict.credit_mean,
+    "failure_class_histogram" => verdict.failure_class_histogram,
+    "ship_skills" => verdict.ship_skills,
     "qualified" => verdict.qualified,
+    "execution_health" => verdict.execution_health,
+    "gate_status" => verdict.gate_status,
+    "benchmark_verdict" => verdict.benchmark_verdict,
+    "statistical_sufficiency" => verdict.statistical_sufficiency,
+    "qualification_eligible" => verdict.qualification_eligible,
+    "routing_authority" => verdict.routing_authority,
     "report_uri" => report_uri,
     "qualified_at" => Time.now.utc.iso8601,
     "expires_at" => (Time.now.utc + (30 * 86_400)).iso8601,
-    "node_class" => "lab-gpu-32g"
+    "node_class" => Alpha.config.node_class
   }
+  qual_data["measurement_run_id"] = options[:measurement_run_id] if options[:measurement_run_id]
+  if agg["latency_budgeted_tasks"].to_i.positive?
+    qual_data["latency"] = {
+      "wall_ms_total" => agg["wall_ms_total"],
+      "budgeted_tasks" => agg["latency_budgeted_tasks"],
+      "within_budget" => agg["latency_within_budget"],
+      "workflow_fit" => agg["workflow_fit"]
+    }
+    qual_data["tasks_latency"] = Array(summary["tasks"]).map do |t|
+      next unless t["latency_budget_ms"]
+
+      {
+        "name" => t["name"],
+        "wall_ms" => t["wall_ms"],
+        "latency_budget_ms" => t["latency_budget_ms"],
+        "workflow_tier" => t["workflow_tier"],
+        "within_budget" => t["within_budget"]
+      }
+    end.compact
+  end
   qual_data["reason"] = verdict.reason unless verdict.qualified
 
   qual_dir = Alpha.config.qualifications_dir
@@ -211,15 +287,38 @@ when "qualify"
   end
 
   if verdict.qualified
-    puts "✅ QUALIFIED: #{qual_data["model_id"]} (#{qual_data["prompt_preset"]}) " \
-         "gate Pass@1 #{verdict.gate_pass_at_1} / graded Pass@1 #{verdict.graded_pass_at_1}"
+    puts "✅ Meets delegation policy evidence: #{qual_data["model_id"]} (#{qual_data["prompt_preset"]}) " \
+         "gate First-attempt #{verdict.gate_pass_at_1} / graded First-attempt #{verdict.graded_pass_at_1} " \
+         "max_rung=#{verdict.max_rung || "—"} (routing_authority=#{verdict.routing_authority})"
     puts "Artifact written to: #{qual_path}"
     exit 0
   else
-    puts "❌ NOT QUALIFIED: #{verdict.reason}"
+    puts "❌ Does not meet delegation policy: #{verdict.reason}"
     puts "Artifact written to: #{qual_path}" if options[:promote]
     exit 1
   end
+
+when "capability-map"
+  run_ids = []
+  out_path = nil
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: bin/alpha capability-map --runs ID[,ID...] [--out PATH]"
+    opts.on("--runs LIST", "Comma-separated run ids") { |v| run_ids = v.split(",").map(&:strip) }
+    opts.on("--out PATH", "Write markdown to PATH") { |v| out_path = v }
+  end
+  parser.parse!(ARGV)
+  abort "Error: --runs is required" if run_ids.empty?
+
+  rows = Alpha::CapabilityMap.build(run_ids)
+  md = Alpha::CapabilityMap.render_markdown(rows)
+  if out_path
+    FileUtils.mkdir_p(File.dirname(out_path))
+    File.write(out_path, md)
+    puts "✓ Wrote capability map to #{out_path}"
+  else
+    puts md
+  end
+  exit 0
 
 
 when "fixture"
@@ -255,11 +354,33 @@ when "doctor"
   end
 
   pi_bin = Alpha.config.pi_bin
+  doctor_ok = true
   if pi_bin && !pi_bin.empty? && File.executable?(pi_bin)
     puts "Pi Agent binary: ✓ OK (#{pi_bin})"
   else
-    puts "Pi Agent binary: ⚠ Not found (install pi or configure Alpha.config.pi_bin)"
+    puts "Pi Agent binary: ✗ Missing (required for shipping and measurement coding runs)"
+    doctor_ok = false
   end
+
+  chrome_candidates = [
+    ENV["ALPHA_CHROME_PATH"],
+    ENV["BROWSER_PATH"],
+    ENV["CHROME_PATH"],
+    File.expand_path("~/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome"),
+    File.expand_path("~/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell"),
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser"
+  ].compact
+  chrome = chrome_candidates.find { |p| File.executable?(p) }
+  if chrome
+    puts "Chrome (web product graders): ✓ OK (#{chrome})"
+  else
+    puts "Chrome (web product graders): ⚠ Not found (set ALPHA_CHROME_PATH for ruby/frontend/hotwire Ferrum checks)"
+  end
+
+  exit(doctor_ok ? 0 : 1)
 
 when "version", "-v", "--version"
   puts "alpha v#{Alpha::VERSION} (Ruby #{RUBY_VERSION})"
@@ -269,14 +390,16 @@ when nil, "help", "-h", "--help"
     Alpha — headless evaluation harness
 
     Commands:
-      oracle    Zero-model task & grader verification (e.g. bin/alpha oracle --task gate-hello)
-      run       Run an evaluation scenario against an inference target
-      qualify   Promote an evaluation run to an alpha.qualification.v1 artifact
-      fixture   Ingest failure exports (e.g. bin/alpha fixture import <export.json>)
-      engine    Manage inference server lifecycle (status, up, down) on the inference host
-      doctor    Check environment, inference target health, and agent binaries
-      version   Print Alpha and Ruby versions
+      oracle          Zero-model task & grader verification (e.g. bin/alpha oracle --task gate-hello)
+      run             Run an evaluation scenario (--executor nop for integrity; --profile shipping|measurement)
+      qualify         Promote a run to an alpha.qualification.v2 artifact
+      capability-map  Summarize one or more runs as a role × rung capability table
+      fixture         Ingest failure exports (e.g. bin/alpha fixture import <export.json>)
+      engine          Manage inference server lifecycle (status, up, down) on the inference host
+      doctor          Check environment, inference target health, and agent binaries
+      version         Print Alpha and Ruby versions
 
+    Integrity: bin/alpha oracle -s SCENARIO && bin/alpha run -s SCENARIO --executor nop --no-gate-halt
     Runtime host: local or remote OpenAI-compatible inference (OPENAI_BASE_URL)
   HELP
 else

@@ -12,8 +12,11 @@ module Alpha
                 :expected_json_values, :required_json_markers, :denied_json_patterns, :nested_json_keys,
                 :denied_constants, :denied_keywords, :denied_defs, :required_calls,
                 :verify_test_fails_on_seed,
-                :executor_type, :grader_type, :system_prompt, :max_tool_calls
-    attr_accessor :thinking, :repair_feedback
+                :executor_type, :grader_type, :system_prompt, :max_tool_calls,
+                :latency_budget_ms, :workflow_tier,
+                :skill, :rung, :scaffold, :role, :wall_seconds,
+                :optional_json_markers, :optional_checks, :money_keys, :recon
+    attr_accessor :thinking
 
     def self.load(dir)
       path = File.join(dir, "task.yml")
@@ -24,6 +27,7 @@ module Alpha
       raise ArgumentError, "Missing instruction.md in #{dir}" unless File.file?(instruction_file)
 
       anchor_val = data["anchor"].to_s
+      rung_val = data["rung"] ? Alpha::Rung.normalize(data["rung"]) : nil
       new(
         name: data.fetch("name"),
         kind: data.fetch("kind"),
@@ -50,18 +54,31 @@ module Alpha
         grader_type: data["grader"],
         system_prompt: data["system_prompt"],
         json_mode: data["json_mode"] == true,
-        max_tool_calls: data["max_tool_calls"] ? data["max_tool_calls"].to_i : nil
+        max_tool_calls: data["max_tool_calls"] ? data["max_tool_calls"].to_i : nil,
+        latency_budget_ms: data["latency_budget_ms"] ? data["latency_budget_ms"].to_i : nil,
+        workflow_tier: data["workflow_tier"],
+        skill: data["skill"]&.to_s,
+        rung: rung_val,
+        scaffold: data["scaffold"]&.to_s,
+        role: data["role"]&.to_s,
+        wall_seconds: data["wall_seconds"] ? data["wall_seconds"].to_i : nil,
+        optional_json_markers: Array(data["optional_json_markers"]),
+        optional_checks: Array(data["optional_checks"]),
+        money_keys: Array(data["money_keys"]),
+        recon: data["recon"]
       )
     end
 
     def initialize(name:, kind:, dir:, expected_seed: 0, anchor: nil,
-                   restore: [], restore_except: [], stable_except: [], thinking: nil, repair_feedback: nil,
+                   restore: [], restore_except: [], stable_except: [], thinking: nil,
                    denied_patterns: {}, required_markers: [], required_json_keys: [],
                    expected_json_values: {}, required_json_markers: [], denied_json_patterns: {}, nested_json_keys: {},
                    denied_constants: [], denied_keywords: [], denied_defs: [], required_calls: [],
                    verify_test_fails_on_seed: false,
                    executor_type: nil, grader_type: nil, system_prompt: nil, json_mode: false,
-                   max_tool_calls: nil)
+                   max_tool_calls: nil, latency_budget_ms: nil, workflow_tier: nil,
+                   skill: nil, rung: nil, scaffold: nil, role: nil, wall_seconds: nil,
+                   optional_json_markers: [], optional_checks: [], money_keys: [], recon: nil)
       @name = name
       @kind = kind
       @dir = dir
@@ -71,7 +88,6 @@ module Alpha
       @restore_except = restore_except
       @stable_except = stable_except
       @thinking = thinking
-      @repair_feedback = repair_feedback
       @denied_patterns = denied_patterns
       @required_markers = required_markers
       @required_json_keys = required_json_keys
@@ -89,6 +105,17 @@ module Alpha
       @system_prompt = system_prompt
       @json_mode = json_mode
       @max_tool_calls = max_tool_calls
+      @latency_budget_ms = latency_budget_ms
+      @workflow_tier = workflow_tier&.to_s
+      @skill = skill
+      @rung = rung
+      @scaffold = scaffold
+      @role = role
+      @wall_seconds = wall_seconds
+      @optional_json_markers = optional_json_markers
+      @optional_checks = optional_checks
+      @money_keys = money_keys
+      @recon = recon
     end
 
     def verify_test_fails_on_seed?
@@ -97,12 +124,6 @@ module Alpha
 
     def json_mode?
       @json_mode == true
-    end
-
-    def with_repair_feedback(feedback)
-      copy = dup
-      copy.repair_feedback = feedback
-      copy
     end
 
     def with_thinking(level)
@@ -150,15 +171,6 @@ module Alpha
           The Rails application in the current directory is the code to change.
           Leave bin/rails test green.
         NOTE
-      end
-
-      if repair_feedback && !repair_feedback.strip.empty?
-        parts << <<~REPAIR.strip
-          ### Test Failure from Previous Attempt
-          #{repair_feedback.strip}
-
-          Please inspect the errors above, fix the issues in the application code, and make sure all tests pass.
-        REPAIR
       end
 
       parts.join("\n\n")

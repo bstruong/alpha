@@ -9,7 +9,12 @@ class QualificationManifestTest < AlphaTest
   def shipping_fixture(model_id:, role:, pass_at_1: 1.0)
     now = Time.now.utc
     {
-      "schema" => "alpha.qualification.v1",
+      "schema" => "alpha.qualification.v2",
+      "max_rung" => "L1",
+      "ceiling_rung" => "L2",
+      "credit_mean" => pass_at_1,
+      "ship_skills" => [],
+      "failure_class_histogram" => { "none" => 1 },
       "model_id" => model_id,
       "engine_preset" => model_id,
       "prompt_preset" => "default",
@@ -59,11 +64,12 @@ class QualificationManifestTest < AlphaTest
       assert_includes roles, "extractor"
 
       manifest = Alpha::QualificationManifest.generate(tmpdir)
-      assert_equal "alpha.qualification_manifest.v1", manifest["schema"]
+      assert_equal "alpha.qualification_manifest.v2", manifest["schema"]
       assert_equal "qwen36-coder-hybrid", manifest["roles"]["coder"]["primary_model"]
-      assert_equal "gemma4-4b", manifest["roles"]["triager"]["primary_model"]
-      assert_equal "qwen25-coder-14b", manifest["roles"]["sanitizer"]["primary_model"]
-      assert_equal "qwen25-coder-14b", manifest["roles"]["extractor"]["primary_model"]
+      assert_equal "qwen36-coder-hybrid", manifest["roles"]["triager"]["primary_model"]
+      assert_equal "gemma4-4b", manifest["roles"]["sanitizer"]["primary_model"]
+      assert_equal "qwen36-coder-hybrid", manifest["roles"]["extractor"]["primary_model"]
+      assert_equal "L1", manifest["roles"]["coder"]["qualified_models"].first["max_rung"]
     end
   end
 
@@ -78,8 +84,18 @@ class QualificationManifestTest < AlphaTest
         manifest_file = File.join(tmpdir, "manifest.json")
         assert File.file?(manifest_file)
         manifest = JSON.parse(File.read(manifest_file))
-        assert_equal "alpha.qualification_manifest.v1", manifest["schema"]
+        assert_equal "alpha.qualification_manifest.v2", manifest["schema"]
       end
+    end
+  end
+
+  test "ignores legacy v1 qualification artifacts" do
+    Dir.mktmpdir("alpha_qual_v1") do |tmpdir|
+      File.write(
+        File.join(tmpdir, "legacy__coder__shipping.json"),
+        JSON.pretty_generate(shipping_fixture(model_id: "legacy", role: "coder").merge("schema" => "alpha.qualification.v1")) + "\n"
+      )
+      assert_empty Alpha::QualificationManifest.load_all(tmpdir)
     end
   end
 

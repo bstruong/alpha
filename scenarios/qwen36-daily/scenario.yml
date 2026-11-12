@@ -1,6 +1,7 @@
 id: qwen36-daily
 description: "Daily Ruby on Rails coding gate and graded suite"
 base_app: library
+role: coder
 default_profile: shipping
 default_model: qwen36-coder-hybrid
 seed: 12345
@@ -14,9 +15,11 @@ profiles:
   shipping:
     bullet_cap: true
     include_invariant: true
+    max_rung: L2
   measurement:
     bullet_cap: false
     include_invariant: false
+    max_rung: L4
 tasks:
   - gate-hello
   - gate-boot
@@ -24,6 +27,6 @@ tasks:
   - empty-card
   - spec-wins
   - library-cache
-  - audit-three
   - once-only
   - erase-account
+  - audit-three

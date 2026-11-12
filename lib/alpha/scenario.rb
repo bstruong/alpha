@@ -10,14 +10,25 @@ module Alpha
       empty-card spec-wins library-cache audit-three once-only erase-account
     ].freeze
 
-    Profile = Data.define(:name, :bullet_cap, :include_invariant) do
+    Profile = Data.define(:name, :bullet_cap, :include_invariant, :max_rung) do
       def self.fetch(name, config = {})
         profile_cfg = config[name.to_s] || {}
+        max_rung = profile_cfg.key?("max_rung") ? Alpha::Rung.normalize(profile_cfg["max_rung"]) : nil
         case name.to_s
         when "shipping"
-          new("shipping", profile_cfg.fetch("bullet_cap", true), profile_cfg.fetch("include_invariant", true))
+          new(
+            "shipping",
+            profile_cfg.fetch("bullet_cap", true),
+            profile_cfg.fetch("include_invariant", true),
+            max_rung || Alpha::Rung.normalize(profile_cfg.fetch("max_rung", "L2"))
+          )
         when "measurement"
-          new("measurement", profile_cfg.fetch("bullet_cap", false), profile_cfg.fetch("include_invariant", false))
+          new(
+            "measurement",
+            profile_cfg.fetch("bullet_cap", false),
+            profile_cfg.fetch("include_invariant", false),
+            max_rung || Alpha::Rung.normalize(profile_cfg.fetch("max_rung", "L4"))
+          )
         else
           raise ArgumentError, "Unknown profile #{name.inspect} (expected shipping or measurement)"
         end
@@ -57,6 +68,12 @@ module Alpha
       end
 
       profile_obj = Profile.fetch(profile, manifest.fetch("profiles", {}))
+      unless only_task
+        loaded_tasks.select! do |t|
+          t.rung.nil? || Alpha::Rung.<=(t.rung, profile_obj.max_rung)
+        end
+      end
+
       base_app = manifest.fetch("base_app", "library")
       base_app_dir = File.expand_path(base_app, scenario_dir)
       budget = {
@@ -65,7 +82,9 @@ module Alpha
       }
       qualification = {
         gate_pass_at_1: manifest.dig("qualification", "gate_pass_at_1") || 1.0,
-        graded_pass_at_1: manifest.dig("qualification", "graded_pass_at_1") || 0.70
+        graded_pass_at_1: manifest.dig("qualification", "graded_pass_at_1") || 0.70,
+        min_rung: manifest.dig("qualification", "min_rung"),
+        skill_pass_at_1: manifest.dig("qualification", "skill_pass_at_1")
       }
 
       new(

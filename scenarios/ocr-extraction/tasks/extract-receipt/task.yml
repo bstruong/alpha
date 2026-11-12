@@ -5,7 +5,10 @@ executor: openai_chat_completions
 grader: json_schema
 json_mode: true
 required_json_keys:
-  - merchant
-  - total
-  - date
-  - items
+- merchant
+- total
+- date
+- items
+skill: ocr_extract
+rung: L1
+scaffold: recipe

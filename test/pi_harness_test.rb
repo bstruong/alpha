@@ -17,6 +17,40 @@ class PiHarnessTest < AlphaTest
     assert_match(/--max-tool-calls/, File.read(canonical))
   end
 
+  test "PiRpc build_command uses Pi for measurement (never miniswen)" do
+    executor = Alpha::Executor::PiRpc.new
+    target = Alpha::InferenceTarget.new(
+      base_url: "http://127.0.0.1:8080/v1",
+      model_id: "glm47-reap",
+      engine_preset: "glm47-reap"
+    )
+    task = Object.new
+    task.define_singleton_method(:prompt) { |_profile| "fix the bug" }
+    task.define_singleton_method(:thinking) { "low" }
+
+    sandbox = Object.new
+    sandbox.define_singleton_method(:child_env) { {} }
+
+    overlay = executor.send(:materialize_harness_overlay, target)
+    begin
+      %w[shipping measurement].each do |profile_name|
+        profile = Alpha::Scenario::Profile.fetch(profile_name)
+        cmd, _env = executor.send(
+          :build_command,
+          task, sandbox, target, profile,
+          "/tmp/alpha-pi-test.log", "/tmp/alpha-pi-test-telemetry.json",
+          runtime_harness_dir: overlay
+        )
+        refute_includes cmd, "miniswen", "profile=#{profile_name} must not invoke miniswen"
+        assert_equal RbConfig.ruby, cmd.first
+        assert cmd.any? { |c| c.to_s.end_with?("pi_monitor.rb") },
+               "profile=#{profile_name} must use pi_monitor"
+      end
+    ensure
+      FileUtils.remove_entry(overlay) if overlay && File.directory?(overlay)
+    end
+  end
+
   test "PiRpc overlay rewrites models.json baseUrl from InferenceTarget" do
     executor = Alpha::Executor::PiRpc.new
     target = Alpha::InferenceTarget.new(
@@ -40,7 +74,7 @@ class PiHarnessTest < AlphaTest
     end
   end
 
-  test "Runner skips repair when turn-1 tool budget is exhausted" do
+  test "Runner records single-turn tool budget exhaustion without a repair turn" do
     scenario = Alpha::Scenario.load("scoped-coding")
     scenario.budget[:max_tool_calls] = 20
     runner = Alpha::Runner.new(
@@ -88,13 +122,14 @@ class PiHarnessTest < AlphaTest
           Alpha::Sandbox.stub(:provision, ->(*) { sandbox }) do
             record = runner.send(
               :execute_trial, task, 1, "test-budget-skip-#{Time.now.to_i}",
-              keep_sandbox: true, max_turns: 2, thinking: "low"
+              keep_sandbox: true, thinking: "low"
             )
-            assert_equal 1, call_count, "repair turn must not call the executor again"
-            assert_equal 1, record[:turns]
-            assert_equal false, record[:repaired]
+            assert_equal 1, call_count, "executor must be called exactly once"
             assert_equal false, record[:pass]
+            assert_equal false, record[:pass_at_1]
             assert_equal "tool_budget_exceeded", record[:exit_reason]
+            refute record.key?(:repaired)
+            refute record.key?(:turns)
           end
         end
       end

@@ -1,0 +1,12 @@
+name: recipe-sql-like-escape
+kind: graded
+expected_seed: 0
+restore:
+- test
+- bin
+stable_except:
+- app/models/book_search.rb
+skill: rails_security
+rung: L0
+scaffold: recipe
+wall_seconds: 180

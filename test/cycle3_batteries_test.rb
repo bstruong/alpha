@@ -54,12 +54,12 @@ class Cycle3BatteriesTest < AlphaTest
     FileUtils.rm_rf(temp_dir) if temp_dir
   end
 
-  test "loads scoped-coding scenario with 3 atomic tasks" do
+  test "loads scoped-coding scenario with shipping L0–L1 ladder" do
     scenario = Alpha::Scenario.load("scoped-coding")
     assert_equal "scoped-coding", scenario.id
     assert_equal "scoped_coder", scenario.role
-    assert_equal 3, scenario.tasks.size
-    assert_equal %w[audit-role-escalation audit-book-destroy audit-sql-like-escape], scenario.tasks.map(&:name)
+    assert_equal 4, scenario.tasks.size
+    assert_equal %w[recipe-sql-like-escape audit-role-escalation audit-book-destroy audit-sql-like-escape], scenario.tasks.map(&:name)
   end
 
   test "loads pii-scrubbing scenario with pattern_deny grader" do
@@ -68,8 +68,8 @@ class Cycle3BatteriesTest < AlphaTest
     assert_equal "sanitizer", scenario.role
     assert_equal "openai_chat_completions", scenario.executor_type
     assert_equal "pattern_deny", scenario.grader_type
-    assert_equal 1, scenario.tasks.size
-    assert_equal "scrub-ssn-email", scenario.tasks.first.name
+    assert_equal 2, scenario.tasks.size
+    assert_equal %w[scrub-named-spans scrub-ssn-email], scenario.tasks.map(&:name)
   end
 
   test "loads ocr-extraction scenario with json_schema grader" do
@@ -78,19 +78,20 @@ class Cycle3BatteriesTest < AlphaTest
     assert_equal "extractor", scenario.role
     assert_equal "openai_chat_completions", scenario.executor_type
     assert_equal "json_schema", scenario.grader_type
-    assert_equal 1, scenario.tasks.size
-    assert_equal "extract-receipt", scenario.tasks.first.name
-    assert scenario.tasks.first.json_mode?
+    assert_equal 2, scenario.tasks.size
+    assert_equal %w[extract-receipt-template extract-receipt], scenario.tasks.map(&:name)
+    assert scenario.tasks.last.json_mode?
   end
 
-  test "loads email-triage scenario with 4 multi-account tasks and triager role" do
+  test "loads email-triage scenario with shipping ladder and triager role" do
     scenario = Alpha::Scenario.load("email-triage")
     assert_equal "email-triage", scenario.id
     assert_equal "triager", scenario.role
     assert_equal 45, scenario.budget[:wall_seconds]
     assert_equal 0.75, scenario.qualification[:graded_pass_at_1]
-    assert_equal 4, scenario.tasks.size
+    assert_equal 5, scenario.tasks.size
     assert_equal %w[
+      triage-fill-template
       triage-classify-priority
       audit-security-phishing
       thread-action-extraction

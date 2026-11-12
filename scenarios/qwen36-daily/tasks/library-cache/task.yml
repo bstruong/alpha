@@ -1,8 +1,12 @@
 name: library-cache
 kind: graded
 expected_seed: 0
-anchor: 'library-digest/\#\{id\}'
+anchor: library-digest/\#\{id\}
 restore:
-  - test
-  - bin
-  - config/environments/test.rb
+- test
+- bin
+- config/environments/test.rb
+skill: rails_caching
+rung: L2
+scaffold: symptom
+wall_seconds: 360

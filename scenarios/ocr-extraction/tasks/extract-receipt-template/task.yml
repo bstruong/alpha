@@ -1,0 +1,18 @@
+name: extract-receipt-template
+kind: graded
+expected_seed: 0
+executor: openai_chat_completions
+grader: json_schema
+json_mode: true
+skill: ocr_extract
+rung: L0
+scaffold: recipe
+required_json_keys:
+- merchant
+- total
+- date
+- items
+expected_json_values:
+  merchant: COFFEE ROASTERS INC
+  total: '9.50'
+  date: '2026-10-14'

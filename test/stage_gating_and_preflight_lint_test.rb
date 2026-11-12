@@ -82,47 +82,10 @@ class StageGatingAndPreflightLintTest < AlphaTest
     FileUtils.rm_rf(temp_dir) if temp_dir
   end
 
-  test "Runner extract_failure_summary formats syntax errors, AST deny, and execution errors" do
+  test "self-repair helpers are removed from Runner" do
     runner = Alpha::Runner.new(scenario: Alpha::Scenario.load("qwen36-daily"))
-
-    detail = {
-      syntax_errors: ["app/models/book.rb: syntax error, unexpected end-of-input"],
-      violations: [
-        { file: "app/models/payment.rb", line: 12, reason: "Denied constant Float found" }
-      ],
-      rspec_test: false,
-      rspec_output: "rspec ./spec/models/book_spec.rb:10 # expected true got false",
-      error: "Tool call budget exceeded (25/20)"
-    }
-
-    summary = runner.send(:extract_failure_summary, detail)
-    assert_includes summary, "=== Ruby Syntax Errors ==="
-    assert_includes summary, "app/models/book.rb: syntax error"
-    assert_includes summary, "=== AST / Pattern Deny Violations ==="
-    assert_includes summary, "app/models/payment.rb:12 - Denied constant Float found"
-    assert_includes summary, "=== RSpec output ==="
-    assert_includes summary, "rspec ./spec/models/book_spec.rb:10"
-    assert_includes summary, "=== Execution Error ==="
-    assert_includes summary, "Tool call budget exceeded (25/20)"
-  end
-
-  test "Runner clean_test_output strips internal gem traces to prioritize assertion failure" do
-    runner = Alpha::Runner.new(scenario: Alpha::Scenario.load("qwen36-daily"))
-
-    noisy_output = <<~OUTPUT
-      Failure:
-      BooksControllerTest#test_destroy [test/controllers/books_controller_test.rb:42]:
-      Expected response to be <302>, but was <403>.
-      /home/user/.local/share/mise/installs/ruby/3.2.2/lib/ruby/gems/3.2.0/gems/actionpack-7.2.1/lib/action_dispatch/testing/assertions/response.rb:42:in `assert_response'
-      /home/user/bundle/ruby/3.2.0/gems/railties-7.2.1/lib/rails/test_unit/line_filtering.rb:10:in `run'
-      test/controllers/books_controller_test.rb:42:in `block in <class:BooksControllerTest>'
-    OUTPUT
-
-    cleaned = runner.send(:clean_test_output, noisy_output)
-    assert_includes cleaned, "BooksControllerTest#test_destroy"
-    assert_includes cleaned, "Expected response to be <302>, but was <403>."
-    refute_includes cleaned, "/gems/actionpack-7.2.1/"
-    refute_includes cleaned, "/bundle/ruby/"
+    refute runner.respond_to?(:extract_failure_summary, true)
+    refute runner.respond_to?(:clean_test_output, true)
   end
 
   test "MinitestFile handles command timeout cleanly" do

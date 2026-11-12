@@ -4,5 +4,8 @@ expected_seed: 0
 executor: openai_chat_completions
 grader: pattern_deny
 required_markers:
-  - "[SSN_REDACTED]"
-  - "[EMAIL_REDACTED]"
+- "[SSN_REDACTED]"
+- "[EMAIL_REDACTED]"
+skill: pii_scrub
+rung: L1
+scaffold: recipe

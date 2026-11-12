@@ -13,9 +13,12 @@ module Alpha
       def call(sandbox:, task:, check_stability: false)
         syntax_res = sandbox.respond_to?(:check_ruby_syntax) ? sandbox.check_ruby_syntax : { ok: true, errors: [] }
         if !syntax_res[:ok]
+          checks = [ { name: "syntax", pass: false, required: true, points: 1 } ]
           return Result.new(
             name: "MinitestFile",
             pass: false,
+            credit: 0.0,
+            checks: checks,
             detail: {
               syntax_ok: false,
               syntax_errors: syntax_res[:errors],
@@ -29,17 +32,53 @@ module Alpha
           )
         end
 
+        # Pick up agent-authored migrations/schema before the suite/verifier.
+        if sandbox.respond_to?(:prepare_db!)
+          prepared, prepare_out = sandbox.prepare_db!
+          unless prepared
+            checks = [ { name: "db_prepare", pass: false, required: true, points: 1 } ]
+            return Result.new(
+              name: "MinitestFile",
+              pass: false,
+              credit: 0.0,
+              checks: checks,
+              detail: {
+                syntax_ok: true,
+                syntax_errors: [],
+                rails_test: false,
+                rails_output: prepare_out,
+                verifier_ok: false,
+                verifier_output: nil,
+                checks: {},
+                drifted: []
+              }
+            )
+          end
+        end
+
         rails_res = run_rails_test(sandbox)
         verifier_res = task.verifier_path ? run_verifier(sandbox, task) : nil
         drifted = check_stability && task.stable_except.any? ? sandbox.drifted_files(task.stable_except) : []
         ast_violations = check_ast_constraints(sandbox, task)
         mutation_res = check_seed_mutation(sandbox, task)
 
-        passed = rails_res[:ok] &&
-                 (verifier_res.nil? || verifier_res[:ok]) &&
-                 drifted.empty? &&
-                 ast_violations.empty? &&
-                 (mutation_res.nil? || mutation_res[:ok])
+        checks = [
+          { name: "syntax", pass: true, required: true, points: 1 },
+          { name: "rails_suite", pass: rails_res[:ok], required: true, points: 2 }
+        ]
+        unless verifier_res.nil?
+          checks << { name: "verifier", pass: verifier_res[:ok], required: true, points: 2 }
+        end
+        if task.stable_except.any?
+          checks << { name: "stable_paths", pass: drifted.empty?, required: true, points: 1 }
+        end
+        checks << { name: "ast_constraints", pass: ast_violations.empty?, required: true, points: 1 } if task_has_ast?(task)
+        unless mutation_res.nil?
+          checks << { name: "seed_mutation", pass: mutation_res[:ok], required: true, points: 1 }
+        end
+
+        passed = Money.required_pass?(checks)
+        credit = Money.credit_from_checks(checks)
 
         detail = {
           syntax_ok: true,
@@ -57,7 +96,7 @@ module Alpha
           detail[:mutation_output] = mutation_res[:output]
         end
 
-        Result.new(name: "MinitestFile", pass: passed, detail: detail)
+        Result.new(name: "MinitestFile", pass: passed, credit: credit, checks: checks, detail: detail)
       end
 
       private
@@ -108,14 +147,15 @@ module Alpha
           res
         end
 
-        def check_ast_constraints(sandbox, task)
-          has_task_ast_rules =
-            (task.respond_to?(:denied_constants) && Array(task.denied_constants).any?) ||
+        def task_has_ast?(task)
+          (task.respond_to?(:denied_constants) && Array(task.denied_constants).any?) ||
             (task.respond_to?(:denied_keywords) && Array(task.denied_keywords).any?) ||
             (task.respond_to?(:denied_defs) && Array(task.denied_defs).any?) ||
             (task.respond_to?(:required_calls) && Array(task.required_calls).any?)
+        end
 
-          if has_task_ast_rules
+        def check_ast_constraints(sandbox, task)
+          if task_has_ast?(task)
             AstDeny.new.call(sandbox: sandbox, task: task).detail[:violations]
           else
             AstDeny.detect_vacuous_asserts(sandbox.path)

@@ -5,8 +5,6 @@ require "json"
 module Alpha
   module Grader
     # Deterministic pattern deny grader for privacy, PII scrubbing, and secret redaction.
-    # Asserts that forbidden patterns (SSNs, emails, credit cards, API keys) do NOT appear
-    # in the output, while required redaction markers or expected content DO appear.
     class PatternDeny < Base
       STANDARD_PII_PATTERNS = {
         "ssn" => /\b\d{3}-\d{2}-\d{4}\b/,
@@ -21,13 +19,15 @@ module Alpha
           return Result.new(
             name: "PatternDeny",
             pass: false,
-            detail: { error: "Missing output.txt in sandbox" }
+            credit: 0.0,
+            checks: [ { name: "output_present", pass: false, required: true, points: 1 } ],
+            detail: { error: "Missing output.txt in sandbox", format_error: true }
           )
         end
 
         content = File.read(output_file)
+        checks = [ { name: "output_present", pass: true, required: true, points: 1 } ]
 
-        # 1. Denied patterns (configured on task or standard PII defaults)
         denied_rules = if task.respond_to?(:denied_patterns) && task.denied_patterns && task.denied_patterns.any?
           task.denied_patterns
         else
@@ -42,15 +42,22 @@ module Alpha
             violations << { pattern: label.to_s, count: matches.size, matches: matches.first(3) }
           end
         end
+        checks << { name: "denied_patterns", pass: violations.empty?, required: true, points: 2 }
 
-        # 2. Required markers (e.g. [REDACTED], [SSN], etc.)
         required_markers = task.respond_to?(:required_markers) ? Array(task.required_markers) : []
         missing_markers = []
         required_markers.each do |marker|
           missing_markers << marker unless content.include?(marker)
         end
+        if required_markers.any?
+          checks << { name: "required_markers", pass: missing_markers.empty?, required: true, points: 2 }
+        end
 
-        passed = violations.empty? && missing_markers.empty? && !content.strip.empty?
+        non_empty = !content.strip.empty?
+        checks << { name: "non_empty", pass: non_empty, required: true, points: 1 }
+
+        passed = Money.required_pass?(checks)
+        credit = Money.credit_from_checks(checks)
 
         detail = {
           passed: passed,
@@ -60,7 +67,7 @@ module Alpha
           output_preview: content.lines.first(5).join
         }
 
-        Result.new(name: "PatternDeny", pass: passed, detail: detail)
+        Result.new(name: "PatternDeny", pass: passed, credit: credit, checks: checks, detail: detail)
       end
     end
   end

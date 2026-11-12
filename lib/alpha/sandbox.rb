@@ -31,11 +31,15 @@ module Alpha
         library_dir: resolved_library
       )
 
-      prepared, prepare_out = sandbox.prepare_db!
-      raise "db:prepare failed for #{task.name}:\n#{prepare_out}" unless prepared
-
+      # Apply environment.patch before db:prepare so tasks that strip migrations /
+      # schema land on a DB that matches the broken seed (vertical-slice L4+).
       unless sandbox.apply_patch!(task.environment_patch)
         raise "environment.patch failed to apply for #{task.name}"
+      end
+
+      if sandbox.requires_db?(task)
+        prepared, prepare_out = sandbox.prepare_db!
+        raise "db:prepare failed for #{task.name}:\n#{prepare_out}" unless prepared
       end
 
       sandbox.snapshot_seeded!
@@ -62,13 +66,19 @@ module Alpha
 
     def child_env
       bindir = File.dirname(RbConfig.ruby)
-      {
+      env = {
         "PATH" => "#{bindir}#{File::PATH_SEPARATOR}#{ENV.fetch("PATH", "")}",
         "RAILS_ENV" => "test",
         "BUNDLE_GEMFILE" => File.join(path, "Gemfile"),
         "BUNDLE_APP_CONFIG" => File.join(path, ".bundle"),
-        "RUBYOPT" => ""
+        "RUBYOPT" => "",
+        "HOME" => ENV.fetch("HOME", "")
       }
+      # Propagate Chrome binary for Ferrum/Cuprite product graders.
+      %w[ALPHA_CHROME_PATH BROWSER_PATH CHROME_PATH].each do |key|
+        env[key] = ENV[key] if ENV[key] && !ENV[key].empty?
+      end
+      env
     end
 
     def run_in_clean_env(&block)
@@ -77,6 +87,19 @@ module Alpha
       else
         yield
       end
+    end
+
+    # Chat JSON / pattern graders never boot the Rails library; skip db:prepare
+    # so Watchtower/CPU runners don't need scenario gem caches for ops roles.
+    def requires_db?(task)
+      return false unless File.file?(File.join(path, "bin", "rails"))
+
+      executor = task.respond_to?(:executor_type) ? task.executor_type.to_s : ""
+      grader = task.respond_to?(:grader_type) ? task.grader_type.to_s : ""
+      return false if %w[openai_chat_completions openai stateless].include?(executor) &&
+                      %w[json_schema pattern_deny].include?(grader)
+
+      true
     end
 
     def prepare_db!

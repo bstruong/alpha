@@ -3,3 +3,7 @@ kind: gate
 expected_seed: 1
 anchor:
 restore: []
+skill: agent_basics
+rung: L0
+scaffold: recipe
+wall_seconds: 60

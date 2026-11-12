@@ -1,0 +1,11 @@
+--- /dev/null
++++ b/output.txt
+@@ -0,0 +1,8 @@
++{
++  "account": "homelab-alerts@example.local",
++  "category": "production_alert",
++  "urgency": "P1",
++  "action_required": true,
++  "summary": "lab-node nvme critical",
++  "tags": ["lab-node", "nvme", "k3s"]
++}

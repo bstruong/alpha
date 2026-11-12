@@ -3,8 +3,12 @@ kind: graded
 expected_seed: 0
 anchor: BigDecimal
 restore:
-  - test
-  - bin
-  - config/environments/test.rb
+- test
+- bin
+- config/environments/test.rb
 restore_except:
-  - test/models/receipt_test.rb
+- test/models/receipt_test.rb
+skill: rails_spec_priority
+rung: L2
+scaffold: symptom
+wall_seconds: 360

@@ -3,12 +3,23 @@ base_app: ../qwen36-daily/library
 role: sanitizer
 executor: openai_chat_completions
 grader: pattern_deny
-default_model: qwen36-coder-hybrid
+default_model: qwen25-coder-14b
 tasks:
+  - scrub-named-spans
   - scrub-ssn-email
+  - scrub-dense-pii
 budget:
   wall_seconds: 60
   max_tool_calls: 0
 qualification:
   gate_pass_at_1: 1.0
   graded_pass_at_1: 0.90
+profiles:
+  shipping:
+    bullet_cap: true
+    include_invariant: true
+    max_rung: L1
+  measurement:
+    bullet_cap: false
+    include_invariant: false
+    max_rung: L4

@@ -3,6 +3,10 @@ kind: gate
 expected_seed: 0
 anchor:
 restore:
-  - test
-  - bin
-  - config/environments/test.rb
+- test
+- bin
+- config/environments/test.rb
+skill: agent_basics
+rung: L0
+scaffold: recipe
+wall_seconds: 120
