@@ -38,12 +38,16 @@ module Alpha
           )
         end
 
-        resolved_log = log_path || File.join(sandbox.work_dir, "agent.log")
-        resolved_telemetry = telemetry_path || File.join(sandbox.work_dir, "telemetry.json")
+        resolved_log = log_path || (sandbox.respond_to?(:agent_log_path) ? sandbox.agent_log_path : File.join(sandbox.work_dir, "agent.log"))
+        resolved_telemetry = telemetry_path || (sandbox.respond_to?(:agent_telemetry_path) ? sandbox.agent_telemetry_path : File.join(sandbox.work_dir, "telemetry.json"))
         FileUtils.mkdir_p(File.dirname(resolved_log))
+        FileUtils.mkdir_p(File.dirname(resolved_telemetry))
 
         overlay = nil
         begin
+          # Fail closed: never spawn an evaluated Pi agent outside the namespace.
+          Isolation.require_available!
+
           overlay = materialize_harness_overlay(inference_target)
           cmd, env = build_command(
             task, sandbox, inference_target, profile, resolved_log, resolved_telemetry,
@@ -51,8 +55,28 @@ module Alpha
             max_tool_calls: max_tool_calls
           )
 
+          read_only = [
+            overlay,
+            harness_dir,
+            File.expand_path("..", __dir__), # lib/alpha/executor (pi_monitor.rb)
+            File.dirname(RbConfig.ruby)
+          ]
+          pi_bin = env["PI_BIN"]
+          read_only << File.dirname(pi_bin) if pi_bin && !pi_bin.empty?
+          system_prompt = cmd[cmd.index("--append-system-prompt") + 1] rescue nil
+          read_only << File.dirname(system_prompt) if system_prompt && File.exist?(system_prompt)
+
+          wrapped_cmd, spawn_env = Isolation.wrap(
+            cmd,
+            env: env,
+            chdir: sandbox.path,
+            writable_paths: [ sandbox.path ],
+            read_only_paths: read_only,
+            network: true
+          )
+
           start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-          pid = Process.spawn(env, *cmd, chdir: sandbox.path, pgroup: true)
+          pid = Process.spawn(spawn_env, *wrapped_cmd, pgroup: true)
           deadline = start_time + timeout_s
           timed_out = false
 
@@ -146,7 +170,8 @@ module Alpha
           server_url = inference_target.server_root_url
           openai_base = inference_target.base_url
 
-          env = sandbox.child_env.merge(
+          base_env = sandbox.respond_to?(:agent_env) ? sandbox.agent_env : sandbox.child_env
+          env = base_env.merge(
             "PI_CODING_AGENT_DIR" => runtime_harness_dir,
             "LLAMA_SERVER_URL" => server_url,
             "LLAMA_BASE_URL" => server_url,

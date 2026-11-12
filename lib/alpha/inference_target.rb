@@ -9,7 +9,7 @@ module Alpha
   # Points at an OpenAI-compatible inference endpoint.
   # Defaults to http://127.0.0.1:8080 or ENV["LLAMA_SERVER_URL"] / OPENAI_BASE_URL.
   # Preset metadata may be read from engine/models.ini as a local mirror.
-  # Wake/sleep/lease: use homelab-k3s jarvis-*.sh (not this gem).
+  # Wake/sleep/lease: use homelab-k3s jarvis-session.sh (not this gem).
   class InferenceTarget
     DEFAULT_HOST_URL = ENV.fetch("LLAMA_SERVER_URL", "http://127.0.0.1:8080")
 

@@ -8,6 +8,7 @@ Headless evaluation and benchmarking harness for self-hosted open-weight LLMs (R
 - **Zero-model self-test:** `mise exec -- bin/alpha oracle --scenario qwen36-daily` (or `--task <name>`)
 - **Unit tests:** `mise exec -- bundle exec rake test`
 - **Lint:** `mise exec -- bundle exec rubocop`
+- **Watchtower campaigns (graded suites):** submit with `scripts/alpha_watchtower_kick.sh`, then disconnect — the Job owns `jarvis-session` begin/heartbeat/end. Requires [homelab-k3s#41](https://github.com/bstruong/homelab-k3s/pull/41) deployed. Status: `scripts/alpha_watchtower_status.sh` (reads `lease/jarvis-gpu`). Review: `scripts/alpha_watchtower_review.sh`. Optional promote: `scripts/alpha_watchtower_pull.sh`. Local campaign script runs are diagnostic only and are not graded evidence.
 
 ## Core Invariants
 1. **Deterministic Graders Only:** Never use an LLM to judge whether a task passed. All graders (`lib/alpha/grader/`) must use deterministic exit codes, Minitest/RSpec assertions, AST checks, or JSON schema validation.

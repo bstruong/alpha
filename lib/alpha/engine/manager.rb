@@ -9,15 +9,17 @@ module Alpha
     # Thin HTTP client for an OpenAI-compatible inference server (llama-server, etc.).
     #
     # Cluster wake / lease / kubectl control for JARVIS lives in homelab-k3s:
-    #   scripts/jarvis-up.sh, jarvis-down.sh, jarvis-lease.sh
-    #   scripts/alpha-engine/manager.rb  (archived Ruby kubectl client)
+    #   scripts/jarvis-session.sh (begin / heartbeat / end) for graded Jobs
+    #   thin wrappers: jarvis-up.sh, jarvis-down.sh, jarvis-lease.sh, jarvis-status.sh
     class Manager
       DEFAULT_BASE_URL = "http://127.0.0.1:8080/v1"
 
       OPS_HINT = <<~HINT.freeze
         Inference lifecycle (wake/sleep/lease) is not part of the Alpha gem.
-        Use homelab-k3s: ./scripts/jarvis-up.sh, ./scripts/jarvis-down.sh,
-        ./scripts/jarvis-lease.sh — see scripts/alpha-engine/README.md
+        Graded suites: Watchtower Job entrypoint calls homelab-k3s
+        ./scripts/jarvis-session.sh begin|heartbeat-loop|end.
+        Operators: ./scripts/jarvis-up.sh, ./scripts/jarvis-down.sh,
+        ./scripts/jarvis-status.sh — see docs/alpha-jarvis-session-contract.md
       HINT
 
       attr_reader :base_url

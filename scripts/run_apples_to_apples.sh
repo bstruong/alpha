@@ -13,6 +13,10 @@ LEASE_HOLDER="${JARVIS_LEASE_HOLDER:-alpha-lab}"
 LEASE_MINUTES="${JARVIS_LEASE_MINUTES:-180}"
 MODEL="${BENCH_MODEL:-glm47-reap}"
 PRESET="${BENCH_PRESET:-${MODEL}}"
+SESSION_OWNED=0
+if [[ -n "${JARVIS_SESSION_RUN_ID:-}" ]]; then
+  SESSION_OWNED=1
+fi
 
 if [[ -f .env ]]; then
   # shellcheck disable=SC1091
@@ -22,9 +26,13 @@ export OPENAI_BASE_URL="${OPENAI_BASE_URL:-http://127.0.0.1:8080/v1}"
 
 echo "=== Running ${MODEL} Apples-to-Apples Suite ==="
 echo "OPENAI_BASE_URL=${OPENAI_BASE_URL}"
+echo "JARVIS_SESSION_RUN_ID=${JARVIS_SESSION_RUN_ID:-}"
 date -u
 
 cleanup() {
+  if [[ "${SESSION_OWNED}" -eq 1 ]]; then
+    return 0
+  fi
   if [[ -x "${JARVIS_LEASE}" ]]; then
     "${JARVIS_LEASE}" release || true
   fi
@@ -35,8 +43,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if [[ -x "${JARVIS_UP}" ]]; then
-  echo "--- Waking JARVIS ---"
+if [[ "${SESSION_OWNED}" -eq 1 ]]; then
+  echo "--- JARVIS session owned by Watchtower Job (run-id=${JARVIS_SESSION_RUN_ID}); skipping local wake/lease ---"
+elif [[ -x "${JARVIS_UP}" ]]; then
+  echo "--- Waking JARVIS (local diagnostic path; not graded evidence) ---"
   "${JARVIS_UP}"
   if [[ -x "${JARVIS_LEASE}" ]]; then
     "${JARVIS_LEASE}" acquire "${LEASE_HOLDER}" "${LEASE_MINUTES}"
@@ -50,8 +60,8 @@ run_and_qualify() {
   shift
   echo "--- Running ${MODEL}: ${scenario} $* ---"
   date -u
-  # Refresh lease activity between long scenarios when JARVIS is in use.
-  if [[ -x "${JARVIS_LEASE}" ]]; then
+  # Refresh lease activity between long scenarios when JARVIS is in use locally.
+  if [[ "${SESSION_OWNED}" -eq 0 && -x "${JARVIS_LEASE}" ]]; then
     "${JARVIS_LEASE}" acquire "${LEASE_HOLDER}" "${LEASE_MINUTES}" || true
   fi
   mise exec -- bin/alpha run --scenario "${scenario}" --model "${MODEL}" --preset "${PRESET}" "$@" || true

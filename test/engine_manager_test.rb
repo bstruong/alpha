@@ -12,10 +12,11 @@ class EngineManagerTest < AlphaTest
   test "up and lease raise ops hint pointing at homelab-k3s" do
     mgr = Alpha::Engine::Manager.new
     err = assert_raises(RuntimeError) { mgr.up(preset: "qwen36-coder-hybrid") }
+    assert_match(/jarvis-session/, err.message)
     assert_match(/jarvis-up/, err.message)
 
     err2 = assert_raises(RuntimeError) { mgr.acquire_lease!(holder: "test") }
-    assert_match(/jarvis-lease/, err2.message)
+    assert_match(/jarvis-session/, err2.message)
   end
 
   test "InferenceTarget still exposes wake! sleep! manager" do

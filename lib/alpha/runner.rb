@@ -25,8 +25,22 @@ module Alpha
       puts "Tasks: #{scenario.tasks.map(&:name).join(", ")}"
       puts ""
 
+      generation_params = {
+        "temperature" => 0.0,
+        "seed" => scenario.seed,
+        "thinking" => thinking,
+        "trials" => trials
+      }
+      RunManifest.create!(
+        run_id,
+        scenario: scenario,
+        inference_target: inference_target,
+        generation_params: generation_params,
+        seed: scenario.seed
+      )
+
       if dry_run
-        return planning_only_run(run_id, thinking: thinking)
+        return planning_only_run(run_id, thinking: thinking, generation_params: generation_params)
       end
 
       task_records = []
@@ -52,6 +66,7 @@ module Alpha
             keep_sandbox: keep_sandbox,
             thinking: task.thinking || thinking
           )
+          RunManifest.record_trial!(run_id, trial: trial_record)
           passed = trial_record[:pass]
           status_str = if trial_record[:invalid]
             infra_invalid = true
@@ -78,20 +93,38 @@ module Alpha
         inference_target: inference_target || "none",
         task_records: task_records,
         suite_complete: @suite_complete,
-        dry_run: false
+        dry_run: false,
+        generation_params: generation_params
       )
 
       status = report_res.dig(:payload, "status") || {}
+      campaign_ok = campaign_exit_ok?(status)
+      terminal = if status["execution_health"] == "infrastructure_invalid"
+        "infrastructure_invalid"
+      elsif campaign_ok
+        "ok"
+      else
+        "failed"
+      end
+      RunManifest.finalize!(
+        run_id,
+        terminal_status: terminal,
+        summary_path: report_res[:summary_path],
+        report_path: report_res[:report_path],
+        summary_payload: report_res[:payload]
+      )
+
       puts ""
       puts "Summary written to: #{report_res[:summary_path]}"
       puts "Report written to:  #{report_res[:report_path]}"
+      puts "Run manifest:       #{RunManifest.path_for(run_id)}"
       puts "First-attempt success: #{report_res.dig(:payload, "aggregate", "pass_at_1")} " \
            "(#{report_res.dig(:payload, "aggregate", "tasks_passed")}/#{report_res.dig(:payload, "aggregate", "tasks_total")})"
       puts "Highest rung: #{report_res.dig(:payload, "aggregate", "highest_rung_passed") || "—"}"
       puts "Execution health: #{status["execution_health"]} | Gate: #{status["gate_status"]} | " \
            "Benchmark: #{status["benchmark_verdict"]}"
+      puts "Promotable: #{report_res.dig(:payload, "promotable") == true}"
 
-      campaign_ok = campaign_exit_ok?(status)
       { ok: campaign_ok, report: report_res, status: status, infra_invalid: infra_invalid }
     end
 
@@ -115,7 +148,7 @@ module Alpha
 
     private
 
-      def planning_only_run(run_id, thinking:)
+      def planning_only_run(run_id, thinking:, generation_params: nil)
         puts "DRY RUN (planning only — no scored trials, not qualification-eligible)"
         scenario.tasks.each_with_index do |task, idx|
           puts "[#{idx + 1}/#{scenario.tasks.size}] #{task.name} (#{task.kind}) — prompt verified " \
@@ -130,13 +163,22 @@ module Alpha
           inference_target: inference_target || "none",
           task_records: [],
           suite_complete: false,
-          dry_run: true
+          dry_run: true,
+          generation_params: generation_params
+        )
+        RunManifest.finalize!(
+          run_id,
+          terminal_status: "planning_only",
+          summary_path: report_res[:summary_path],
+          report_path: report_res[:report_path],
+          summary_payload: report_res[:payload]
         )
 
         status = report_res.dig(:payload, "status") || {}
         puts ""
         puts "Planning summary written to: #{report_res[:summary_path]}"
         puts "Report written to:  #{report_res[:report_path]}"
+        puts "Run manifest:       #{RunManifest.path_for(run_id)}"
         puts "Qualification eligible: false (dry-run)"
 
         { ok: true, report: report_res, status: status, infra_invalid: false }
@@ -213,6 +255,7 @@ module Alpha
         end
 
         record = {
+          run_id: run_id,
           task_name: task.name,
           kind: task.kind,
           skill: task.skill,
@@ -220,6 +263,8 @@ module Alpha
           scaffold: task.scaffold,
           trial: trial_num,
           trial_id: "#{run_id}/#{task.name}/trial-#{trial_num}",
+          seed: scenario.seed,
+          evidence_uri: "results/runs/#{run_id}/#{task.name}/trial-#{trial_num}/result.json",
           pass: outcome[:scored] ? final_pass : false,
           pass_at_1: outcome[:scored] ? pass_at_1 : false,
           credit: outcome[:scored] ? credit : 0.0,
@@ -253,6 +298,7 @@ module Alpha
       rescue StandardError => e
         sandbox&.teardown! unless keep_sandbox
         {
+          run_id: run_id,
           task_name: task.name,
           kind: task.kind,
           skill: task.skill,
@@ -260,6 +306,8 @@ module Alpha
           scaffold: task.scaffold,
           trial: trial_num,
           trial_id: "#{run_id}/#{task.name}/trial-#{trial_num}",
+          seed: scenario.seed,
+          evidence_uri: "results/runs/#{run_id}/#{task.name}/trial-#{trial_num}/result.json",
           pass: false,
           pass_at_1: false,
           credit: 0.0,

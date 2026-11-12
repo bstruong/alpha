@@ -6,9 +6,11 @@ require "rbconfig"
 require "tmpdir"
 
 module Alpha
-  # Isolated directory-copy sandbox for one task trial.
+  # Directory-copy workspace for one task trial, plus agent_env for Linux
+  # namespace isolation (see Alpha::Isolation / bubblewrap).
   # Deliberately avoids git worktrees so the agent cannot inspect parent repo history
-  # or read tasks/*/solution.patch and verification_test.rb.
+  # or read tasks/*/solution.patch and verification_test.rb. Sibling seeded trees
+  # stay outside the evaluated-agent mount namespace.
   class Sandbox
     SKIP_DIRS = %w[tmp log storage].freeze
 
@@ -64,21 +66,55 @@ module Alpha
       @library_dir = library_dir || path
     end
 
+    # Trusted harness/grader environment. Broader than agent_env but still avoids
+    # inheriting the operator's full interactive shell profile.
     def child_env
       bindir = File.dirname(RbConfig.ruby)
       env = {
-        "PATH" => "#{bindir}#{File::PATH_SEPARATOR}#{ENV.fetch("PATH", "")}",
+        "PATH" => "#{bindir}#{File::PATH_SEPARATOR}#{ENV.fetch("PATH", Isolation::MINIMAL_PATH)}",
         "RAILS_ENV" => "test",
         "BUNDLE_GEMFILE" => File.join(path, "Gemfile"),
         "BUNDLE_APP_CONFIG" => File.join(path, ".bundle"),
         "RUBYOPT" => "",
-        "HOME" => ENV.fetch("HOME", "")
+        "HOME" => grader_home
       }
       # Propagate Chrome binary for Ferrum/Cuprite product graders.
-      %w[ALPHA_CHROME_PATH BROWSER_PATH CHROME_PATH].each do |key|
+      %w[ALPHA_CHROME_PATH BROWSER_PATH CHROME_PATH CHROMIUM_FLAGS].each do |key|
         env[key] = ENV[key] if ENV[key] && !ENV[key].empty?
       end
       env
+    end
+
+    # Strict evaluated-agent environment. Isolation.wrap allowlists further and
+    # forces an empty temporary HOME inside the Linux namespace.
+    def agent_env
+      bindir = File.dirname(RbConfig.ruby)
+      {
+        "PATH" => "#{bindir}#{File::PATH_SEPARATOR}#{Isolation::MINIMAL_PATH}",
+        "RAILS_ENV" => "test",
+        "BUNDLE_GEMFILE" => File.join(path, "Gemfile"),
+        "BUNDLE_APP_CONFIG" => File.join(path, ".bundle"),
+        "RUBYOPT" => "",
+        "HOME" => Isolation::AGENT_HOME,
+        "TMPDIR" => "/tmp",
+        "LANG" => ENV["LANG"] || "C.UTF-8"
+      }
+    end
+
+    def agent_log_path
+      File.join(path, "tmp", "alpha-agent.log")
+    end
+
+    def agent_telemetry_path
+      File.join(path, "tmp", "alpha-telemetry.json")
+    end
+
+    def grader_home
+      @grader_home ||= begin
+        dir = File.join(work_dir, "grader-home")
+        FileUtils.mkdir_p(dir)
+        dir
+      end
     end
 
     def run_in_clean_env(&block)
