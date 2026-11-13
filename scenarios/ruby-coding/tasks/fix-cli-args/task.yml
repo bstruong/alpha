@@ -1,0 +1,12 @@
+kind: graded
+expected_seed: 0
+name: fix-cli-args
+skill: ruby_cli
+rung: L1
+scaffold: named_file
+wall_seconds: 240
+restore:
+- test
+- bin
+stable_except:
+- lib/cli.rb

@@ -1,0 +1,15 @@
+kind: graded
+expected_seed: 0
+name: recipe-turbo-frame
+skill: hotwire_turbo_frame
+rung: L0
+scaffold: recipe
+wall_seconds: 300
+restore:
+- test
+- bin
+- config/environments/test.rb
+stable_except:
+- app/views/notes/index.html.erb
+denied_keywords:
+- ActiveRecord

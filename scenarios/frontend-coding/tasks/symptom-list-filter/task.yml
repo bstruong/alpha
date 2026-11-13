@@ -1,0 +1,12 @@
+kind: graded
+expected_seed: 0
+name: symptom-list-filter
+skill: frontend_js
+rung: L2
+scaffold: symptom
+wall_seconds: 300
+restore:
+- test
+- bin
+stable_except:
+- app/javascript/controllers/catalog_filter_controller.js

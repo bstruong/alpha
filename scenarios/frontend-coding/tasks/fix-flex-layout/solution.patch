@@ -1,0 +1,21 @@
+--- a/app/assets/stylesheets/application.css
++++ b/app/assets/stylesheets/application.css
+@@ -1,11 +1,16 @@
+ /* Application styles */
+ 
+ .site-header {
+-  display: block;
++  display: flex;
++  align-items: center;
++  gap: 1rem;
+ }
+ 
+ .search-form {
+-  display: block;
++  display: flex;
++  flex-direction: row;
++  gap: 0.5rem;
++  align-items: center;
+ }
+ 
+ .item-list {

@@ -1,0 +1,27 @@
+id: hotwire-coding
+description: "Rails Hotwire (Turbo/Stimulus) on the shared web-rails app"
+base_app: ../web-rails/library
+role: hotwire_coder
+default_model: qwen36-coder-hybrid
+seed: 12345
+tasks:
+- recipe-turbo-frame
+- fix-stimulus-controller
+- symptom-turbo-stream
+- pm-search-hotwire
+- slice-note-tags
+budget:
+  wall_seconds: 480
+  max_tool_calls: 24
+qualification:
+  gate_pass_at_1: 1.0
+  graded_pass_at_1: 0.8
+profiles:
+  shipping:
+    bullet_cap: true
+    include_invariant: true
+    max_rung: L1
+  measurement:
+    bullet_cap: false
+    include_invariant: false
+    max_rung: L4

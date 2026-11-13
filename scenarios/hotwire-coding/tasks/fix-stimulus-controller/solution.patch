@@ -1,0 +1,10 @@
+--- a/app/javascript/controllers/search_controller.js
++++ b/app/javascript/controllers/search_controller.js
+@@ -4,6 +4,6 @@
+   static targets = ["input", "form"]
+ 
+   filter() {
+-    // BUGGY: no-op
++    this.formTarget.requestSubmit()
+   }
+ }

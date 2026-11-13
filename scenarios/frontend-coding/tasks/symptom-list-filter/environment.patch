@@ -1,0 +1,15 @@
+--- a/app/javascript/controllers/catalog_filter_controller.js
++++ b/app/javascript/controllers/catalog_filter_controller.js
+@@ -4,10 +4,10 @@
+   static targets = ["query", "item"]
+ 
+   filter() {
++    // BUGGY: hides everything when typing
+     const needle = this.queryTarget.value.trim().toLowerCase()
+     this.itemTargets.forEach((li) => {
+-      const name = (li.getAttribute("data-name") || "").toLowerCase()
+-      li.hidden = needle.length > 0 && !name.includes(needle)
++      li.hidden = needle.length > 0
+     })
+   }
+ }

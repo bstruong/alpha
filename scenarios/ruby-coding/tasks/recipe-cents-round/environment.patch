@@ -1,0 +1,14 @@
+--- a/lib/money_cents.rb
++++ b/lib/money_cents.rb
+@@ -5,9 +5,8 @@
+ module MoneyCents
+   module_function
+ 
+-  # Convert a dollar amount (Numeric or String) to integer cents, half-up.
++  # BUGGY: float truncation
+   def round_dollars(amount)
+-    scaled = (BigDecimal(amount.to_s) * 100)
+-    scaled.round(0, BigDecimal::ROUND_HALF_UP).to_i
++    (amount.to_f * 100).to_i
+   end
+ end

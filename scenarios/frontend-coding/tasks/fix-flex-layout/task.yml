@@ -1,0 +1,12 @@
+kind: graded
+expected_seed: 0
+name: fix-flex-layout
+skill: frontend_css
+rung: L1
+scaffold: named_file
+wall_seconds: 240
+restore:
+- test
+- bin
+stable_except:
+- app/assets/stylesheets/application.css

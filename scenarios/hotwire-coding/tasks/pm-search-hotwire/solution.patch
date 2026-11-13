@@ -1,0 +1,13 @@
+--- a/app/models/note.rb
++++ b/app/models/note.rb
+@@ -4,8 +4,8 @@
+   validates :title, presence: true
+ 
+   scope :search, ->(q) {
+-    # BUGGY: ignores query
+-    all
++    q = q.to_s.strip
++    q.empty? ? all : where("title LIKE ?", "%#{sanitize_sql_like(q)}%")
+   }
+ 
+   scope :with_tag, ->(tag) {

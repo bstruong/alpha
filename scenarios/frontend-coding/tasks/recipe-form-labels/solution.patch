@@ -1,0 +1,13 @@
+--- a/app/views/notes/index.html.erb	2026-11-08 12:31:06.456587453 -0800
++++ b/app/views/notes/index.html.erb	2026-11-08 12:26:14.271572135 -0800
+@@ -15,8 +15,8 @@
+                 search_target: "form",
+                 tag_filter_target: "form"
+               } do %>
+-  <span>Search</span>
+-  <input id="query" name="q" type="search"
++  <label for="query">Search</label>
++  <input id="query" name="q" type="search" required
+          data-search-target="input"
+          data-action="input->search#filter">
+   <label for="tag-query">Tag</label>

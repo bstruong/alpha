@@ -1,0 +1,9 @@
+<h1>Config</h1>
+<dl id="config-pairs">
+  <% @config.each do |key, value| %>
+    <div>
+      <dt><%= key %></dt>
+      <dd data-key="<%= key %>"><%= value %></dd>
+    </div>
+  <% end %>
+</dl>

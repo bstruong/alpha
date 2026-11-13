@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "cli"
+
+result = Cli.parse(ARGV)
+warn result[:message] if result[:exit] != 0
+puts result[:message] if result[:exit].zero?
+exit result[:exit]

@@ -1,0 +1,6 @@
+<h1>Summary</h1>
+<ul id="summary-rows">
+  <% @rows.each do |row| %>
+    <li data-id="<%= row["id"] %>"><%= row["id"] %>: <%= row["total"] %></li>
+  <% end %>
+</ul>

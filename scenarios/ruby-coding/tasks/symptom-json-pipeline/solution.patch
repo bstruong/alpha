@@ -1,0 +1,16 @@
+--- a/lib/json_pipeline.rb
++++ b/lib/json_pipeline.rb
+@@ -8,10 +8,9 @@
+   # Keep hashes with status == "ok", map to {id:, total:}, sort by id.
+   def summarize(payload)
+     rows = JSON.parse(payload)
+-    # BUGGY: keeps failures, string totals, reverse sort
+     rows
+-      .reject { |row| row["status"] == "ok" }
+-      .map { |row| { "id" => row["id"], "total" => row["total"].to_s } }
+-      .sort_by { |row| row["id"] }.reverse
++      .select { |row| row["status"] == "ok" }
++      .map { |row| { "id" => row["id"], "total" => Integer(row["total"]) } }
++      .sort_by { |row| row["id"] }
+   end
+ end

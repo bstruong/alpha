@@ -1,0 +1,14 @@
+--- a/app/javascript/controllers/help_dialog_controller.js
++++ b/app/javascript/controllers/help_dialog_controller.js
+@@ -5,11 +5,9 @@
+ 
+   open() {
+     this.dialogTarget.showModal()
+-    this.closeTarget.focus()
+   }
+ 
+   close() {
+     this.dialogTarget.close()
+-    this.returnTarget.focus()
+   }
+ }

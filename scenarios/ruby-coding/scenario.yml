@@ -1,0 +1,26 @@
+id: ruby-coding
+description: "Ruby services inside the shared web-rails app (money, CLI, pipelines)"
+base_app: ../web-rails/library
+role: ruby_coder
+default_model: qwen36-coder-hybrid
+seed: 12345
+tasks:
+- recipe-cents-round
+- fix-cli-args
+- symptom-json-pipeline
+- pm-mini-parser
+budget:
+  wall_seconds: 360
+  max_tool_calls: 20
+qualification:
+  gate_pass_at_1: 1.0
+  graded_pass_at_1: 0.8
+profiles:
+  shipping:
+    bullet_cap: true
+    include_invariant: true
+    max_rung: L1
+  measurement:
+    bullet_cap: false
+    include_invariant: false
+    max_rung: L3

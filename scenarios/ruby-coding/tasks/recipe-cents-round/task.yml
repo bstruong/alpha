@@ -1,0 +1,14 @@
+kind: graded
+expected_seed: 0
+name: recipe-cents-round
+skill: ruby_money
+rung: L0
+scaffold: recipe
+wall_seconds: 240
+restore:
+- test
+- bin
+stable_except:
+- lib/money_cents.rb
+denied_keywords:
+- to_f

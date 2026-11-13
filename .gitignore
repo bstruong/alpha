@@ -6,6 +6,10 @@ scenarios/qwen36-daily/library/config/master.key
 scenarios/qwen36-daily/library/storage/*.sqlite3
 scenarios/qwen36-daily/library/tmp/
 scenarios/qwen36-daily/library/log/*.log
+scenarios/web-rails/library/config/master.key
+scenarios/web-rails/library/storage/*.sqlite3
+scenarios/web-rails/library/tmp/
+scenarios/web-rails/library/log/*.log
 bench_*.txt
 *.log
 __pycache__/

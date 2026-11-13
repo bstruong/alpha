@@ -1,0 +1,17 @@
+--- a/lib/cli.rb
++++ b/lib/cli.rb
+@@ -22,12 +22,7 @@
+       return { exit: 2, message: e.message }
+     end
+ 
+-    name = argv.reject { |a| a.start_with?("-") }.last
+-    if name.nil? || name.empty?
+-      return { exit: 1, message: "NAME required" }
+-    end
+-
+-    msg = options[:verbose] ? "hello #{name} (verbose)" : "hello #{name}"
+-    { exit: 0, message: msg }
++    # BUGGY: always succeed with empty greeting
++    { exit: 0, message: "hello" }
+   end
+ end

@@ -1,0 +1,14 @@
+--- a/app/views/notes/index.html.erb	2026-11-08 12:26:14.271572135 -0800
++++ b/app/views/notes/index.html.erb	2026-11-08 12:30:51.185056523 -0800
+@@ -34,11 +34,9 @@
+   <%= f.submit "Add" %>
+ <% end %>
+ 
+-<%= turbo_frame_tag "notes" do %>
+   <ul id="notes-list">
+     <%= render partial: "notes/note", collection: @notes, as: :note %>
+   </ul>
+-<% end %>
+ 
+ <section id="catalog" data-controller="catalog-filter">
+   <h2>Catalog</h2>

@@ -1,0 +1,26 @@
+id: frontend-coding
+description: "Frontend (HTML/CSS/JS) on the shared web-rails Notes UI"
+base_app: ../web-rails/library
+role: frontend_coder
+default_model: qwen36-coder-hybrid
+seed: 12345
+tasks:
+- recipe-form-labels
+- fix-flex-layout
+- symptom-list-filter
+- pm-a11y-keyboard
+budget:
+  wall_seconds: 360
+  max_tool_calls: 20
+qualification:
+  gate_pass_at_1: 1.0
+  graded_pass_at_1: 0.8
+profiles:
+  shipping:
+    bullet_cap: true
+    include_invariant: true
+    max_rung: L1
+  measurement:
+    bullet_cap: false
+    include_invariant: false
+    max_rung: L3

@@ -1,0 +1,62 @@
+<header class="site-header" data-controller="help-dialog">
+  <h1>Notes</h1>
+  <button type="button" id="help-open" data-help-dialog-target="open" data-action="help-dialog#open">Help</button>
+  <button type="button" id="after-help" data-help-dialog-target="return">Continue</button>
+  <dialog id="help-dialog" class="help-dialog" data-help-dialog-target="dialog">
+    <button type="button" id="help-close" data-help-dialog-target="close" data-action="help-dialog#close">Close</button>
+    <p>Search notes or browse the catalog below.</p>
+  </dialog>
+</header>
+
+<%= form_with url: notes_path, method: :get, html: { id: "search-form", class: "search-form" },
+              data: {
+                turbo_frame: "notes",
+                controller: "search tag-filter",
+                search_target: "form",
+                tag_filter_target: "form"
+              } do %>
+  <label for="query">Search</label>
+  <input id="query" name="q" type="search" required
+         data-search-target="input"
+         data-action="input->search#filter">
+  <label for="tag-query">Tag</label>
+  <input id="tag-query" name="tag" type="search"
+         data-tag-filter-target="input"
+         data-action="input->tag-filter#filter">
+  <button type="submit">Go</button>
+<% end %>
+
+<%= form_with model: Note.new, html: { id: "new-note" }, data: { turbo_frame: "_top" } do |f| %>
+  <%= f.label :title %>
+  <%= f.text_field :title %>
+  <%= f.label :tag %>
+  <%= f.text_field :tag, id: "note_tag" %>
+  <%= f.submit "Add" %>
+<% end %>
+
+<%= turbo_frame_tag "notes" do %>
+  <ul id="notes-list">
+    <%= render partial: "notes/note", collection: @notes, as: :note %>
+  </ul>
+<% end %>
+
+<section id="catalog" data-controller="catalog-filter">
+  <h2>Catalog</h2>
+  <label for="catalog-query">Filter catalog</label>
+  <input id="catalog-query" type="search"
+         data-catalog-filter-target="query"
+         data-action="input->catalog-filter#filter">
+  <ul id="item-list" class="item-list">
+    <li data-name="apple" data-catalog-filter-target="item">Apple</li>
+    <li data-name="banana" data-catalog-filter-target="item">Banana</li>
+    <li data-name="cherry" data-catalog-filter-target="item">Cherry</li>
+  </ul>
+</section>
+
+<section class="receipt-panel" id="receipt-panel">
+  <h2>Receipt</h2>
+  <p>
+    Amount <%= @receipt_amount %> USD →
+    <span id="receipt-cents"><%= @receipt_cents %></span> cents
+  </p>
+</section>

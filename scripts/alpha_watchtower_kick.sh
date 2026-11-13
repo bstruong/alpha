@@ -16,6 +16,10 @@
 #   ALPHA_GIT_SHA=... ALPHA_LAB_GIT_SHA=... HOMELAB_GIT_SHA=... \
 #     ./scripts/alpha_watchtower_kick.sh
 #   ALPHA_CAMPAIGN_FROM=ruby ./scripts/alpha_watchtower_kick.sh
+# Optional Job-pod apiserver override when ClusterIP is flaky (Metrotower LAN):
+#   ALPHA_JOB_KUBERNETES_SERVICE_HOST=192.168.1.92 \
+#   ALPHA_JOB_KUBERNETES_SERVICE_PORT=6443 \
+#     ./scripts/alpha_watchtower_kick.sh
 set -euo pipefail
 
 NS="${ALPHA_K8S_NAMESPACE:-alpha}"
@@ -128,6 +132,8 @@ tmp="$(mktemp)"
 trap 'rm -f "${tmp}"' EXIT
 k -n "${NS}" create job "${job}" --from="cronjob/${TEMPLATE}" --dry-run=client -o json >"${tmp}"
 
+# Optional Job-pod apiserver override (ClusterIP flake). Uses ALPHA_JOB_* so the
+# local kick shell does not set KUBERNETES_SERVICE_HOST and skip ssh kubectl.
 JOB_NAME="${job}" FROM="${FROM}" \
 ALPHA_CAMPAIGN_SCRIPT="${ALPHA_CAMPAIGN_SCRIPT:-}" \
 ALPHA_GIT_REF="${ALPHA_GIT_REF:-${ALPHA_GIT_SHA:-}}" \
@@ -139,6 +145,8 @@ HOMELAB_GIT_SHA="${HOMELAB_GIT_SHA:-}" \
 ALPHA_RUNNER_IMAGE="${ALPHA_RUNNER_IMAGE:-}" \
 ALPHA_RUNNER_IMAGE_DIGEST="${ALPHA_RUNNER_IMAGE_DIGEST:-}" \
 ALPHA_ALLOW_MOVING_REFS="${ALLOW_MOVING}" \
+ALPHA_JOB_KUBERNETES_SERVICE_HOST="${ALPHA_JOB_KUBERNETES_SERVICE_HOST:-}" \
+ALPHA_JOB_KUBERNETES_SERVICE_PORT="${ALPHA_JOB_KUBERNETES_SERVICE_PORT:-}" \
 python3 - "${tmp}" <<'PY'
 import json, os, sys, re
 path = sys.argv[1]
@@ -166,6 +174,14 @@ for key in (
     val = os.environ.get(key) or ""
     if val:
         wanted[key] = val
+
+# Bake into the Job pod only (do not confuse the kick client's kubectl routing).
+api_host = (os.environ.get("ALPHA_JOB_KUBERNETES_SERVICE_HOST") or "").strip()
+if api_host:
+    api_port = (os.environ.get("ALPHA_JOB_KUBERNETES_SERVICE_PORT") or "6443").strip() or "6443"
+    wanted["KUBERNETES_SERVICE_HOST"] = api_host
+    wanted["KUBERNETES_SERVICE_PORT"] = api_port
+    wanted["KUBERNETES_SERVICE_PORT_HTTPS"] = api_port
 
 image = os.environ.get("ALPHA_RUNNER_IMAGE") or ""
 if image:
