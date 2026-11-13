@@ -139,6 +139,29 @@ stage_at_or_after() {
   return 1
 }
 
+# Fail closed: incomplete pin / hollow PVC must not Complete OK for web ladder stages.
+assert_web_coding_scenario_dirs() {
+  [[ "${MODE}" == "full" ]] || return 0
+  local missing=()
+  if stage_at_or_after ruby && [[ ! -d "${ROOT}/scenarios/ruby-coding" ]]; then
+    missing+=("ruby-coding")
+  fi
+  if stage_at_or_after frontend && [[ ! -d "${ROOT}/scenarios/frontend-coding" ]]; then
+    missing+=("frontend-coding")
+  fi
+  if stage_at_or_after hotwire && [[ ! -d "${ROOT}/scenarios/hotwire-coding" ]]; then
+    missing+=("hotwire-coding")
+  fi
+  if stage_at_or_after ruby && [[ ! -d "${ROOT}/scenarios/web-rails/library" ]]; then
+    missing+=("web-rails/library")
+  fi
+  if ((${#missing[@]})); then
+    echo "fail: hollow campaign — missing scenario dirs required for ALPHA_CAMPAIGN_FROM=${FROM}: ${missing[*]}" | tee -a "$LOG"
+    exit 1
+  fi
+}
+assert_web_coding_scenario_dirs
+
 # Copy only when src/dst resolve to different paths (ALPHA_ROOT=LAB otherwise aborts under set -e).
 safe_cp() {
   local src="$1" dst="$2"

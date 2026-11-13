@@ -209,6 +209,64 @@ module Alpha
         out
       end
 
+      # Install root for an npm-layout Pi binary (…/node_modules/.bin/pi → …/).
+      # Binding only dirname(PI_BIN) leaves the shim target unmounted inside bwrap.
+      def pi_package_root(pi_bin = nil)
+        bin = pi_bin.nil? || pi_bin.to_s.empty? ? Alpha.config.pi_bin : pi_bin
+        return nil if bin.nil? || bin.to_s.empty?
+
+        path = File.expand_path(bin.to_s)
+        if (m = path.match(%r{\A(.+)/node_modules/\.bin/[^/]+\z}))
+          return m[1] if File.directory?(m[1])
+        end
+
+        start = File.exist?(path) ? File.realpath(path) : path
+        dir = File.directory?(start) ? start : File.dirname(start)
+        candidates = []
+        while dir && dir != "/" && dir != "."
+          candidates << dir if File.directory?(File.join(dir, "node_modules"))
+          parent = File.dirname(dir)
+          break if parent == dir
+
+          dir = parent
+        end
+        return candidates.last if candidates.any?
+
+        File.dirname(path)
+      rescue StandardError
+        bin && !bin.to_s.empty? ? File.dirname(File.expand_path(bin.to_s)) : nil
+      end
+
+      # True when PI_BIN is visible under the same Isolation binds trials use.
+      # Host File.executable? is not sufficient — npm shims need the package tree.
+      def pi_visible_in_sandbox?(pi_bin = nil)
+        bin = pi_bin.nil? || pi_bin.to_s.empty? ? Alpha.config.pi_bin : pi_bin
+        return false if bin.nil? || bin.to_s.empty?
+        return false unless File.exist?(bin)
+        return false unless available?
+
+        root = pi_package_root(bin)
+        Dir.mktmpdir("alpha-pi-visibility-") do |dir|
+          probe = <<~RUBY
+            path = ENV.fetch("PI_BIN")
+            abort("missing") unless File.exist?(path)
+            puts "ok"
+          RUBY
+          File.write(File.join(dir, "probe.rb"), probe)
+          out, status = run(
+            RbConfig.ruby, "probe.rb",
+            env: { "PI_BIN" => File.expand_path(bin), "LANG" => "C.UTF-8" },
+            chdir: dir,
+            writable_paths: [ dir ],
+            read_only_paths: [ root ].compact,
+            network: false
+          )
+          status.success? && out.to_s.include?("ok")
+        end
+      rescue UnavailableError, StandardError
+        false
+      end
+
       private
 
         def probe_available?
@@ -322,7 +380,10 @@ module Alpha
           end
 
           pi = Alpha.config.pi_bin
-          roots << File.dirname(pi) if pi && File.exist?(pi)
+          if pi && !pi.to_s.empty? && File.exist?(pi)
+            root = pi_package_root(pi)
+            roots << root if root
+          end
 
           roots.map { |p| File.expand_path(p) }.uniq.select { |p| File.exist?(p) }
         end

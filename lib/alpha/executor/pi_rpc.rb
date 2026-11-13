@@ -62,7 +62,12 @@ module Alpha
             File.dirname(RbConfig.ruby)
           ]
           pi_bin = env["PI_BIN"]
-          read_only << File.dirname(pi_bin) if pi_bin && !pi_bin.empty?
+          if pi_bin && !pi_bin.empty?
+            # Bind the npm package root (…/pi-harness), not just node_modules/.bin —
+            # the shim resolves into node_modules/@… which must be mounted too.
+            root = Isolation.pi_package_root(pi_bin)
+            read_only << (root && !root.empty? ? root : File.dirname(pi_bin))
+          end
           system_prompt = cmd[cmd.index("--append-system-prompt") + 1] rescue nil
           read_only << File.dirname(system_prompt) if system_prompt && File.exist?(system_prompt)
 
