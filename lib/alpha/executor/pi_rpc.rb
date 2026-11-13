@@ -55,8 +55,9 @@ module Alpha
             max_tool_calls: max_tool_calls
           )
 
+          # Package tree stays RO; the per-run overlay is writable so Pi can
+          # create settings.json.lock / mutate auth.json under PI_CODING_AGENT_DIR.
           read_only = [
-            overlay,
             harness_dir,
             File.expand_path("..", __dir__), # lib/alpha/executor (pi_monitor.rb)
             File.dirname(RbConfig.ruby)
@@ -75,7 +76,7 @@ module Alpha
             cmd,
             env: env,
             chdir: sandbox.path,
-            writable_paths: [ sandbox.path ],
+            writable_paths: [ sandbox.path, overlay ],
             read_only_paths: read_only,
             network: true
           )
@@ -134,11 +135,21 @@ module Alpha
         # the checked-in localhost defaults in models.json / settings.json.
         def materialize_harness_overlay(inference_target)
           overlay = Dir.mktmpdir("alpha-pi-harness-")
-          %w[node_modules SYSTEM.md package.json package-lock.json auth.json bin].each do |entry|
+          # Symlink immutable package assets; keep auth/settings as real files so
+          # Pi state writes stay in the writable overlay (not through to RO package).
+          %w[node_modules SYSTEM.md package.json package-lock.json bin].each do |entry|
             src = File.join(harness_dir, entry)
             next unless File.exist?(src)
 
             FileUtils.ln_s(src, File.join(overlay, entry))
+          end
+
+          auth_src = File.join(harness_dir, "auth.json")
+          auth_dst = File.join(overlay, "auth.json")
+          if File.file?(auth_src)
+            FileUtils.cp(auth_src, auth_dst)
+          else
+            File.write(auth_dst, "{}\n")
           end
 
           models_src = File.join(harness_dir, "models.json")
