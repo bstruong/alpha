@@ -1,0 +1,19 @@
+kind: graded
+expected_seed: 0
+name: slice-note-tags
+skill: hotwire_vertical_slice
+rung: L4
+scaffold: pm_ticket
+wall_seconds: 480
+restore:
+- test
+- bin
+- config/environments/test.rb
+stable_except:
+- db/migrate/20261108190000_add_tag_to_notes.rb
+- db/schema.rb
+- app/models/note.rb
+- app/controllers/notes_controller.rb
+- app/views/notes/index.html.erb
+- app/views/notes/_note.html.erb
+- app/javascript/controllers/tag_filter_controller.js

@@ -1,0 +1,12 @@
+kind: graded
+expected_seed: 0
+name: recipe-form-labels
+skill: frontend_html
+rung: L0
+scaffold: recipe
+wall_seconds: 240
+restore:
+- test
+- bin
+stable_except:
+- app/views/notes/index.html.erb

@@ -1,0 +1,20 @@
+--- a/lib/line_parser.rb
++++ b/lib/line_parser.rb
+@@ -5,7 +5,15 @@
+ 
+   # Parse "KEY=VALUE" lines; ignore blanks and # comments; last key wins.
+   def parse(text)
+-    # BUGGY: splits on first space only, keeps comments
+-    text.lines.to_h { |line| line.strip.split(/\s+/, 2) }
++    result = {}
++    text.each_line do |line|
++      line = line.strip
++      next if line.empty? || line.start_with?("#")
++      next unless line.include?("=")
++
++      key, value = line.split("=", 2)
++      result[key.strip] = value.strip
++    end
++    result
+   end
+ end

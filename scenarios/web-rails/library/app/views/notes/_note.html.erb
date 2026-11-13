@@ -1,0 +1,6 @@
+<li id="<%= dom_id(note) %>" data-tag="<%= note.tag %>">
+  <span class="note-title"><%= note.title %></span>
+  <% if note.tag.present? %>
+    <span class="note-tag"><%= note.tag %></span>
+  <% end %>
+</li>

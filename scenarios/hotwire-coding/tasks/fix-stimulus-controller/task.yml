@@ -1,0 +1,13 @@
+kind: graded
+expected_seed: 0
+name: fix-stimulus-controller
+skill: hotwire_stimulus
+rung: L1
+scaffold: named_file
+wall_seconds: 300
+restore:
+- test
+- bin
+- config/environments/test.rb
+stable_except:
+- app/javascript/controllers/search_controller.js

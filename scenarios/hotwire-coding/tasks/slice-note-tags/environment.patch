@@ -1,0 +1,117 @@
+--- a/app/controllers/notes_controller.rb	2026-11-08 12:26:06.947937139 -0800
++++ b/app/controllers/notes_controller.rb	2026-11-08 12:29:29.771708930 -0800
+@@ -2,7 +2,7 @@
+ 
+ class NotesController < ApplicationController
+   def index
+-    @notes = Note.search(params[:q]).with_tag(params[:tag]).order(:id)
++    @notes = Note.search(params[:q]).order(:id)
+     @receipt_amount = params.fetch(:amount, "1.045")
+     @receipt_cents = MoneyCents.round_dollars(@receipt_amount)
+   end
+@@ -24,6 +24,6 @@
+ 
+   private
+     def note_params
+-      params.require(:note).permit(:title, :tag)
++      params.require(:note).permit(:title)
+     end
+ end
+--- a/app/javascript/controllers/tag_filter_controller.js	2026-11-08 12:29:17.186402986 -0800
++++ b/app/javascript/controllers/tag_filter_controller.js	1969-12-31 16:00:00.000000000 -0800
+@@ -1,11 +0,0 @@
+-import { Controller } from "@hotwired/stimulus"
+-
+-export default class extends Controller {
+-  static targets = ["input", "form"]
+-
+-  filter() {
+-    // Title search input is required; tag-only filter must still submit.
+-    this.formTarget.setAttribute("novalidate", "novalidate")
+-    this.formTarget.requestSubmit()
+-  }
+-}
+--- a/app/models/note.rb	2026-11-08 12:26:05.071477592 -0800
++++ b/app/models/note.rb	2026-11-08 12:29:29.771648051 -0800
+@@ -7,9 +7,4 @@
+     q = q.to_s.strip
+     q.empty? ? all : where("title LIKE ?", "%#{sanitize_sql_like(q)}%")
+   }
+-
+-  scope :with_tag, ->(tag) {
+-    tag = tag.to_s.strip
+-    tag.empty? ? all : where(tag: tag)
+-  }
+ end
+--- a/app/views/notes/index.html.erb	2026-11-08 12:26:14.271572135 -0800
++++ b/app/views/notes/index.html.erb	2026-11-08 12:29:29.771801047 -0800
+@@ -9,28 +9,17 @@
+ </header>
+ 
+ <%= form_with url: notes_path, method: :get, html: { id: "search-form", class: "search-form" },
+-              data: {
+-                turbo_frame: "notes",
+-                controller: "search tag-filter",
+-                search_target: "form",
+-                tag_filter_target: "form"
+-              } do %>
++              data: { turbo_frame: "notes", controller: "search", search_target: "form" } do %>
+   <label for="query">Search</label>
+   <input id="query" name="q" type="search" required
+          data-search-target="input"
+          data-action="input->search#filter">
+-  <label for="tag-query">Tag</label>
+-  <input id="tag-query" name="tag" type="search"
+-         data-tag-filter-target="input"
+-         data-action="input->tag-filter#filter">
+   <button type="submit">Go</button>
+ <% end %>
+ 
+-<%= form_with model: Note.new, html: { id: "new-note" }, data: { turbo_frame: "_top" } do |f| %>
++<%= form_with model: Note.new, data: { turbo_frame: "_top" } do |f| %>
+   <%= f.label :title %>
+   <%= f.text_field :title %>
+-  <%= f.label :tag %>
+-  <%= f.text_field :tag, id: "note_tag" %>
+   <%= f.submit "Add" %>
+ <% end %>
+ 
+--- a/app/views/notes/_note.html.erb	2026-11-08 12:26:07.967138078 -0800
++++ b/app/views/notes/_note.html.erb	2026-11-08 12:29:29.771759981 -0800
+@@ -1,6 +1 @@
+-<li id="<%= dom_id(note) %>" data-tag="<%= note.tag %>">
+-  <span class="note-title"><%= note.title %></span>
+-  <% if note.tag.present? %>
+-    <span class="note-tag"><%= note.tag %></span>
+-  <% end %>
+-</li>
++<li id="<%= dom_id(note) %>"><%= note.title %></li>
+--- a/db/migrate/20261108190000_add_tag_to_notes.rb	2026-11-08 12:26:02.198225170 -0800
++++ b/db/migrate/20261108190000_add_tag_to_notes.rb	1969-12-31 16:00:00.000000000 -0800
+@@ -1,7 +0,0 @@
+-# frozen_string_literal: true
+-
+-class AddTagToNotes < ActiveRecord::Migration[8.0]
+-  def change
+-    add_column :notes, :tag, :string, null: false, default: ""
+-  end
+-end
+--- a/db/schema.rb	2026-11-08 12:26:04.060512166 -0800
++++ b/db/schema.rb	2026-11-08 12:29:29.771588020 -0800
+@@ -10,7 +10,7 @@
+ #
+ # It's strongly recommended that you check this file into your version control system.
+ 
+-ActiveRecord::Schema[8.1].define(version: 2026_11_08_190000) do
++ActiveRecord::Schema[8.1].define(version: 2026_11_08_180000) do
+   create_table "accounts", force: :cascade do |t|
+     t.string "name", null: false
+     t.string "email", null: false
+@@ -54,7 +54,6 @@
+ 
+   create_table "notes", force: :cascade do |t|
+     t.string "title", null: false
+-    t.string "tag", default: "", null: false
+     t.datetime "created_at", null: false
+     t.datetime "updated_at", null: false
+   end

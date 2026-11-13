@@ -1,0 +1,13 @@
+kind: graded
+expected_seed: 0
+name: symptom-turbo-stream
+skill: hotwire_turbo_stream
+rung: L2
+scaffold: symptom
+wall_seconds: 360
+restore:
+- test
+- bin
+- config/environments/test.rb
+stable_except:
+- app/views/notes/create.turbo_stream.erb
