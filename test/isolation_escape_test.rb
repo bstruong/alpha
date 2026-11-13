@@ -247,4 +247,74 @@ class IsolationEscapeTest < AlphaTest
     assert_equal true, outcome[:invalid]
     assert_equal false, outcome[:scored]
   end
+
+  test "pi_package_root resolves npm shim to install root not .bin alone" do
+    root = Dir.mktmpdir("alpha-pi-root-")
+    begin
+      bin_dir = File.join(root, "node_modules", ".bin")
+      pkg = File.join(root, "node_modules", "@scope", "pi-coding-agent")
+      FileUtils.mkdir_p(bin_dir)
+      FileUtils.mkdir_p(pkg)
+      File.write(File.join(pkg, "pi"), "#!/bin/sh\necho pi\n")
+      File.chmod(0o755, File.join(pkg, "pi"))
+      shim = File.join(bin_dir, "pi")
+      File.symlink(File.join("..", "@scope", "pi-coding-agent", "pi"), shim)
+
+      assert_equal root, Alpha::Isolation.pi_package_root(shim)
+      refute_equal File.dirname(shim), Alpha::Isolation.pi_package_root(shim)
+    ensure
+      FileUtils.remove_entry(root)
+    end
+  end
+
+  test "File.exist?(PI_BIN) succeeds inside wrap when package root is bound" do
+    root = Dir.mktmpdir("alpha-pi-harness-")
+    app = Dir.mktmpdir("alpha-pi-app-")
+    prev_ivar = Alpha.config.instance_variable_get(:@pi_bin)
+    begin
+      bin_dir = File.join(root, "node_modules", ".bin")
+      pkg = File.join(root, "node_modules", "@scope", "pi-coding-agent")
+      FileUtils.mkdir_p(bin_dir)
+      FileUtils.mkdir_p(pkg)
+      FileUtils.mkdir_p(File.join(app, "tmp"))
+      target = File.join(pkg, "pi")
+      File.write(target, "#!/bin/sh\necho pi\n")
+      File.chmod(0o755, target)
+      shim = File.join(bin_dir, "pi")
+      File.symlink(File.join("..", "@scope", "pi-coding-agent", "pi"), shim)
+
+      # Shallow .bin-only bind reproduces the Watchtower failure mode.
+      # Keep config.pi_bin away so runtime_roots does not auto-mount the package root.
+      Alpha.config.instance_variable_set(:@pi_bin, "/nonexistent/pi-not-installed")
+      Alpha::Isolation.reset_availability!
+      out_shallow, status_shallow = Alpha::Isolation.run(
+        RbConfig.ruby, "-e", "abort('missing') unless File.exist?(ENV.fetch('PI_BIN')); puts 'ok'",
+        env: { "PI_BIN" => shim, "LANG" => "C.UTF-8" },
+        chdir: app,
+        writable_paths: [ app ],
+        read_only_paths: [ File.dirname(shim) ],
+        network: false
+      )
+      refute status_shallow.success?, "shallow .bin bind must hide shim target: #{out_shallow}"
+
+      Alpha.config.instance_variable_set(:@pi_bin, shim)
+      Alpha::Isolation.reset_availability!
+      out, status = Alpha::Isolation.run(
+        RbConfig.ruby, "-e", "abort('missing') unless File.exist?(ENV.fetch('PI_BIN')); puts 'ok'",
+        env: { "PI_BIN" => shim, "LANG" => "C.UTF-8" },
+        chdir: app,
+        writable_paths: [ app ],
+        read_only_paths: [ Alpha::Isolation.pi_package_root(shim) ],
+        network: false
+      )
+      assert status.success?, "package-root bind must expose PI_BIN: #{out}"
+      assert_includes out, "ok"
+      assert Alpha::Isolation.pi_visible_in_sandbox?(shim)
+    ensure
+      Alpha.config.instance_variable_set(:@pi_bin, prev_ivar)
+      Alpha::Isolation.reset_availability!
+      FileUtils.remove_entry(root) if root && File.directory?(root)
+      FileUtils.remove_entry(app) if app && File.directory?(app)
+    end
+  end
 end

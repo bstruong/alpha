@@ -383,7 +383,20 @@ when "doctor"
   pi_bin = Alpha.config.pi_bin
   doctor_ok = true
   if pi_bin && !pi_bin.empty? && File.executable?(pi_bin)
-    puts "Pi Agent binary: ✓ OK (#{pi_bin})"
+    pi_root = Alpha::Isolation.pi_package_root(pi_bin)
+    if Alpha::Isolation.available?
+      if Alpha::Isolation.pi_visible_in_sandbox?(pi_bin)
+        puts "Pi Agent binary: ✓ OK (#{pi_bin}; sandbox-visible via #{pi_root})"
+      else
+        puts "Pi Agent binary: ✗ Host OK but not visible under Isolation binds " \
+             "(#{pi_bin}; package root #{pi_root || "unknown"})"
+        doctor_ok = false
+      end
+    else
+      puts "Pi Agent binary: ⚠ Host OK (#{pi_bin}) but Isolation unavailable — " \
+           "graded trials cannot verify sandbox visibility"
+      doctor_ok = false
+    end
   else
     puts "Pi Agent binary: ✗ Missing (required for shipping and measurement coding runs)"
     doctor_ok = false

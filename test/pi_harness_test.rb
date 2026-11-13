@@ -51,6 +51,22 @@ class PiHarnessTest < AlphaTest
     end
   end
 
+  test "PiRpc isolation binds pi package root not only .bin" do
+    root = Dir.mktmpdir("alpha-pi-rpc-root-")
+    begin
+      bin_dir = File.join(root, "node_modules", ".bin")
+      FileUtils.mkdir_p(bin_dir)
+      shim = File.join(bin_dir, "pi")
+      File.write(shim, "#!/bin/sh\necho pi\n")
+      File.chmod(0o755, shim)
+
+      assert_equal root, Alpha::Isolation.pi_package_root(shim)
+      refute_equal File.dirname(shim), Alpha::Isolation.pi_package_root(shim)
+    ensure
+      FileUtils.remove_entry(root)
+    end
+  end
+
   test "PiRpc overlay rewrites models.json baseUrl from InferenceTarget" do
     executor = Alpha::Executor::PiRpc.new
     target = Alpha::InferenceTarget.new(
