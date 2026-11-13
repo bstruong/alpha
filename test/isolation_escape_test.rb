@@ -267,6 +267,66 @@ class IsolationEscapeTest < AlphaTest
     end
   end
 
+  test "Pi harness overlay settings and auth are writable inside Isolation wrap" do
+    package = Dir.mktmpdir("alpha-pi-pkg-")
+    app = Dir.mktmpdir("alpha-pi-app-")
+    overlay = nil
+    begin
+      FileUtils.mkdir_p(File.join(app, "tmp"))
+      File.write(File.join(package, "auth.json"), "{}\n")
+      File.write(File.join(package, "settings.json"), "{}\n")
+      File.write(File.join(package, "models.json"), "{\"providers\":{}}\n")
+      FileUtils.mkdir_p(File.join(package, "node_modules"))
+
+      executor = Alpha::Executor::PiRpc.new(harness_dir: package)
+      target = Alpha::InferenceTarget.new(
+        base_url: "http://127.0.0.1:8080/v1",
+        model_id: "demo",
+        engine_preset: "demo"
+      )
+      overlay = executor.send(:materialize_harness_overlay, target)
+
+      probe = <<~RUBY
+        require "json"
+        dir = ENV.fetch("PI_CODING_AGENT_DIR")
+        settings = File.join(dir, "settings.json")
+        auth = File.join(dir, "auth.json")
+        lock = File.join(dir, "settings.json.lock")
+        Dir.mkdir(lock)
+        File.write(auth, JSON.generate({"openai-compatible" => {"type" => "api_key"}}))
+        File.write(File.join(dir, "probe-ok"), "1")
+        abort("settings missing") unless File.file?(settings)
+        abort("auth not writable") unless File.file?(auth)
+        abort("lock missing") unless File.directory?(lock)
+        puts "ok"
+      RUBY
+      File.write(File.join(app, "writable_probe.rb"), probe)
+
+      out, status = Alpha::Isolation.run(
+        RbConfig.ruby, "writable_probe.rb",
+        env: {
+          "PI_CODING_AGENT_DIR" => overlay,
+          "LANG" => "C.UTF-8"
+        },
+        chdir: app,
+        writable_paths: [ app, overlay ],
+        read_only_paths: [ package ],
+        network: false
+      )
+      assert status.success?, "overlay must be writable under Isolation: #{out}"
+      assert_includes out, "ok"
+      assert File.directory?(File.join(overlay, "settings.json.lock"))
+      assert_includes File.read(File.join(overlay, "auth.json")), "openai-compatible"
+      # Package tree itself stays RO / untouched by Pi state writes.
+      assert_equal "{}\n", File.read(File.join(package, "auth.json"))
+      refute File.exist?(File.join(package, "settings.json.lock"))
+    ensure
+      FileUtils.remove_entry(overlay) if overlay && File.directory?(overlay)
+      FileUtils.remove_entry(package) if package && File.directory?(package)
+      FileUtils.remove_entry(app) if app && File.directory?(app)
+    end
+  end
+
   test "File.exist?(PI_BIN) succeeds inside wrap when package root is bound" do
     root = Dir.mktmpdir("alpha-pi-harness-")
     app = Dir.mktmpdir("alpha-pi-app-")

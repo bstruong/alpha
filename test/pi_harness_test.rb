@@ -85,6 +85,13 @@ class PiHarnessTest < AlphaTest
       urls = Array(settings.dig("llamaSettings", "servers")).map { |s| s["url"] }
       assert urls.any?, "expected llamaSettings.servers"
       assert urls.all? { |u| u == "http://ai.example.test" }
+
+      auth = File.join(overlay, "auth.json")
+      assert File.file?(auth), "overlay must materialize auth.json"
+      refute File.symlink?(auth), "auth.json must be a copy so Isolation can write it"
+      File.write(auth, "{\"ok\":true}\n")
+      Dir.mkdir(File.join(overlay, "settings.json.lock"))
+      assert File.directory?(File.join(overlay, "settings.json.lock"))
     ensure
       FileUtils.remove_entry(overlay) if overlay && File.directory?(overlay)
     end
