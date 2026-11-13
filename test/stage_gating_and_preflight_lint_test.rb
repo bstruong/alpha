@@ -82,6 +82,38 @@ class StageGatingAndPreflightLintTest < AlphaTest
     FileUtils.rm_rf(temp_dir) if temp_dir
   end
 
+  test "Sandbox prefers local vendor/bundle then baked ALPHA_WEB_RAILS_BUNDLE" do
+    temp_dir = Dir.mktmpdir("alpha-bundle-path-test")
+    app_dir = File.join(temp_dir, "app")
+    FileUtils.mkdir_p(app_dir)
+    sandbox = Alpha::Sandbox.new(path: app_dir, work_dir: temp_dir)
+
+    previous = ENV["ALPHA_WEB_RAILS_BUNDLE"]
+    ENV.delete("ALPHA_WEB_RAILS_BUNDLE")
+    assert_nil sandbox.scenario_bundle_path
+    refute sandbox.child_env.key?("BUNDLE_PATH")
+    refute sandbox.agent_env.key?("BUNDLE_PATH")
+
+    baked = File.join(temp_dir, "baked-bundle")
+    FileUtils.mkdir_p(baked)
+    ENV["ALPHA_WEB_RAILS_BUNDLE"] = baked
+    assert_equal baked, sandbox.scenario_bundle_path
+    assert_equal baked, sandbox.child_env["BUNDLE_PATH"]
+    assert_equal baked, sandbox.agent_env["BUNDLE_PATH"]
+
+    local = File.join(app_dir, "vendor", "bundle")
+    FileUtils.mkdir_p(local)
+    assert_equal local, sandbox.scenario_bundle_path
+    assert_equal local, sandbox.child_env["BUNDLE_PATH"]
+  ensure
+    if previous
+      ENV["ALPHA_WEB_RAILS_BUNDLE"] = previous
+    else
+      ENV.delete("ALPHA_WEB_RAILS_BUNDLE")
+    end
+    FileUtils.rm_rf(temp_dir) if temp_dir
+  end
+
   test "self-repair helpers are removed from Runner" do
     runner = Alpha::Runner.new(scenario: Alpha::Scenario.load("qwen36-daily"))
     refute runner.respond_to?(:extract_failure_summary, true)

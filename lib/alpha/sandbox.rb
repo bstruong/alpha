@@ -78,6 +78,7 @@ module Alpha
         "RUBYOPT" => "",
         "HOME" => grader_home
       }
+      apply_scenario_bundle_path!(env)
       # Propagate Chrome binary for Ferrum/Cuprite product graders.
       %w[ALPHA_CHROME_PATH BROWSER_PATH CHROME_PATH CHROMIUM_FLAGS].each do |key|
         env[key] = ENV[key] if ENV[key] && !ENV[key].empty?
@@ -89,7 +90,7 @@ module Alpha
     # forces an empty temporary HOME inside the Linux namespace.
     def agent_env
       bindir = File.dirname(RbConfig.ruby)
-      {
+      env = {
         "PATH" => "#{bindir}#{File::PATH_SEPARATOR}#{Isolation::MINIMAL_PATH}",
         "RAILS_ENV" => "test",
         "BUNDLE_GEMFILE" => File.join(path, "Gemfile"),
@@ -99,6 +100,33 @@ module Alpha
         "TMPDIR" => "/tmp",
         "LANG" => ENV["LANG"] || "C.UTF-8"
       }
+      apply_scenario_bundle_path!(env)
+      env
+    end
+
+    # Prefer image-baked web-rails gems (alpha-runner), then a vendored tree
+    # copied with the library. Avoids Bundler::GemNotFound when the Job has no
+    # system gem cache and cannot rely on a dirty PVC vendor/bundle.
+    def scenario_bundle_path
+      local = File.join(path, "vendor", "bundle")
+      return local if File.directory?(local)
+
+      baked = ENV["ALPHA_WEB_RAILS_BUNDLE"]
+      return baked if baked && !baked.empty? && File.directory?(baked)
+
+      default_bake = "/usr/local/bundle/alpha-web-rails"
+      return default_bake if File.directory?(default_bake)
+
+      nil
+    end
+
+    def apply_scenario_bundle_path!(env)
+      bundle_path = scenario_bundle_path
+      return env unless bundle_path
+
+      env["BUNDLE_PATH"] = bundle_path
+      env["ALPHA_WEB_RAILS_BUNDLE"] = bundle_path
+      env
     end
 
     def agent_log_path

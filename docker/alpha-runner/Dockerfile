@@ -12,10 +12,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8
 
 # Node 22 for Pi harness (Debian bookworm ships Node 18).
+# libsqlite3-dev: native ext for scenarios/web-rails (sqlite3 gem).
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl git patch build-essential gnupg \
       bubblewrap \
       chromium chromium-driver \
+      libsqlite3-dev \
       python3 \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
@@ -34,6 +36,22 @@ RUN cd harness/pi && npm ci --omit=dev \
     && rm -rf /opt/alpha-build
 
 ENV PI_BIN=/opt/pi-harness/node_modules/.bin/pi
+
+# Pre-bake shared web-rails library gems (sandbox db:prepare + graders).
+# Same pattern as pi-harness: image-local cache under /usr (already bwrap RO),
+# so Watchtower Jobs do not need rubygems egress or a dirty PVC vendor/bundle.
+# Changing Gemfile.lock requires ./docker/alpha-runner/build-push.sh and a new
+# ALPHA_RUNNER_IMAGE digest pin on the next graded kick.
+ENV ALPHA_WEB_RAILS_BUNDLE=/usr/local/bundle/alpha-web-rails
+WORKDIR /opt/alpha-build/web-rails
+COPY scenarios/web-rails/library/Gemfile \
+     scenarios/web-rails/library/Gemfile.lock \
+     ./
+RUN bundle config set --local path "${ALPHA_WEB_RAILS_BUNDLE}" \
+    && bundle install --jobs "$(nproc)" \
+    && bundle clean --force \
+    && test -d "${ALPHA_WEB_RAILS_BUNDLE}" \
+    && rm -rf /opt/alpha-build /root/.bundle/cache /tmp/bundle*
 
 WORKDIR /workspace
 CMD ["/bin/bash"]
